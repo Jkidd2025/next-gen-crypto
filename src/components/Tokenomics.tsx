@@ -110,7 +110,6 @@ export const Tokenomics = () => {
               <span className="font-semibold">Max Wallet:</span>
               <span>20,000,000 tokens (2% of total supply)</span>
             </div>
-            <Separator />
             <div className="flex items-center gap-2">
               <span className="font-semibold">Max Transaction:</span>
               <span>5,000,000 tokens (0.5% of total supply)</span>
