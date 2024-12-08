@@ -3,12 +3,14 @@ import { OurStory } from "@/components/OurStory";
 import { Roadmap } from "@/components/Roadmap";
 import { TokenSwap } from "@/components/TokenSwap";
 import { PriceTracker } from "@/components/PriceTracker";
+import { Tokenomics } from "@/components/Tokenomics";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Hero />
       <OurStory />
+      <Tokenomics />
       <Roadmap />
       <TokenSwap />
       <PriceTracker />
