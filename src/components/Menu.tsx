@@ -10,6 +10,7 @@ export const Menu = () => {
   const menuItems = [
     { label: "Our Story", id: "our-story" },
     { label: "Tokenomics", id: "tokenomics" },
+    { label: "Roadmap", id: "roadmap" },
     { label: "Smart Contract", id: "smart-contract" },
     { label: "Community", id: "community" },
     { label: "Contact Us", id: "contact-us" }
