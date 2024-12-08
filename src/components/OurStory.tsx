@@ -7,7 +7,7 @@ export const OurStory = () => {
         <Card className="bg-white/5 border-primary/20">
           <CardContent className="p-8">
             <h2 className="text-4xl font-bold text-white mb-8 text-center">Our Story</h2>
-            <div className="space-y-6 text-gray-200">
+            <div className="space-y-6 text-black">
               <p>
                 Our journey began with a fascination for blockchain technology and its limitless potential to reshape industries and communities. Driven by curiosity and a vision to create something impactful, we embarked on a mission to build a venture that serves not only as a milestone for the technology and crypto community but also as an open door of opportunity for everyone.
               </p>
