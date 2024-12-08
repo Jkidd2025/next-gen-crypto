@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 export const Tokenomics = () => {
@@ -20,7 +19,7 @@ export const Tokenomics = () => {
     <section id="tokenomics" className="py-24 px-4 md:px-8 bg-gradient-to-b from-purple-50 to-white">
       <div className="max-w-6xl mx-auto space-y-12">
         <div className="text-center">
-          <h2 className="text-4xl font-bold mb-4">Tokenomics</h2>
+          <h2 className="text-4xl font-bold mb-4 text-primary">Tokenomics</h2>
           <p className="text-xl text-gray-600">Total Supply: 1,000,000,000 (1 Billion) tokens</p>
         </div>
 
