@@ -24,50 +24,36 @@ export const Menu = () => {
   };
 
   return (
-    <>
-      <div className="md:hidden fixed top-8 right-8 z-50">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors"
-              aria-label="Toggle menu"
-            >
-              <MenuIcon className="w-6 h-6 text-white" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="w-screen h-[calc(100vh-6rem)] mt-4 bg-white/90 backdrop-blur-md border-white/20"
-          >
-            <div className="flex flex-col gap-8">
-              {menuItems.map((item) => (
-                <DropdownMenuItem 
-                  key={item.label} 
-                  className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors"
-                  onClick={() => {
-                    scrollToSection(item.id);
-                    document.querySelector('[role="menuitem"]')?.closest('[role="menu"]')?.parentElement?.querySelector('button')?.click();
-                  }}
-                >
-                  {item.label}
-                </DropdownMenuItem>
-              ))}
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <div className="hidden md:flex fixed top-0 left-0 right-0 justify-center gap-12 z-50 bg-white/80 backdrop-blur-sm py-8 shadow-sm">
-        {menuItems.map((item) => (
+    <div className="md:hidden fixed top-8 right-8 z-50">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <button
-            key={item.label}
-            className="text-black hover:text-black/80 transition-colors text-lg font-medium"
-            onClick={() => scrollToSection(item.id)}
+            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors"
+            aria-label="Toggle menu"
           >
-            {item.label}
+            <MenuIcon className="w-6 h-6 text-white" />
           </button>
-        ))}
-      </div>
-    </>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="w-screen h-[calc(100vh-6rem)] mt-4 bg-white/90 backdrop-blur-md border-white/20"
+        >
+          <div className="flex flex-col gap-8">
+            {menuItems.map((item) => (
+              <DropdownMenuItem 
+                key={item.label} 
+                className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors"
+                onClick={() => {
+                  scrollToSection(item.id);
+                  document.querySelector('[role="menuitem"]')?.closest('[role="menu"]')?.parentElement?.querySelector('button')?.click();
+                }}
+              >
+                {item.label}
+              </DropdownMenuItem>
+            ))}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
