@@ -4,6 +4,7 @@ import { Roadmap } from "@/components/Roadmap";
 import { Tokenomics } from "@/components/Tokenomics";
 import { SmartContract } from "@/components/SmartContract";
 import { Community } from "@/components/Community";
+import { ContactUs } from "@/components/ContactUs";
 import { Menu } from "@/components/Menu";
 
 const Index = () => {
@@ -16,6 +17,7 @@ const Index = () => {
       <Tokenomics />
       <Roadmap />
       <SmartContract />
+      <ContactUs />
     </div>
   );
 };
