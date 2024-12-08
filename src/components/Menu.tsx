@@ -22,24 +22,25 @@ export const Menu = () => {
           <DropdownMenuTrigger className="p-2 rounded-full hover:bg-white/10 transition-colors">
             <MenuIcon className="h-6 w-6 text-white" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="fixed top-0 -left-12 w-[25vw] min-w-72 h-[100vh] bg-white p-6 animate-slide-in-left data-[state=closed]:animate-slide-out-left">
-            {({ close }) => (
-              <>
-                <div className="flex justify-end mb-6">
-                  <X 
-                    className="h-6 w-6 text-black cursor-pointer" 
-                    onClick={() => close()}
-                  />
-                </div>
-                <div className="flex flex-col gap-8">
-                  {menuItems.map((item) => (
-                    <DropdownMenuItem key={item} className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors">
-                      {item}
-                    </DropdownMenuItem>
-                  ))}
-                </div>
-              </>
-            )}
+          <DropdownMenuContent 
+            className="fixed top-0 -left-12 w-[25vw] min-w-72 h-[100vh] bg-white p-6 animate-slide-in-left data-[state=closed]:animate-slide-out-left"
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+            }}
+          >
+            <div className="flex justify-end mb-6">
+              <X 
+                className="h-6 w-6 text-black cursor-pointer" 
+                onClick={() => document.querySelector('[role="menuitem"]')?.closest('[role="menu"]')?.parentElement?.querySelector('button')?.click()}
+              />
+            </div>
+            <div className="flex flex-col gap-8">
+              {menuItems.map((item) => (
+                <DropdownMenuItem key={item} className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors">
+                  {item}
+                </DropdownMenuItem>
+              ))}
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
