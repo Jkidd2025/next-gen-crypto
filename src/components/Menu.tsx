@@ -1,4 +1,4 @@
-import { Menu as MenuIcon, X } from "lucide-react";
+import { Menu as MenuIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,24 +24,20 @@ export const Menu = () => {
 
   return (
     <>
-      {/* Mobile Menu */}
-      <div className="fixed top-4 left-4 md:hidden z-50">
+      <div className="md:hidden fixed top-8 right-8 z-50">
         <DropdownMenu>
-          <DropdownMenuTrigger className="p-2 rounded-full hover:bg-white/10 transition-colors">
-            <MenuIcon className="h-6 w-6 text-white" />
+          <DropdownMenuTrigger asChild>
+            <button
+              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors"
+              aria-label="Toggle menu"
+            >
+              <MenuIcon className="w-6 h-6 text-white" />
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            className="fixed top-0 -left-12 w-[25vw] min-w-72 h-[100vh] bg-white p-6 animate-slide-in-left data-[state=closed]:animate-slide-out-left"
-            onCloseAutoFocus={(event) => {
-              event.preventDefault();
-            }}
+          <DropdownMenuContent
+            align="end"
+            className="w-screen h-[calc(100vh-6rem)] mt-4 bg-white/90 backdrop-blur-md border-white/20"
           >
-            <div className="flex justify-end mb-6">
-              <X 
-                className="h-6 w-6 text-black cursor-pointer" 
-                onClick={() => document.querySelector('[role="menuitem"]')?.closest('[role="menu"]')?.parentElement?.querySelector('button')?.click()}
-              />
-            </div>
             <div className="flex flex-col gap-8">
               {menuItems.map((item) => (
                 <DropdownMenuItem 
@@ -60,12 +56,11 @@ export const Menu = () => {
         </DropdownMenu>
       </div>
 
-      {/* Desktop Menu */}
       <div className="hidden md:flex fixed top-8 left-0 right-0 justify-center gap-12 z-50">
         {menuItems.map((item) => (
           <button
             key={item.label}
-            className="text-white hover:text-white/80 transition-colors text-lg font-medium"
+            className="text-black hover:text-black/80 transition-colors text-lg font-medium"
             onClick={() => scrollToSection(item.id)}
           >
             {item.label}
