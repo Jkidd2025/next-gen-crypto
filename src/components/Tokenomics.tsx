@@ -100,8 +100,9 @@ export const Tokenomics = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              Anti-Whale Measures 🐋
+            <CardTitle className="flex items-center justify-between">
+              <span>Anti-Whale Measures</span>
+              <span className="text-2xl">🐋</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
