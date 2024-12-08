@@ -3,6 +3,7 @@ import { OurStory } from "@/components/OurStory";
 import { Roadmap } from "@/components/Roadmap";
 import { Tokenomics } from "@/components/Tokenomics";
 import { SmartContract } from "@/components/SmartContract";
+import { Community } from "@/components/Community";
 import { Menu } from "@/components/Menu";
 
 const Index = () => {
@@ -11,6 +12,7 @@ const Index = () => {
       <Menu />
       <Hero />
       <OurStory />
+      <Community />
       <Tokenomics />
       <Roadmap />
       <SmartContract />
