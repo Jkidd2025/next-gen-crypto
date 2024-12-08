@@ -9,7 +9,7 @@ export const Hero = () => {
           Next Generation Crypto
         </h1>
         <p className="text-xl md:text-2xl lg:text-3xl text-white mb-12 max-w-4xl mx-auto">
-          Join the community and be part of the revolution
+          Join the community and be part of the AI-Driven revolution
         </p>
       </div>
     </div>
