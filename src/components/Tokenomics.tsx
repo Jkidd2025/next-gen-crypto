@@ -25,7 +25,7 @@ export const Tokenomics = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          <Card>
+          <Card className="border-0 shadow-lg">
             <CardHeader>
               <CardTitle>Token Distribution</CardTitle>
             </CardHeader>
@@ -61,7 +61,7 @@ export const Tokenomics = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-0 shadow-lg">
             <CardHeader>
               <CardTitle>Transaction Tax (3%)</CardTitle>
             </CardHeader>
@@ -98,7 +98,7 @@ export const Tokenomics = () => {
           </Card>
         </div>
 
-        <Card>
+        <Card className="border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <span>Anti-Whale Measures</span>
