@@ -22,7 +22,7 @@ export const Menu = () => {
           <DropdownMenuTrigger className="p-2 rounded-full hover:bg-white/10 transition-colors">
             <MenuIcon className="h-6 w-6 text-white" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="fixed top-0 left-0 w-[25vw] min-w-72 h-[100vh] bg-white p-6 animate-slide-in-left data-[state=closed]:animate-slide-out-left">
+          <DropdownMenuContent className="fixed top-0 -left-4 w-[25vw] min-w-72 h-[100vh] bg-white p-6 animate-slide-in-left data-[state=closed]:animate-slide-out-left">
             <div className="flex justify-end mb-6">
               <X className="h-6 w-6 text-black cursor-pointer" />
             </div>
