@@ -56,7 +56,7 @@ export const Menu = () => {
         </DropdownMenu>
       </div>
 
-      <div className="hidden md:flex fixed top-8 left-0 right-0 justify-center gap-12 z-50">
+      <div className="hidden md:flex fixed top-0 left-0 right-0 justify-center gap-12 z-50 bg-white/80 backdrop-blur-sm py-8 shadow-sm">
         {menuItems.map((item) => (
           <button
             key={item.label}
