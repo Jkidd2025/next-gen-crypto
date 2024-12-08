@@ -71,13 +71,6 @@ export const SmartContract = () => {
             </div>
           </CardContent>
         </Card>
-
-        <div className="text-center">
-          <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
-          <p className="text-gray-600">
-            This isn't just about building a token; it's about building trust. With advanced security and thoughtful design, our smart contract demonstrates that technology, in the right hands, can empower communities and drive meaningful change.
-          </p>
-        </div>
       </div>
     </section>
   );
