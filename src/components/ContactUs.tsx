@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Facebook, Twitter, Tiktok } from "lucide-react";
+import { Facebook, Twitter, Instagram } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 export const ContactUs = () => {
@@ -87,12 +87,12 @@ export const ContactUs = () => {
                   <Twitter className="w-6 h-6 text-primary" />
                 </a>
                 <a
-                  href="https://tiktok.com"
+                  href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
                 >
-                  <Tiktok className="w-6 h-6 text-primary" />
+                  <Instagram className="w-6 h-6 text-primary" />
                 </a>
               </div>
             </div>
