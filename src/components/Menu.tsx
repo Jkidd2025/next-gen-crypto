@@ -8,12 +8,19 @@ import {
 
 export const Menu = () => {
   const menuItems = [
-    "Our Story",
-    "Tokenomics",
-    "Smart Contract",
-    "Community",
-    "Contact Us"
+    { label: "Our Story", id: "our-story" },
+    { label: "Tokenomics", id: "tokenomics" },
+    { label: "Smart Contract", id: "smart-contract" },
+    { label: "Community", id: "community" },
+    { label: "Contact Us", id: "contact-us" }
   ];
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <>
@@ -37,8 +44,15 @@ export const Menu = () => {
             </div>
             <div className="flex flex-col gap-8">
               {menuItems.map((item) => (
-                <DropdownMenuItem key={item} className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors">
-                  {item}
+                <DropdownMenuItem 
+                  key={item.label} 
+                  className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors"
+                  onClick={() => {
+                    scrollToSection(item.id);
+                    document.querySelector('[role="menuitem"]')?.closest('[role="menu"]')?.parentElement?.querySelector('button')?.click();
+                  }}
+                >
+                  {item.label}
                 </DropdownMenuItem>
               ))}
             </div>
@@ -50,10 +64,11 @@ export const Menu = () => {
       <div className="hidden md:flex fixed top-8 left-0 right-0 justify-center gap-12 z-50">
         {menuItems.map((item) => (
           <button
-            key={item}
+            key={item.label}
             className="text-white hover:text-white/80 transition-colors text-lg font-medium"
+            onClick={() => scrollToSection(item.id)}
           >
-            {item}
+            {item.label}
           </button>
         ))}
       </div>

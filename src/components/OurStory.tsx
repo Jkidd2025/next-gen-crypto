@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export const OurStory = () => {
   return (
-    <section className="py-16 px-4 md:px-8 bg-gradient-radial from-primary/10 via-background to-background">
+    <section id="our-story" className="py-16 px-4 md:px-8 bg-gradient-radial from-primary/10 via-background to-background">
       <div className="max-w-4xl mx-auto">
         <Card className="bg-white/5 border-primary/20">
           <CardContent className="p-8">
