@@ -10,6 +10,7 @@ export const Menu = () => {
   const menuItems = [
     "Our Story",
     "Tokenomics",
+    "Smart Contract Security Controls",
     "Community",
     "Contact Us"
   ];
