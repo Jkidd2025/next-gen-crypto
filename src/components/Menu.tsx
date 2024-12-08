@@ -1,4 +1,4 @@
-import { Menu as MenuIcon } from "lucide-react";
+import { Menu as MenuIcon, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,12 +22,17 @@ export const Menu = () => {
           <DropdownMenuTrigger className="p-2 rounded-full hover:bg-white/10 transition-colors">
             <MenuIcon className="h-6 w-6 text-white" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            {menuItems.map((item) => (
-              <DropdownMenuItem key={item} className="cursor-pointer text-lg py-3">
-                {item}
-              </DropdownMenuItem>
-            ))}
+          <DropdownMenuContent className="fixed top-0 left-0 w-screen h-screen bg-white p-6 animate-slide-in-left data-[state=closed]:animate-slide-out-left">
+            <div className="flex justify-end mb-6">
+              <X className="h-6 w-6 text-black cursor-pointer" />
+            </div>
+            <div className="flex flex-col gap-8">
+              {menuItems.map((item) => (
+                <DropdownMenuItem key={item} className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors">
+                  {item}
+                </DropdownMenuItem>
+              ))}
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
