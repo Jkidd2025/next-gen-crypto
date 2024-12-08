@@ -7,19 +7,42 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const Menu = () => {
+  const menuItems = [
+    "Our Story",
+    "Tokenomics",
+    "Community",
+    "Contact Us"
+  ];
+
   return (
-    <div className="fixed top-4 left-4 md:top-8 md:left-8 z-50">
-      <DropdownMenu>
-        <DropdownMenuTrigger className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <MenuIcon className="h-6 w-6 md:h-8 md:w-8 text-white" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          <DropdownMenuItem className="cursor-pointer text-lg py-3">Our Story</DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer text-lg py-3">Tokenomics</DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer text-lg py-3">Community</DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer text-lg py-3">Contact Us</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+    <>
+      {/* Mobile Menu */}
+      <div className="fixed top-4 left-4 md:hidden z-50">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="p-2 rounded-full hover:bg-white/10 transition-colors">
+            <MenuIcon className="h-6 w-6 text-white" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            {menuItems.map((item) => (
+              <DropdownMenuItem key={item} className="cursor-pointer text-lg py-3">
+                {item}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Desktop Menu */}
+      <div className="hidden md:flex fixed top-8 left-0 right-0 justify-center gap-12 z-50">
+        {menuItems.map((item) => (
+          <button
+            key={item}
+            className="text-white hover:text-white/80 transition-colors text-lg font-medium"
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+    </>
   );
 };
