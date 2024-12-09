@@ -5,6 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Analytics } from "@/components/Analytics";
 import { Overview } from "@/components/Overview";
 import { DashboardCommunity } from "@/components/DashboardCommunity";
+import { Reports } from "@/components/Reports";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const Dashboard = () => {
       case "/dashboard/community":
         return <DashboardCommunity />;
       case "/dashboard/reports":
-        return <div>Reports Content</div>;
+        return <Reports />;
       case "/dashboard/settings":
         return <div>Settings Content</div>;
       default:
