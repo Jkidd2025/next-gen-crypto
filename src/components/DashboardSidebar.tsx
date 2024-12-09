@@ -1,0 +1,45 @@
+import { Home, BarChart3, Settings, Users, FileText } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+
+const menuItems = [
+  { title: "Overview", icon: Home, url: "/dashboard" },
+  { title: "Analytics", icon: BarChart3, url: "/dashboard/analytics" },
+  { title: "Users", icon: Users, url: "/dashboard/users" },
+  { title: "Reports", icon: FileText, url: "/dashboard/reports" },
+  { title: "Settings", icon: Settings, url: "/dashboard/settings" },
+];
+
+export function DashboardSidebar() {
+  return (
+    <Sidebar>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+}
