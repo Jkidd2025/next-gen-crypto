@@ -27,9 +27,7 @@ export const Reports = () => {
   const usdBalance = walletStats.balance * walletStats.solPrice;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Reports</h1>
-      
+    <div className="space-y-6">      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -65,15 +63,7 @@ export const Reports = () => {
               {isWalletConnected ? (
                 `${walletStats.balance.toLocaleString()} SOL`
               ) : (
-                <Button 
-                  onClick={connectWallet}
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                >
-                  <Wallet className="mr-2 h-4 w-4" />
-                  Connect Wallet
-                </Button>
+                <div className="text-gray-500">Connect wallet to view balance</div>
               )}
             </div>
           </CardContent>
