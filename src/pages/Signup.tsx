@@ -23,10 +23,10 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/20 to-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 bg-white/10 backdrop-blur-md p-8 rounded-lg border border-white/20">
+      <div className="w-full max-w-md space-y-8 bg-white/95 backdrop-blur-md p-8 rounded-lg border border-white/20">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-white">Create Account</h2>
-          <p className="mt-2 text-white/80">Join our community today</p>
+          <h2 className="text-3xl font-bold text-black">Create Account</h2>
+          <p className="mt-2 text-black/80">Join our community today</p>
         </div>
         
         <form onSubmit={handleSignup} className="mt-8 space-y-6">
@@ -37,7 +37,7 @@ const Signup = () => {
                 placeholder="First Name"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className="bg-white border-gray-200 text-black placeholder:text-gray-500"
                 required
               />
             </div>
@@ -47,7 +47,7 @@ const Signup = () => {
                 placeholder="Last Name"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className="bg-white border-gray-200 text-black placeholder:text-gray-500"
                 required
               />
             </div>
@@ -57,7 +57,7 @@ const Signup = () => {
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className="bg-white border-gray-200 text-black placeholder:text-gray-500"
                 required
               />
             </div>
@@ -70,7 +70,7 @@ const Signup = () => {
             Sign up
           </Button>
 
-          <p className="text-center text-sm text-white">
+          <p className="text-center text-sm text-black">
             Already have an account?{" "}
             <Link
               to="/login"
