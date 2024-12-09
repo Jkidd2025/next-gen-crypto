@@ -36,12 +36,12 @@ const tokenCounselMembers = [
 
 export const DashboardCommunity = () => {
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <Card>
-        <CardContent className="p-6">
-          <div className="prose prose-lg max-w-none space-y-6">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <Card className="w-full">
+        <CardContent className="p-4 sm:p-6">
+          <div className="space-y-6">
             <p className="text-xl">Welcome to our hub!</p>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Card>
                 <CardContent className="p-4 space-y-2">
                   <h3 className="text-lg font-semibold">Active Members</h3>
@@ -59,14 +59,14 @@ export const DashboardCommunity = () => {
         </CardContent>
       </Card>
       
-      <Card>
-        <CardContent className="p-6">
+      <Card className="w-full">
+        <CardContent className="p-4 sm:p-6">
           <h2 className="text-2xl font-semibold mb-6">Token Counsel Members</h2>
-          <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4">
+          <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent -mx-4 px-4 sm:-mx-6 sm:px-6">
             {tokenCounselMembers.map((member, index) => (
-              <Card key={index} className="flex-shrink-0 w-64">
+              <Card key={index} className="flex-shrink-0 w-[280px] sm:w-[320px]">
                 <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                  <Avatar className="w-24 h-24">
+                  <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
                     <AvatarImage src={member.image} alt={member.name} />
                     <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                   </Avatar>
