@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Analytics } from "@/components/Analytics";
 import { Card, CardContent } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -41,35 +42,9 @@ const Dashboard = () => {
               </Button>
             </div>
             
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-sm text-gray-500">Price USD</div>
-                  <div className="text-2xl font-bold">$0.002571</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-sm text-gray-500">24h Volume</div>
-                  <div className="text-2xl font-bold">$1,234,567</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-sm text-gray-500">Market Cap</div>
-                  <div className="text-2xl font-bold">$9,876,543</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-sm text-gray-500">24h Change</div>
-                  <div className="text-2xl font-bold text-green-500">+2.5%</div>
-                </CardContent>
-              </Card>
-            </div>
+            <Analytics />
 
-            {/* Chart */}
+            {/* Price Chart */}
             <Card className="p-6">
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -87,35 +62,6 @@ const Dashboard = () => {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-            </Card>
-
-            {/* Transactions Table */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Time</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Price</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {transactions.map((tx, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{tx.time}</TableCell>
-                        <TableCell className={tx.type === 'Buy' ? 'text-green-500' : 'text-red-500'}>
-                          {tx.type}
-                        </TableCell>
-                        <TableCell>{tx.amount}</TableCell>
-                        <TableCell>{tx.price}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
             </Card>
           </div>
         </main>
