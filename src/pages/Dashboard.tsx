@@ -17,7 +17,7 @@ const Dashboard = () => {
         <main className="flex-1 bg-gradient-to-b from-primary/20 to-background p-4">
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-bold text-black">Dashboard</h1>
+              <h1 className="text-3xl font-bold text-black">Overview</h1>
               <Button variant="outline" onClick={handleLogout}>
                 Logout
               </Button>
