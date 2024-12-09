@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { title: "Analytics", icon: Home, url: "/dashboard" },
+  { title: "Overview", icon: Home, url: "/dashboard" },
   { title: "Analytics", icon: BarChart3, url: "/dashboard/analytics" },
   { title: "Token Swap", icon: Repeat, url: "/dashboard/swap" },
   { title: "Reports", icon: FileText, url: "/dashboard/reports" },
