@@ -41,6 +41,15 @@ export const WalletStats = ({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">SOL Price</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">${solPrice.toLocaleString()}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Your Balance</CardTitle>
         </CardHeader>
         <CardContent>
@@ -61,15 +70,6 @@ export const WalletStats = ({
               </button>
             )}
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">SOL Price</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">${solPrice.toLocaleString()}</div>
         </CardContent>
       </Card>
     </div>
