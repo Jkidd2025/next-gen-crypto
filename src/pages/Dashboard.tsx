@@ -10,7 +10,7 @@ const Dashboard = () => {
   const location = useLocation();
 
   const handleLogout = () => {
-    navigate("/login");
+    navigate("/");
   };
 
   const renderContent = () => {
