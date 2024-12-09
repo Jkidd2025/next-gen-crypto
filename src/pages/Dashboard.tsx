@@ -6,6 +6,7 @@ import { Analytics } from "@/components/Analytics";
 import { Overview } from "@/components/Overview";
 import { DashboardCommunity } from "@/components/DashboardCommunity";
 import { Reports } from "@/components/Reports";
+import { Settings } from "@/components/Settings";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const Dashboard = () => {
       case "/dashboard/reports":
         return <Reports />;
       case "/dashboard/settings":
-        return <div>Settings Content</div>;
+        return <Settings />;
       default:
         return <Overview />;
     }
