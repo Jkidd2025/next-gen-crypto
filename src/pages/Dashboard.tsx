@@ -4,6 +4,7 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Analytics } from "@/components/Analytics";
 import { Overview } from "@/components/Overview";
+import { DashboardCommunity } from "@/components/DashboardCommunity";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ const Dashboard = () => {
         return <Overview />;
       case "/dashboard/analytics":
         return <Analytics />;
+      case "/dashboard/community":
+        return <DashboardCommunity />;
       case "/dashboard/reports":
         return <div>Reports Content</div>;
       case "/dashboard/settings":

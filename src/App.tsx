@@ -18,6 +18,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/dashboard/*" element={<Dashboard />} />
         <Route path="/dashboard/swap" element={<TokenSwap />} />
+        <Route path="/dashboard/community" element={<Dashboard />} />
       </Routes>
     </Router>
   );

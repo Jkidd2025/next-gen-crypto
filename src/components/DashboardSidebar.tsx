@@ -1,4 +1,4 @@
-import { Home, BarChart3, Settings, FileText, Repeat } from "lucide-react";
+import { Home, BarChart3, Settings, FileText, Repeat, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +13,7 @@ const menuItems = [
   { title: "Overview", icon: Home, url: "/dashboard" },
   { title: "Analytics", icon: BarChart3, url: "/dashboard/analytics" },
   { title: "Token Swap", icon: Repeat, url: "/dashboard/swap" },
+  { title: "Community", icon: Users, url: "/dashboard/community" },
   { title: "Reports", icon: FileText, url: "/dashboard/reports" },
   { title: "Settings", icon: Settings, url: "/dashboard/settings" },
 ];
