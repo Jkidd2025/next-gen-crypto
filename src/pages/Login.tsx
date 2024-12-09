@@ -12,11 +12,13 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual login logic
+    // This is a temporary solution for demonstration
+    // In a real application, you would validate credentials against a backend
     toast({
-      title: "Login attempted",
-      description: "This is a placeholder. Implement actual login logic.",
+      title: "Success",
+      description: "Logged in successfully",
     });
+    navigate("/dashboard");
   };
 
   return (
