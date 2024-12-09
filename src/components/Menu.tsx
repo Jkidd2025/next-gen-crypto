@@ -1,4 +1,5 @@
 import { Menu as MenuIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const Menu = () => {
+  const navigate = useNavigate();
   const menuItems = [
     { label: "Our Story", id: "our-story" },
     { label: "Tokenomics", id: "tokenomics" },
@@ -53,7 +55,10 @@ export const Menu = () => {
                   {item.label}
                 </DropdownMenuItem>
               ))}
-              <DropdownMenuItem className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors">
+              <DropdownMenuItem 
+                className="cursor-pointer text-xl py-4 text-black hover:text-primary transition-colors"
+                onClick={() => navigate("/login")}
+              >
                 Holder Log-In
               </DropdownMenuItem>
             </div>
@@ -65,6 +70,7 @@ export const Menu = () => {
         <Button 
           variant="outline" 
           className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white font-medium"
+          onClick={() => navigate("/login")}
         >
           Holder Log-In
         </Button>
