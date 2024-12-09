@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Bell, Moon, Upload, User, MessagesSquare } from "lucide-react";
+import { Bell, Moon, Upload, User, MessagesSquare, AtSign } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Settings = () => {
@@ -70,10 +70,22 @@ export const Settings = () => {
             <div className="space-y-0.5">
               <Label className="flex items-center gap-2">
                 <MessagesSquare className="h-4 w-4" />
-                Community Messages
+                All Community Messages
               </Label>
               <div className="text-sm text-muted-foreground">
-                Receive notifications for new messages in community discussions
+                Receive notifications for all new messages in community discussions
+              </div>
+            </div>
+            <Switch />
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="flex items-center gap-2">
+                <AtSign className="h-4 w-4" />
+                Mentions
+              </Label>
+              <div className="text-sm text-muted-foreground">
+                Receive notifications when you are mentioned in community discussions
               </div>
             </div>
             <Switch />
