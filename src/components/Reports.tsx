@@ -41,12 +41,15 @@ export const Reports = () => {
               {isWalletConnected ? (
                 `$${usdBalance.toLocaleString()}`
               ) : (
-                <button
+                <Button 
                   onClick={connectWallet}
-                  className="text-sm text-primary hover:underline"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
                 >
+                  <Wallet className="mr-2 h-4 w-4" />
                   Connect Wallet
-                </button>
+                </Button>
               )}
             </div>
           </CardContent>
@@ -62,9 +65,15 @@ export const Reports = () => {
               {isWalletConnected ? (
                 `${walletStats.balance.toLocaleString()} SOL`
               ) : (
-                <span className="text-sm text-muted-foreground">
-                  Connect wallet to view balance
-                </span>
+                <Button 
+                  onClick={connectWallet}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                >
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Connect Wallet
+                </Button>
               )}
             </div>
           </CardContent>
