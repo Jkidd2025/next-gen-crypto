@@ -3,6 +3,7 @@ import { WalletStats } from "./analytics/WalletStats";
 import { TokenDistributionTable } from "./analytics/TokenDistributionTable";
 import { TransactionsTable } from "./analytics/TransactionsTable";
 import { HoldersList } from "./analytics/HoldersList";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface WalletStats {
   totalHolders: number;
@@ -88,6 +89,28 @@ export const Analytics = () => {
         isWalletConnected={isWalletConnected}
         onConnectWallet={connectWallet}
       />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Network Statistics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Total Holders</h3>
+              <p className="text-2xl font-bold mt-1">{walletStats.totalHolders.toLocaleString()}</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Transaction Count</h3>
+              <p className="text-2xl font-bold mt-1">{walletStats.transactionCount.toLocaleString()}</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Transaction Volume</h3>
+              <p className="text-2xl font-bold mt-1">${walletStats.transactionVolume.toLocaleString()}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <TokenDistributionTable distribution={tokenDistribution} />

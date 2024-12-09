@@ -13,17 +13,13 @@ interface WalletStatsProps {
 }
 
 export const WalletStats = ({
-  totalHolders,
-  marketValue,
   balance,
   solPrice,
-  transactionCount,
-  transactionVolume,
   isWalletConnected,
   onConnectWallet
 }: WalletStatsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Your Balance</CardTitle>
@@ -52,28 +48,10 @@ export const WalletStats = ({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Holders</CardTitle>
+          <CardTitle className="text-sm font-medium">SOL Price</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalHolders.toLocaleString()}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Transaction Count</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{transactionCount.toLocaleString()}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Transaction Volume</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">${transactionVolume.toLocaleString()}</div>
+          <div className="text-2xl font-bold">${solPrice.toLocaleString()}</div>
         </CardContent>
       </Card>
     </div>
