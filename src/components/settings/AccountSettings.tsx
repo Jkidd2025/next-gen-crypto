@@ -13,6 +13,7 @@ export const AccountSettings = () => {
         <div className="space-y-2">
           <Label>Email Address</Label>
           <Input type="email" placeholder="Enter your email" />
+          <Button className="w-full">Update Email</Button>
         </div>
         <div className="space-y-2">
           <Label>Current Password</Label>
@@ -26,8 +27,7 @@ export const AccountSettings = () => {
           <Label>Confirm New Password</Label>
           <Input type="password" placeholder="Confirm new password" />
         </div>
-        <div className="pt-4 space-y-4">
-          <Button className="w-full">Update Email</Button>
+        <div className="pt-4">
           <Button className="w-full">Change Password</Button>
         </div>
       </CardContent>
