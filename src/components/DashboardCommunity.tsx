@@ -70,7 +70,7 @@ export const DashboardCommunity = () => {
       <Card>
         <CardContent className="p-6">
           <div className="prose prose-lg max-w-none space-y-6">
-            <p className="text-xl">Welcome to our community hub!</p>
+            <p className="text-xl">Welcome to our hub!</p>
             <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardContent className="p-4 space-y-2">
