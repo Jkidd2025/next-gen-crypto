@@ -36,56 +36,60 @@ const tokenCounselMembers = [
 
 export const DashboardCommunity = () => {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <Card className="w-full">
-        <CardContent className="p-4 sm:p-6">
-          <div className="space-y-6">
-            <p className="text-xl">Welcome to our hub!</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card>
-                <CardContent className="p-4 space-y-2">
-                  <h3 className="text-lg font-semibold">Active Members</h3>
-                  <p className="text-3xl font-bold">5,234</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 space-y-2">
-                  <h3 className="text-lg font-semibold">Daily Discussions</h3>
-                  <p className="text-3xl font-bold">127</p>
-                </CardContent>
-              </Card>
+    <div className="h-full w-full overflow-x-hidden">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <Card className="w-full">
+          <CardContent className="p-4 sm:p-6">
+            <div className="space-y-6">
+              <p className="text-xl">Welcome to our hub!</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Card>
+                  <CardContent className="p-4 space-y-2">
+                    <h3 className="text-lg font-semibold">Active Members</h3>
+                    <p className="text-3xl font-bold">5,234</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 space-y-2">
+                    <h3 className="text-lg font-semibold">Daily Discussions</h3>
+                    <p className="text-3xl font-bold">127</p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card className="w-full">
-        <CardContent className="p-4 sm:p-6">
-          <h2 className="text-2xl font-semibold mb-6">Token Counsel Members</h2>
-          <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent -mx-4 px-4 sm:-mx-6 sm:px-6">
-            {tokenCounselMembers.map((member, index) => (
-              <Card key={index} className="flex-shrink-0 w-[280px] sm:w-[320px]">
-                <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                  <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
-                    <AvatarImage src={member.image} alt={member.name} />
-                    <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">{member.name}</h3>
-                    <p className="text-sm text-gray-500">{member.role}</p>
-                  </div>
-                  <a 
-                    href={member.contact}
-                    className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
-                  >
-                    Contact
-                  </a>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+        
+        <Card className="w-full">
+          <CardContent className="p-4 sm:p-6">
+            <h2 className="text-2xl font-semibold mb-6">Token Counsel Members</h2>
+            <div className="relative">
+              <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                {tokenCounselMembers.map((member, index) => (
+                  <Card key={index} className="flex-shrink-0 w-[280px] sm:w-[320px]">
+                    <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
+                      <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
+                        <AvatarImage src={member.image} alt={member.name} />
+                        <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold">{member.name}</h3>
+                        <p className="text-sm text-gray-500">{member.role}</p>
+                      </div>
+                      <a 
+                        href={member.contact}
+                        className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
+                      >
+                        Contact
+                      </a>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
