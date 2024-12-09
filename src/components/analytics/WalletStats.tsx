@@ -49,12 +49,9 @@ export const WalletStats = ({
             {isWalletConnected ? (
               `${balance.toLocaleString()} SOL`
             ) : (
-              <button
-                onClick={onConnectWallet}
-                className="text-sm text-primary hover:underline"
-              >
-                Connect Wallet
-              </button>
+              <span className="text-sm text-muted-foreground">
+                Connect wallet to view balance
+              </span>
             )}
           </div>
         </CardContent>
