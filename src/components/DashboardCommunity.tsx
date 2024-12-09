@@ -37,36 +37,6 @@ const tokenCounselMembers = [
 export const DashboardCommunity = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold">Community</h1>
-      
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-2xl font-semibold mb-6">Token Counsel Members</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-            {tokenCounselMembers.map((member, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage src={member.image} alt={member.name} />
-                    <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">{member.name}</h3>
-                    <p className="text-sm text-gray-500">{member.role}</p>
-                  </div>
-                  <a 
-                    href={member.contact}
-                    className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
-                  >
-                    Contact
-                  </a>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       <Card>
         <CardContent className="p-6">
           <div className="prose prose-lg max-w-none space-y-6">
@@ -85,6 +55,34 @@ export const DashboardCommunity = () => {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-2xl font-semibold mb-6">Token Counsel Members</h2>
+          <div className="flex flex-nowrap gap-4 overflow-x-auto pb-4">
+            {tokenCounselMembers.map((member, index) => (
+              <Card key={index} className="flex-shrink-0 w-64">
+                <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage src={member.image} alt={member.name} />
+                    <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-semibold">{member.name}</h3>
+                    <p className="text-sm text-gray-500">{member.role}</p>
+                  </div>
+                  <a 
+                    href={member.contact}
+                    className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
+                  >
+                    Contact
+                  </a>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </CardContent>
       </Card>
