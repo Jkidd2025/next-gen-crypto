@@ -36,7 +36,7 @@ const Dashboard = () => {
         <main className="flex-1 bg-gradient-to-b from-primary/5 to-background p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-black">Overview</h1>
+              <h1 className="text-3xl font-bold text-black">Analytics</h1>
               <Button variant="outline" onClick={handleLogout}>
                 Logout
               </Button>
