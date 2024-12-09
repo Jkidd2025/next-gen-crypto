@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { WalletStats } from "./analytics/WalletStats";
 import { TokenDistributionTable } from "./analytics/TokenDistributionTable";
 import { TransactionsTable } from "./analytics/TransactionsTable";
 import { HoldersList } from "./analytics/HoldersList";
@@ -73,23 +72,8 @@ export const Analytics = () => {
     }
   ];
 
-  const connectWallet = async () => {
-    try {
-      setIsWalletConnected(true);
-      console.log("Wallet connected");
-    } catch (error) {
-      console.error("Failed to connect wallet:", error);
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <WalletStats
-        {...walletStats}
-        isWalletConnected={isWalletConnected}
-        onConnectWallet={connectWallet}
-      />
-      
+    <div className="space-y-6">      
       <Card>
         <CardHeader>
           <CardTitle>Network Statistics</CardTitle>
