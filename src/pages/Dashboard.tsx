@@ -5,27 +5,9 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useTokenPrice } from "@/services/dexscreener";
-import { useToast } from "@/components/ui/use-toast";
-import { useEffect } from "react";
-
-// Sample token address - replace with your actual deployed token address
-const TOKEN_ADDRESS = "0x123..."; // Replace with your token's address
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { data: tokenData, isError, isLoading } = useTokenPrice(TOKEN_ADDRESS);
-
-  useEffect(() => {
-    if (isError) {
-      toast({
-        variant: "destructive",
-        title: "Error fetching token data",
-        description: "Please try again later",
-      });
-    }
-  }, [isError, toast]);
 
   const handleLogout = () => {
     navigate("/login");
@@ -64,33 +46,25 @@ const Dashboard = () => {
               <Card>
                 <CardContent className="p-6">
                   <div className="text-sm text-gray-500">Price USD</div>
-                  <div className="text-2xl font-bold">
-                    ${isLoading ? "..." : Number(tokenData?.priceUsd).toFixed(6)}
-                  </div>
+                  <div className="text-2xl font-bold">$0.002571</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-6">
                   <div className="text-sm text-gray-500">24h Volume</div>
-                  <div className="text-2xl font-bold">
-                    ${isLoading ? "..." : Number(tokenData?.volume24h).toLocaleString()}
-                  </div>
+                  <div className="text-2xl font-bold">$1,234,567</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-6">
                   <div className="text-sm text-gray-500">Market Cap</div>
-                  <div className="text-2xl font-bold">
-                    ${isLoading ? "..." : Number(tokenData?.marketCap).toLocaleString()}
-                  </div>
+                  <div className="text-2xl font-bold">$9,876,543</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-6">
                   <div className="text-sm text-gray-500">24h Change</div>
-                  <div className={`text-2xl font-bold ${Number(tokenData?.priceChange24h) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {isLoading ? "..." : `${Number(tokenData?.priceChange24h).toFixed(2)}%`}
-                  </div>
+                  <div className="text-2xl font-bold text-green-500">+2.5%</div>
                 </CardContent>
               </Card>
             </div>
