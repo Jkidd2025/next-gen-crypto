@@ -40,6 +40,7 @@ export const Settings = () => {
               <Input type="text" placeholder="Enter your last name" />
             </div>
           </div>
+          <Button className="w-full">Save Profile</Button>
         </CardContent>
       </Card>
 
