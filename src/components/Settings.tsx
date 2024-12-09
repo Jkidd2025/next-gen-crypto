@@ -7,9 +7,9 @@ export const Settings = () => {
   return (
     <div className="space-y-6">
       <ProfileSettings />
+      <AccountSettings />
       <NotificationSettings />
       <AppearanceSettings />
-      <AccountSettings />
     </div>
   );
 };
