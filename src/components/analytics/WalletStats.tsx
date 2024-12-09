@@ -6,6 +6,8 @@ interface WalletStatsProps {
   marketValue: number;
   balance: number;
   solPrice: number;
+  transactionCount: number;
+  transactionVolume: number;
   isWalletConnected: boolean;
   onConnectWallet: () => void;
 }
@@ -15,6 +17,8 @@ export const WalletStats = ({
   marketValue,
   balance,
   solPrice,
+  transactionCount,
+  transactionVolume,
   isWalletConnected,
   onConnectWallet
 }: WalletStatsProps) => {
@@ -57,19 +61,19 @@ export const WalletStats = ({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Market Value (USD)</CardTitle>
+          <CardTitle className="text-sm font-medium">Transaction Count</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${marketValue.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{transactionCount.toLocaleString()}</div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">SOL Price</CardTitle>
+          <CardTitle className="text-sm font-medium">Transaction Volume</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${solPrice.toLocaleString()}</div>
+          <div className="text-2xl font-bold">${transactionVolume.toLocaleString()}</div>
         </CardContent>
       </Card>
     </div>
