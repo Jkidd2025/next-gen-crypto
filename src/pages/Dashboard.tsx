@@ -7,6 +7,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTokenPrice } from "@/services/dexscreener";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect } from "react";
 
 // Sample token address - replace with your actual deployed token address
 const TOKEN_ADDRESS = "0x123..."; // Replace with your token's address
@@ -16,32 +17,34 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { data: tokenData, isError, isLoading } = useTokenPrice(TOKEN_ADDRESS);
 
+  useEffect(() => {
+    if (isError) {
+      toast({
+        variant: "destructive",
+        title: "Error fetching token data",
+        description: "Please try again later",
+      });
+    }
+  }, [isError, toast]);
+
   const handleLogout = () => {
     navigate("/login");
   };
 
-  if (isError) {
-    toast({
-      variant: "destructive",
-      title: "Error fetching token data",
-      description: "Please try again later",
-    });
-  }
+  const data = [
+    { time: '00:00', price: 0.002590 },
+    { time: '06:00', price: 0.002727 },
+    { time: '12:00', price: 0.002463 },
+    { time: '18:00', price: 0.002590 },
+    { time: '24:00', price: 0.002571 },
+  ];
 
-const data = [
-  { time: '00:00', price: 0.002590 },
-  { time: '06:00', price: 0.002727 },
-  { time: '12:00', price: 0.002463 },
-  { time: '18:00', price: 0.002590 },
-  { time: '24:00', price: 0.002571 },
-];
-
-const transactions = [
-  { time: '16s ago', type: 'Buy', amount: '2,452.84', price: '$0.002571' },
-  { time: '18s ago', type: 'Buy', amount: '18,419', price: '$0.002571' },
-  { time: '20s ago', type: 'Sell', amount: '322,205', price: '$0.002571' },
-  { time: '21s ago', type: 'Sell', amount: '3,705.96', price: '$0.002585' },
-];
+  const transactions = [
+    { time: '16s ago', type: 'Buy', amount: '2,452.84', price: '$0.002571' },
+    { time: '18s ago', type: 'Buy', amount: '18,419', price: '$0.002571' },
+    { time: '20s ago', type: 'Sell', amount: '322,205', price: '$0.002571' },
+    { time: '21s ago', type: 'Sell', amount: '3,705.96', price: '$0.002585' },
+  ];
 
   return (
     <SidebarProvider>
