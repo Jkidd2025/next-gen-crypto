@@ -54,7 +54,7 @@ export const CommentsList = () => {
         id,
         content,
         created_at,
-        profiles!comments_user_id_fkey (
+        profiles:user_id (
           username,
           avatar_url
         )
