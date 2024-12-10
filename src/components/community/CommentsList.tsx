@@ -54,7 +54,7 @@ export const CommentsList = () => {
         id,
         content,
         created_at,
-        profiles:user_id (
+        profiles (
           username,
           avatar_url
         )
@@ -71,15 +71,8 @@ export const CommentsList = () => {
       return;
     }
 
-    // Transform the data to match our Comment interface
-    const transformedComments = data?.map(comment => ({
-      id: comment.id,
-      content: comment.content,
-      created_at: comment.created_at,
-      profiles: comment.profiles || null
-    })) || [];
-
-    setComments(transformedComments);
+    console.log('Fetched comments:', data);
+    setComments(data || []);
   };
 
   const handleSubmitComment = async () => {
