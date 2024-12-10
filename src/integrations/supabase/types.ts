@@ -9,7 +9,114 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      analytics: {
+        Row: {
+          id: string
+          market_value: number | null
+          recorded_at: string
+          total_holders: number | null
+          transaction_count: number | null
+          transaction_volume: number | null
+        }
+        Insert: {
+          id?: string
+          market_value?: number | null
+          recorded_at?: string
+          total_holders?: number | null
+          transaction_count?: number | null
+          transaction_volume?: number | null
+        }
+        Update: {
+          id?: string
+          market_value?: number | null
+          recorded_at?: string
+          total_holders?: number | null
+          transaction_count?: number | null
+          transaction_volume?: number | null
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      token_counsel_members: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
