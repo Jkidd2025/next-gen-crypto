@@ -10,9 +10,9 @@ interface Comment {
   id: string;
   content: string;
   created_at: string;
-  user: {
-    username: string;
-    avatar_url: string;
+  profiles: {
+    username: string | null;
+    avatar_url: string | null;
   };
 }
 
@@ -54,7 +54,7 @@ export const CommentsList = () => {
         id,
         content,
         created_at,
-        profiles (
+        profiles!comments_user_id_fkey (
           username,
           avatar_url
         )
@@ -71,15 +71,38 @@ export const CommentsList = () => {
       return;
     }
 
-    setComments(data || []);
+    // Transform the data to match our Comment interface
+    const transformedComments = data?.map(comment => ({
+      ...comment,
+      profiles: comment.profiles || { username: null, avatar_url: null }
+    })) || [];
+
+    setComments(transformedComments);
   };
 
   const handleSubmitComment = async () => {
     if (!newComment.trim()) return;
 
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to post comments.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const { error } = await supabase
       .from('comments')
-      .insert([{ content: newComment.trim() }]);
+      .insert({
+        content: newComment.trim(),
+        user_id: user.id
+      });
 
     if (error) {
       console.error('Error posting comment:', error);
@@ -122,10 +145,10 @@ export const CommentsList = () => {
           {comments.map((comment) => (
             <CommentItem
               key={comment.id}
-              author={comment.user?.username || "Anonymous"}
+              author={comment.profiles.username || "Anonymous"}
               content={comment.content}
               timestamp={comment.created_at}
-              avatar={comment.user?.avatar_url || "https://via.placeholder.com/150"}
+              avatar={comment.profiles.avatar_url || "https://via.placeholder.com/150"}
             />
           ))}
         </div>
