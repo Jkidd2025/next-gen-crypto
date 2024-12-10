@@ -13,7 +13,7 @@ interface Comment {
   profiles: {
     username: string | null;
     avatar_url: string | null;
-  };
+  } | null;
 }
 
 export const CommentsList = () => {
@@ -73,8 +73,10 @@ export const CommentsList = () => {
 
     // Transform the data to match our Comment interface
     const transformedComments = data?.map(comment => ({
-      ...comment,
-      profiles: comment.profiles || { username: null, avatar_url: null }
+      id: comment.id,
+      content: comment.content,
+      created_at: comment.created_at,
+      profiles: comment.profiles || null
     })) || [];
 
     setComments(transformedComments);
@@ -145,10 +147,10 @@ export const CommentsList = () => {
           {comments.map((comment) => (
             <CommentItem
               key={comment.id}
-              author={comment.profiles.username || "Anonymous"}
+              author={comment.profiles?.username || "Anonymous"}
               content={comment.content}
               timestamp={comment.created_at}
-              avatar={comment.profiles.avatar_url || "https://via.placeholder.com/150"}
+              avatar={comment.profiles?.avatar_url || "https://via.placeholder.com/150"}
             />
           ))}
         </div>
