@@ -54,7 +54,7 @@ export const CommentsList = () => {
         id,
         content,
         created_at,
-        profiles (
+        profiles!comments_user_id_fkey (
           username,
           avatar_url
         )
@@ -72,7 +72,15 @@ export const CommentsList = () => {
     }
 
     console.log('Fetched comments:', data);
-    setComments(data || []);
+    // Transform the data to match our Comment interface
+    const transformedComments = data?.map(comment => ({
+      id: comment.id,
+      content: comment.content,
+      created_at: comment.created_at,
+      profiles: Array.isArray(comment.profiles) ? comment.profiles[0] : comment.profiles
+    })) || [];
+
+    setComments(transformedComments);
   };
 
   const handleSubmitComment = async () => {
