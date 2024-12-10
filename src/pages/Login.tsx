@@ -1,25 +1,20 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // This is a temporary solution for demonstration
-    // In a real application, you would validate credentials against a backend
-    toast({
-      title: "Success",
-      description: "Logged in successfully",
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        navigate("/dashboard");
+      }
     });
-    navigate("/dashboard");
-  };
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/20 to-background flex items-center justify-center p-4">
@@ -29,56 +24,22 @@ const Login = () => {
           <p className="mt-2 text-black/80">Please sign in to your account</p>
         </div>
         
-        <form onSubmit={handleLogin} className="mt-8 space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/90 border-black/20 text-black placeholder:text-black/50"
-                required
-              />
-            </div>
-            <div>
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-white/90 border-black/20 text-black placeholder:text-black/50"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <Link 
-              to="/forgot-password"
-              className="text-sm text-black hover:text-primary transition-colors"
-            >
-              Forgot your password?
-            </Link>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-          >
-            Sign in
-          </Button>
-
-          <p className="text-center text-sm text-black">
-            Don't have an account?{" "}
-            <Link
-              to="/signup"
-              className="font-medium text-primary hover:text-primary/80 transition-colors"
-            >
-              Sign up
-            </Link>
-          </p>
-        </form>
+        <Auth
+          supabaseClient={supabase}
+          appearance={{
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: 'rgb(var(--color-primary))',
+                  brandAccent: 'rgb(var(--color-primary))',
+                }
+              }
+            }
+          }}
+          providers={[]}
+          redirectTo={`${window.location.origin}/dashboard`}
+        />
       </div>
     </div>
   );
