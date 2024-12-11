@@ -29,15 +29,14 @@ export const CommentForm = ({ onCommentAdded }: CommentFormProps) => {
       return;
     }
 
-    // First, check if profile exists
-    const { data: profile } = await supabase
+    // Check if profile exists, without using .single()
+    const { data: profiles } = await supabase
       .from('profiles')
       .select('id')
-      .eq('id', user.id)
-      .single();
+      .eq('id', user.id);
 
-    // If no profile exists, create one
-    if (!profile) {
+    // If no profile exists or profiles array is empty, create one
+    if (!profiles || profiles.length === 0) {
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
