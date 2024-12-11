@@ -95,6 +95,53 @@ export type Database = {
         }
         Relationships: []
       }
+      swap_transactions: {
+        Row: {
+          created_at: string
+          from_amount: number
+          from_token: string
+          id: string
+          slippage: number
+          status: string
+          to_amount: number
+          to_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_amount: number
+          from_token: string
+          id?: string
+          slippage?: number
+          status?: string
+          to_amount: number
+          to_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          from_amount?: number
+          from_token?: string
+          id?: string
+          slippage?: number
+          status?: string
+          to_amount?: number
+          to_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swap_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       token_counsel_members: {
         Row: {
           contact_email: string | null
