@@ -31,9 +31,11 @@ const Login = () => {
             variables: {
               default: {
                 colors: {
-                  brand: 'rgb(var(--color-primary))',
-                  brandAccent: 'rgb(var(--color-primary))',
-                  defaultButtonText: '#000000',
+                  brand: '#8B5CF6',
+                  brandAccent: '#7C3AED',
+                  defaultButtonBackground: '#8B5CF6',
+                  defaultButtonBackgroundHover: '#7C3AED',
+                  defaultButtonText: '#FFFFFF',
                 }
               }
             }
