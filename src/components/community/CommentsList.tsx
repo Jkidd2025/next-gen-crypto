@@ -41,7 +41,7 @@ export const CommentsList = () => {
         id,
         content,
         created_at,
-        profiles!comments_user_id_fkey (
+        profiles (
           username,
           avatar_url
         )
@@ -59,14 +59,7 @@ export const CommentsList = () => {
     }
 
     console.log('Fetched comments:', data);
-    const transformedComments = data?.map(comment => ({
-      id: comment.id,
-      content: comment.content,
-      created_at: comment.created_at,
-      profiles: Array.isArray(comment.profiles) ? comment.profiles[0] : comment.profiles
-    })) || [];
-
-    setComments(transformedComments);
+    setComments(data || []);
   };
 
   return (
