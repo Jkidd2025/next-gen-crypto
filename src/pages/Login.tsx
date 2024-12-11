@@ -3,18 +3,36 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         navigate("/dashboard");
+      } else if (event === 'USER_DELETED' || event === 'SIGNED_OUT') {
+        // Handle sign out
+        navigate("/login");
       }
     });
-  }, [navigate]);
+
+    // Check for any error messages in the URL (from OAuth redirects)
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    const error_description = params.get('error_description');
+    
+    if (error) {
+      toast({
+        title: "Authentication Error",
+        description: error_description || "There was a problem signing in",
+        variant: "destructive",
+      });
+    }
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/20 to-background flex items-center justify-center p-4">
@@ -38,6 +56,12 @@ const Login = () => {
                   defaultButtonText: '#FFFFFF',
                 }
               }
+            },
+            // Add custom styles for error messages
+            style: {
+              message: {
+                color: 'red',
+              },
             }
           }}
           providers={[]}
