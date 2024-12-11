@@ -3,6 +3,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useProfile } from "@/hooks/useProfile";
+import { commentsService } from "@/services/comments";
 
 interface CommentFormProps {
   onCommentAdded: () => void;
@@ -10,75 +12,51 @@ interface CommentFormProps {
 
 export const CommentForm = ({ onCommentAdded }: CommentFormProps) => {
   const [newComment, setNewComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { ensureProfileExists } = useProfile();
 
   const handleSubmitComment = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || isSubmitting) return;
 
-    const {
-      data: { user },
-      error: userError
-    } = await supabase.auth.getUser();
+    setIsSubmitting(true);
+    try {
+      const {
+        data: { user },
+        error: userError
+      } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to post comments.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Check if profile exists, without using .single()
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', user.id);
-
-    // If no profile exists or profiles array is empty, create one
-    if (!profiles || profiles.length === 0) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: user.id,
-          username: user.email?.split('@')[0] || 'Anonymous'
-        });
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
+      if (userError || !user) {
         toast({
           title: "Error",
-          description: "Failed to create user profile. Please try again.",
+          description: "You must be logged in to post comments.",
           variant: "destructive"
         });
         return;
       }
-    }
 
-    // Now insert the comment
-    const { error } = await supabase
-      .from('comments')
-      .insert({
-        content: newComment.trim(),
-        user_id: user.id
+      // Ensure profile exists before creating comment
+      await ensureProfileExists(user.id, user.email?.split('@')[0] || 'Anonymous');
+      
+      // Create the comment
+      await commentsService.createComment(user.id, newComment);
+
+      setNewComment("");
+      toast({
+        title: "Success",
+        description: "Comment posted successfully!",
       });
-
-    if (error) {
+      onCommentAdded();
+    } catch (error) {
       console.error('Error posting comment:', error);
       toast({
         title: "Error",
         description: "Failed to post comment. Please try again.",
         variant: "destructive"
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setNewComment("");
-    toast({
-      title: "Success",
-      description: "Comment posted successfully!",
-    });
-    onCommentAdded();
   };
 
   return (
@@ -88,12 +66,13 @@ export const CommentForm = ({ onCommentAdded }: CommentFormProps) => {
         value={newComment}
         onChange={(e) => setNewComment(e.target.value)}
         className="min-h-[100px]"
+        disabled={isSubmitting}
       />
       <Button 
         onClick={handleSubmitComment}
-        disabled={!newComment.trim()}
+        disabled={!newComment.trim() || isSubmitting}
       >
-        Post Comment
+        {isSubmitting ? "Posting..." : "Post Comment"}
       </Button>
     </div>
   );
