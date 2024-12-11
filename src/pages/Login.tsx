@@ -10,7 +10,7 @@ const Login = () => {
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (event === 'SIGNED_IN' && session) {
         navigate("/dashboard");
       }
     });

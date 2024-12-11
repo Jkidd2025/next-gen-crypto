@@ -10,7 +10,7 @@ const Signup = () => {
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (event === 'SIGNED_IN' && session) {
         navigate("/dashboard");
       }
     });
@@ -43,7 +43,7 @@ const Signup = () => {
           view="sign_up"
           providers={[]}
           redirectTo={`${window.location.origin}/dashboard`}
-          showLinks={false}
+          showLinks={true}
         />
       </div>
     </div>
