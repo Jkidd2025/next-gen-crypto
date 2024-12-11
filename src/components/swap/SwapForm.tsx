@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
+import { AlertTriangle } from "lucide-react";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
