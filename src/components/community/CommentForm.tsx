@@ -29,6 +29,34 @@ export const CommentForm = ({ onCommentAdded }: CommentFormProps) => {
       return;
     }
 
+    // First, check if profile exists
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+
+    // If no profile exists, create one
+    if (!profile) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          username: user.email?.split('@')[0] || 'Anonymous'
+        });
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        toast({
+          title: "Error",
+          description: "Failed to create user profile. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
+    // Now insert the comment
     const { error } = await supabase
       .from('comments')
       .insert({
