@@ -3,30 +3,75 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { CreditCard } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export const TokenSwap = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
+  const { toast } = useToast();
 
   const handleConnectWallet = async () => {
     try {
-      // @ts-ignore
-      const provider = window?.phantom?.solana;
-      
-      if (provider?.isPhantom) {
-        const response = await provider.connect();
-        console.log("Connected with Public Key:", response.publicKey.toString());
-        setIsWalletConnected(true);
+      if (typeof window === 'undefined') return;
+
+      const getProvider = () => {
+        if ('phantom' in window) {
+          // @ts-ignore
+          const provider = window.phantom?.solana;
+
+          if (provider?.isPhantom) {
+            return provider;
+          }
+        }
+        return null;
+      };
+
+      const provider = getProvider();
+
+      if (provider) {
+        try {
+          const response = await provider.connect();
+          const publicKey = response.publicKey.toString();
+          setIsWalletConnected(true);
+          toast({
+            title: "Wallet Connected",
+            description: `Connected with address: ${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`,
+          });
+        } catch (err) {
+          toast({
+            title: "Connection Failed",
+            description: "Failed to connect to Phantom wallet",
+            variant: "destructive",
+          });
+        }
       } else {
-        window.open("https://phantom.app/", "_blank");
+        window.open('https://phantom.app/', '_blank');
+        toast({
+          title: "Phantom Not Found",
+          description: "Please install Phantom wallet to continue",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Error connecting wallet:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred while connecting to the wallet",
+        variant: "destructive",
+      });
     }
   };
 
   const handleSwap = async () => {
+    if (!isWalletConnected) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet first",
+        variant: "destructive",
+      });
+      return;
+    }
     // Implement swap logic here
     console.log("Swapping tokens:", { fromAmount, toAmount });
   };
