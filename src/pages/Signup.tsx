@@ -33,7 +33,7 @@ const Signup = () => {
                 colors: {
                   brand: 'rgb(var(--color-primary))',
                   brandAccent: 'rgb(var(--color-primary))',
-                  buttonText: '#000000',
+                  defaultButtonText: '#000000',
                 }
               }
             }
