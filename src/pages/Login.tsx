@@ -42,6 +42,7 @@ const Login = () => {
           }}
           providers={[]}
           redirectTo={`${window.location.origin}/dashboard`}
+          showLinks={false}
         />
       </div>
     </div>
