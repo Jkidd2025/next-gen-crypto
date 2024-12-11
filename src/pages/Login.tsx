@@ -42,7 +42,8 @@ const Login = () => {
           }}
           providers={[]}
           redirectTo={`${window.location.origin}/dashboard`}
-          showLinks={false}
+          showLinks={true}
+          view="sign_in"
         />
       </div>
     </div>
