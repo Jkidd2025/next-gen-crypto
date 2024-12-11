@@ -100,9 +100,11 @@ export type Database = {
           created_at: string
           from_amount: number
           from_token: string
+          gas_fee: number | null
           id: string
           slippage: number
           status: string
+          swap_route: Json | null
           to_amount: number
           to_token: string
           updated_at: string
@@ -112,9 +114,11 @@ export type Database = {
           created_at?: string
           from_amount: number
           from_token: string
+          gas_fee?: number | null
           id?: string
           slippage?: number
           status?: string
+          swap_route?: Json | null
           to_amount: number
           to_token: string
           updated_at?: string
@@ -124,9 +128,11 @@ export type Database = {
           created_at?: string
           from_amount?: number
           from_token?: string
+          gas_fee?: number | null
           id?: string
           slippage?: number
           status?: string
+          swap_route?: Json | null
           to_amount?: number
           to_token?: string
           updated_at?: string
