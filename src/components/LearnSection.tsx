@@ -14,19 +14,19 @@ export const LearnSection = () => {
       title: "Security Best Practices",
       description: "Protect your assets with our comprehensive security guide.",
       icon: Shield,
-      link: "#"
+      link: "/security-best-practices"
     },
     {
       title: "Wallet Management",
       description: "Learn how to manage your digital wallet effectively.",
       icon: Wallet,
-      link: "#"
+      link: "/wallet-management"
     },
     {
       title: "Trading Basics",
       description: "Understanding the fundamentals of token trading.",
       icon: ArrowUpDown,
-      link: "#"
+      link: "/trading-basics"
     },
   ];
 
