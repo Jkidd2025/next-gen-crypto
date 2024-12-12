@@ -6,7 +6,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MenuItem } from "./menu/MenuItems";
-import { LearnMenu } from "./menu/LearnMenu";
 import { LoginButton } from "./menu/LoginButton";
 
 export const Menu = () => {
@@ -17,15 +16,9 @@ export const Menu = () => {
     { label: "Tokenomics", id: "tokenomics" },
     { label: "Roadmap", id: "roadmap" },
     { label: "Smart Contract", id: "smart-contract" },
+    { label: "Learn", id: "learn" },
     { label: "Community", id: "community" },
     { label: "Contact Us", id: "contact-us" }
-  ];
-
-  const learnItems = [
-    { label: "Getting Started", path: "/getting-started" },
-    { label: "Security Best Practices", path: "/security-best-practices" },
-    { label: "Wallet Management", path: "/wallet-management" },
-    { label: "Trading Basics", path: "/trading-basics" },
   ];
 
   const closeMenu = () => {
@@ -41,11 +34,6 @@ export const Menu = () => {
       element.scrollIntoView({ behavior: "smooth" });
       closeMenu();
     }
-  };
-
-  const handleLearnItemClick = (path: string) => {
-    navigate(path);
-    closeMenu();
   };
 
   const handleLogin = () => {
@@ -84,10 +72,6 @@ export const Menu = () => {
                 onItemClick={scrollToSection}
               />
             ))}
-            <LearnMenu 
-              items={learnItems}
-              onItemClick={handleLearnItemClick}
-            />
             <LoginButton onLogin={handleLogin} />
           </div>
         </DropdownMenuContent>
