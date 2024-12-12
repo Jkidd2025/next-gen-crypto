@@ -10,15 +10,22 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
   const { toast } = useToast();
 
   const handleConnectWallet = async () => {
+    console.log("Connect wallet button clicked");
+    
     try {
       if (typeof window === 'undefined') {
+        console.error("Window object not available");
         throw new Error('Window object not available');
       }
 
+      console.log("Checking for Phantom wallet...");
+      console.log("window.solana:", window?.solana);
+      
       // Check if Phantom is installed
       const phantom = window?.solana;
       
       if (!phantom?.isPhantom) {
+        console.log("Phantom wallet not found, showing toast and opening installation page");
         toast({
           title: "Phantom Wallet Not Found",
           description: "Please install Phantom wallet extension first.",
@@ -29,7 +36,8 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
         return;
       }
 
-      // Prompt wallet connection
+      console.log("Phantom wallet found, attempting connection...");
+
       try {
         // Request connection to wallet
         console.log("Requesting Phantom wallet connection...");
@@ -40,6 +48,7 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
         console.log("Connected wallet public key:", publicKey);
         
         if (publicKey) {
+          console.log("Connection successful, updating state and showing success toast");
           onConnect(true);
           toast({
             title: "Success",
