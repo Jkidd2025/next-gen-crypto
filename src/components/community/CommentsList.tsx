@@ -1,91 +1,55 @@
-import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
 import { CommentForm } from "./CommentForm";
 import { CommentsFeed } from "./CommentsFeed";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Comment } from "./types";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const CommentsList = () => {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const { toast } = useToast();
+  const [comments, setComments] = useState([]);
+  const [sortOrder, setSortOrder] = useState("newest");
 
-  useEffect(() => {
-    fetchComments();
-
-    const channel = supabase
-      .channel('comments_channel')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'comments'
-        },
-        (payload: any) => {
-          console.log('Change received!', payload);
-          if (payload.eventType === 'INSERT') {
-            toast({
-              title: "New Comment",
-              description: "Someone just posted a new comment!",
-            });
-          }
-          fetchComments();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [toast]);
-
-  const fetchComments = async () => {
-    const { data, error } = await supabase
-      .from('comments')
-      .select(`
-        id,
-        content,
-        created_at,
-        parent_id,
-        formatted_content,
-        mentions,
-        profiles (
-          username,
-          avatar_url
-        )
-      `)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching comments:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load comments. Please try again later.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    console.log('Fetched comments:', data);
-    setComments(data || []);
-  };
-
-  const handleReply = async (parentId: string, content: string) => {
-    // The actual comment creation is handled in CommentForm
-    // We just need to refresh the comments after a reply is posted
-    await fetchComments();
+  const handleCommentAdded = (content: string) => {
+    setComments((prevComments) => [
+      ...prevComments,
+      { content, created_at: new Date().toISOString(), id: Date.now() },
+    ]);
   };
 
   return (
-    <Card className="w-full">
-      <CardContent className="p-4 sm:p-6">
-        <h2 className="text-2xl font-semibold mb-6">Community Discussion</h2>
-        <CommentForm onCommentAdded={() => fetchComments()} />
-        <div className="mt-8">
-          <CommentsFeed comments={comments} onReply={handleReply} />
+    <div className="space-y-6">
+      <Card>
+        <div className="p-6">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Community Discussion</h2>
+            <CommentForm onCommentAdded={handleCommentAdded} />
+            <div className="flex justify-between items-center pt-4">
+              <div className="text-sm text-muted-foreground">
+                {comments.length} comments
+              </div>
+              <Select
+                defaultValue="newest"
+                onValueChange={(value) => setSortOrder(value)}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                  <SelectItem value="popular">Most Popular</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </Card>
+      <CommentsFeed comments={comments} onReply={handleCommentAdded} />
+    </div>
   );
 };
