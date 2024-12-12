@@ -59,20 +59,11 @@ export const useWalletConnection = () => {
   };
 
   const disconnect = async () => {
-    try {
-      setAccount(null);
-      toast({
-        title: "Wallet Disconnected",
-        description: "Your wallet has been disconnected.",
-      });
-    } catch (error) {
-      console.error('Error disconnecting wallet:', error);
-      toast({
-        title: "Error",
-        description: "Failed to disconnect wallet.",
-        variant: "destructive",
-      });
-    }
+    setAccount(null);
+    toast({
+      title: "Wallet Disconnected",
+      description: "Your wallet has been disconnected.",
+    });
   };
 
   return {

@@ -39,6 +39,11 @@ export const useWalletEvents = (
       window.ethereum.on('chainChanged', handleChainChanged);
       window.ethereum.on('disconnect', handleDisconnect);
 
+      // Check initial accounts
+      window.ethereum.request({ method: 'eth_accounts' })
+        .then(handleAccountsChanged)
+        .catch(console.error);
+
       return () => {
         window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
         window.ethereum?.removeListener('chainChanged', handleChainChanged);
