@@ -11,9 +11,9 @@ interface WalletStatusProps {
 export const WalletStatus = ({ isConnected, account, onConnect, onDisconnect }: WalletStatusProps) => {
   return (
     <>
-      {isConnected && (
+      {isConnected && account && (
         <div className="text-sm text-muted-foreground">
-          Connected: <span className="font-mono">{account}</span>
+          Connected: <span className="font-mono">{`${account.slice(0, 6)}...${account.slice(-4)}`}</span>
         </div>
       )}
       <Button 

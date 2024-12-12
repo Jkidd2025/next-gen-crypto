@@ -8,11 +8,18 @@ export const useWallet = () => {
 
   const checkIfWalletIsConnected = async () => {
     try {
-      if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-        }
+      const { ethereum } = window;
+      if (!ethereum) {
+        console.log("Make sure you have MetaMask installed!");
+        return;
+      }
+
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+        console.log("Found an authorized account:", accounts[0]);
+      } else {
+        console.log("No authorized account found");
       }
     } catch (error) {
       console.error('Error checking wallet connection:', error);
@@ -20,28 +27,34 @@ export const useWallet = () => {
   };
 
   const connect = async () => {
-    if (!window.ethereum) {
-      toast({
-        title: "Web3 Wallet Required",
-        description: "Please install MetaMask or another Web3 wallet to continue.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
+      const { ethereum } = window;
+      if (!ethereum) {
+        toast({
+          title: "Web3 Wallet Required",
+          description: "Please install MetaMask to connect your wallet.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setIsConnecting(true);
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      setAccount(accounts[0]);
-      toast({
-        title: "Wallet Connected",
-        description: "Your Web3 wallet has been successfully connected.",
+      const accounts = await ethereum.request({ 
+        method: 'eth_requestAccounts' 
       });
-    } catch (error) {
+      
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+        toast({
+          title: "Wallet Connected",
+          description: `Connected with address: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
+        });
+      }
+    } catch (error: any) {
       console.error('Error connecting wallet:', error);
       toast({
         title: "Connection Failed",
-        description: "Failed to connect to your Web3 wallet. Please try again.",
+        description: error.message || "Failed to connect wallet. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -50,39 +63,59 @@ export const useWallet = () => {
   };
 
   const disconnect = async () => {
-    setAccount(null);
-    toast({
-      title: "Wallet Disconnected",
-      description: "Your Web3 wallet has been disconnected.",
-    });
+    try {
+      setAccount(null);
+      toast({
+        title: "Wallet Disconnected",
+        description: "Your wallet has been disconnected.",
+      });
+    } catch (error) {
+      console.error('Error disconnecting wallet:', error);
+      toast({
+        title: "Error",
+        description: "Failed to disconnect wallet.",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
     checkIfWalletIsConnected();
 
     if (window.ethereum) {
-      const handleAccountsChanged = (accounts: string[]) => {
+      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+        console.log('Account changed:', accounts);
         if (accounts.length > 0) {
           setAccount(accounts[0]);
         } else {
           setAccount(null);
+          toast({
+            title: "Wallet Disconnected",
+            description: "Your wallet has been disconnected.",
+          });
         }
-      };
+      });
 
-      const handleChainChanged = () => {
+      window.ethereum.on('chainChanged', () => {
         window.location.reload();
-      };
+      });
 
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
-
-      return () => {
-        if (window.ethereum) {
-          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-          window.ethereum.removeListener('chainChanged', handleChainChanged);
-        }
-      };
+      window.ethereum.on('disconnect', () => {
+        setAccount(null);
+        toast({
+          title: "Wallet Disconnected",
+          description: "Your wallet has been disconnected.",
+        });
+      });
     }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', () => {});
+        window.ethereum.removeListener('chainChanged', () => {});
+        window.ethereum.removeListener('disconnect', () => {});
+      }
+    };
   }, []);
 
   return {
