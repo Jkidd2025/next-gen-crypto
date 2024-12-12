@@ -28,6 +28,7 @@ export const useWalletConnection = () => {
   }, []);
 
   const connect = async () => {
+    console.log("Attempting to connect wallet...");
     if (!checkWalletAvailability()) {
       toast({
         title: "MetaMask Not Found",
@@ -43,6 +44,7 @@ export const useWalletConnection = () => {
         method: 'eth_requestAccounts' 
       });
       
+      console.log("Received accounts:", accounts);
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         toast({

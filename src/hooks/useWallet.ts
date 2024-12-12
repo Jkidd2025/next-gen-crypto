@@ -15,6 +15,7 @@ export const useWallet = () => {
   useWalletEvents(setAccount);
 
   useEffect(() => {
+    console.log("Checking wallet connection...");
     checkIfWalletIsConnected();
   }, [checkIfWalletIsConnected]);
 

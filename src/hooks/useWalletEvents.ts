@@ -6,7 +6,13 @@ export const useWalletEvents = (
   setAccount: (account: string | null) => void
 ) => {
   useEffect(() => {
+    if (!window.ethereum) {
+      console.log("MetaMask not available");
+      return;
+    }
+
     const handleAccountsChanged = (accounts: string[]) => {
+      console.log("Accounts changed:", accounts);
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         toast({
@@ -34,23 +40,21 @@ export const useWalletEvents = (
       });
     };
 
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
-      window.ethereum.on('disconnect', handleDisconnect);
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+    window.ethereum.on('chainChanged', handleChainChanged);
+    window.ethereum.on('disconnect', handleDisconnect);
 
-      // Check initial accounts
-      window.ethereum.request({ method: 'eth_accounts' })
-        .then(handleAccountsChanged)
-        .catch(console.error);
+    // Check initial accounts
+    window.ethereum.request({ method: 'eth_accounts' })
+      .then(handleAccountsChanged)
+      .catch(console.error);
 
-      return () => {
-        window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum?.removeListener('chainChanged', handleChainChanged);
-        window.ethereum?.removeListener('disconnect', handleDisconnect);
-      };
-    }
-
-    return undefined;
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+        window.ethereum.removeListener('disconnect', handleDisconnect);
+      }
+    };
   }, [setAccount]);
 };

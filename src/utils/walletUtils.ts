@@ -3,9 +3,10 @@ import { toast } from "@/hooks/use-toast";
 export const checkWalletAvailability = () => {
   const { ethereum } = window;
   if (!ethereum) {
-    console.log("Make sure you have MetaMask installed!");
+    console.log("MetaMask not found!");
     return false;
   }
+  console.log("MetaMask is available");
   return true;
 };
 
