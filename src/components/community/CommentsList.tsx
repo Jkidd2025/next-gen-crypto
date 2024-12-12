@@ -47,6 +47,9 @@ export const CommentsList = () => {
         id,
         content,
         created_at,
+        parent_id,
+        formatted_content,
+        mentions,
         profiles (
           username,
           avatar_url
@@ -68,12 +71,20 @@ export const CommentsList = () => {
     setComments(data || []);
   };
 
+  const handleReply = async (parentId: string, content: string) => {
+    // The actual comment creation is handled in CommentForm
+    // We just need to refresh the comments after a reply is posted
+    await fetchComments();
+  };
+
   return (
     <Card className="w-full">
       <CardContent className="p-4 sm:p-6">
         <h2 className="text-2xl font-semibold mb-6">Community Discussion</h2>
-        <CommentForm onCommentAdded={fetchComments} />
-        <CommentsFeed comments={comments} />
+        <CommentForm onCommentAdded={() => fetchComments()} />
+        <div className="mt-8">
+          <CommentsFeed comments={comments} onReply={handleReply} />
+        </div>
       </CardContent>
     </Card>
   );

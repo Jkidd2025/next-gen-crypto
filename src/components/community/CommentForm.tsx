@@ -7,10 +7,16 @@ import { useProfile } from "@/hooks/useProfile";
 import { commentsService } from "@/services/comments";
 
 interface CommentFormProps {
-  onCommentAdded: () => void;
+  onCommentAdded: (content: string) => void;
+  placeholder?: string;
+  parentId?: string;
 }
 
-export const CommentForm = ({ onCommentAdded }: CommentFormProps) => {
+export const CommentForm = ({ 
+  onCommentAdded, 
+  placeholder = "Share your thoughts with the community...",
+  parentId 
+}: CommentFormProps) => {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -35,18 +41,22 @@ export const CommentForm = ({ onCommentAdded }: CommentFormProps) => {
         return;
       }
 
+      // Extract mentions from content
+      const mentionRegex = /@(\w+)/g;
+      const mentions = [...newComment.matchAll(mentionRegex)].map(match => match[1]);
+
       // Ensure profile exists before creating comment
       await ensureProfileExists(user.id, user.email?.split('@')[0] || 'Anonymous');
       
-      // Create the comment
-      await commentsService.createComment(user.id, newComment);
+      // Create the comment with mentions and parent_id
+      await commentsService.createComment(user.id, newComment, mentions, parentId);
 
       setNewComment("");
+      onCommentAdded(newComment);
       toast({
         title: "Success",
-        description: "Comment posted successfully!",
+        description: parentId ? "Reply posted successfully!" : "Comment posted successfully!",
       });
-      onCommentAdded();
     } catch (error) {
       console.error('Error posting comment:', error);
       toast({
@@ -60,9 +70,9 @@ export const CommentForm = ({ onCommentAdded }: CommentFormProps) => {
   };
 
   return (
-    <div className="space-y-4 mb-8">
+    <div className="space-y-4">
       <Textarea
-        placeholder="Share your thoughts with the community..."
+        placeholder={placeholder}
         value={newComment}
         onChange={(e) => setNewComment(e.target.value)}
         className="min-h-[100px]"
@@ -72,7 +82,7 @@ export const CommentForm = ({ onCommentAdded }: CommentFormProps) => {
         onClick={handleSubmitComment}
         disabled={!newComment.trim() || isSubmitting}
       >
-        {isSubmitting ? "Posting..." : "Post Comment"}
+        {isSubmitting ? "Posting..." : parentId ? "Post Reply" : "Post Comment"}
       </Button>
     </div>
   );
