@@ -40,7 +40,7 @@ export const Overview = () => {
     await disconnectWeb3();
   };
 
-  const isWalletConnected = account || isPhantomConnected;
+  const isWalletConnected = Boolean(account) || isPhantomConnected;
 
   const stats = [
     {
