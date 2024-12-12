@@ -27,24 +27,26 @@ export const CommentsList = () => {
         <div className="p-6">
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">Community Discussion</h2>
-            <CommentForm onCommentAdded={handleCommentAdded} />
-            <div className="flex justify-between items-center pt-4">
-              <div className="text-sm text-muted-foreground">
-                {comments.length} comments
+            <div className="space-y-4">
+              <CommentForm onCommentAdded={handleCommentAdded} />
+              <div className="flex justify-between items-center border-t pt-4">
+                <div className="text-sm text-muted-foreground">
+                  {comments.length} comments
+                </div>
+                <Select
+                  defaultValue="newest"
+                  onValueChange={(value) => setSortOrder(value)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest First</SelectItem>
+                    <SelectItem value="oldest">Oldest First</SelectItem>
+                    <SelectItem value="popular">Most Popular</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select
-                defaultValue="newest"
-                onValueChange={(value) => setSortOrder(value)}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="oldest">Oldest First</SelectItem>
-                  <SelectItem value="popular">Most Popular</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </div>
