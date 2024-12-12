@@ -40,11 +40,6 @@ export const usePhantomWallet = () => {
       setPublicKey(walletPublicKey);
       setIsWalletConnected(true);
       
-      toast({
-        title: "Wallet Connected",
-        description: `Connected to Phantom wallet`,
-      });
-
       return walletPublicKey;
     } catch (error) {
       console.error("Phantom connection error:", error);

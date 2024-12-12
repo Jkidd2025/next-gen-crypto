@@ -26,6 +26,10 @@ export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsConnecting(true);
       await handleConnectWallet();
+      toast({
+        title: "Wallet Connected",
+        description: "Successfully connected to Phantom wallet",
+      });
     } catch (error) {
       console.error('Failed to connect wallet:', error);
       toast({
