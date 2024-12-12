@@ -21,19 +21,19 @@ export const DashboardCommunity = () => {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="discussions" className="w-full">
+        <Tabs defaultValue="counsel" className="w-full">
           <TabsList className="w-full justify-start">
-            <TabsTrigger value="discussions">Discussions</TabsTrigger>
             <TabsTrigger value="counsel">Token Counsel</TabsTrigger>
+            <TabsTrigger value="discussions">Discussions</TabsTrigger>
             <TabsTrigger value="connect">Connect</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="discussions" className="mt-6">
-            <CommentsList />
-          </TabsContent>
-          
           <TabsContent value="counsel" className="mt-6">
             <TokenCounselList />
+          </TabsContent>
+          
+          <TabsContent value="discussions" className="mt-6">
+            <CommentsList />
           </TabsContent>
           
           <TabsContent value="connect" className="mt-6">
