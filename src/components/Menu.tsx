@@ -36,6 +36,15 @@ export const Menu = () => {
     }
   };
 
+  const handleLearnItemClick = (path: string) => {
+    navigate(path);
+    // Find and click the menu trigger button to close the dropdown
+    const menuTrigger = document.querySelector('[aria-label="Toggle menu"]') as HTMLButtonElement;
+    if (menuTrigger) {
+      menuTrigger.click();
+    }
+  };
+
   return (
     <div className="fixed top-8 right-8 z-50 flex items-center gap-4">
       <button
@@ -65,7 +74,10 @@ export const Menu = () => {
                 className="cursor-pointer text-xl py-4 text-black dark:text-white hover:text-primary transition-colors"
                 onClick={() => {
                   scrollToSection(item.id);
-                  document.querySelector('[role="menuitem"]')?.closest('[role="menu"]')?.parentElement?.querySelector('button')?.click();
+                  const menuTrigger = document.querySelector('[aria-label="Toggle menu"]') as HTMLButtonElement;
+                  if (menuTrigger) {
+                    menuTrigger.click();
+                  }
                 }}
               >
                 {item.label}
@@ -81,9 +93,10 @@ export const Menu = () => {
                   <DropdownMenuItem
                     key={item.label}
                     className="cursor-pointer text-lg py-3 text-black dark:text-white hover:text-primary transition-colors"
-                    onClick={() => {
-                      navigate(item.path);
-                      document.querySelector('[role="menuitem"]')?.closest('[role="menu"]')?.parentElement?.querySelector('button')?.click();
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleLearnItemClick(item.path);
                     }}
                   >
                     {item.label}
@@ -93,7 +106,13 @@ export const Menu = () => {
             </DropdownMenuSub>
             <DropdownMenuItem 
               className="cursor-pointer text-xl py-4 text-black dark:text-white hover:text-primary transition-colors"
-              onClick={() => navigate("/login")}
+              onClick={() => {
+                navigate("/login");
+                const menuTrigger = document.querySelector('[aria-label="Toggle menu"]') as HTMLButtonElement;
+                if (menuTrigger) {
+                  menuTrigger.click();
+                }
+              }}
             >
               <LogIn className="mr-2 h-5 w-5" />
               Login
