@@ -62,9 +62,9 @@ export const Menu = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-screen h-[calc(100vh-6rem)] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
+          className="w-[320px] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
         >
-          <div className="flex flex-col gap-4 p-6">
+          <div className="grid grid-cols-2 gap-2 p-4">
             {menuItems.map((item) => (
               <MenuItem
                 key={item.label}
@@ -74,7 +74,9 @@ export const Menu = () => {
                 onItemClick={scrollToSection}
               />
             ))}
-            <LoginButton onLogin={handleLogin} />
+            <div className="col-span-2">
+              <LoginButton onLogin={handleLogin} />
+            </div>
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
