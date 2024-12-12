@@ -7,43 +7,16 @@ import { Overview } from "@/components/Overview";
 import { DashboardCommunity } from "@/components/DashboardCommunity";
 import { Reports } from "@/components/Reports";
 import { Settings } from "@/components/Settings";
-import { WalletStatus } from "@/components/dashboard/WalletStatus";
-import { useWeb3 } from "@/components/Web3Provider";
-import { usePhantomWallet } from "@/hooks/usePhantomWallet";
 import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { account, connect: connectWeb3, disconnect: disconnectWeb3 } = useWeb3();
-  const { isWalletConnected: isPhantomConnected, handleConnectWallet: connectPhantom } = usePhantomWallet();
   const { toast } = useToast();
-
-  const handleConnect = async () => {
-    try {
-      await connectWeb3();
-    } catch (error) {
-      try {
-        await connectPhantom();
-      } catch (phantomError) {
-        toast({
-          title: "Connection Failed",
-          description: "Failed to connect wallet. Please try again.",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const handleDisconnect = async () => {
-    await disconnectWeb3();
-  };
 
   const handleLogout = () => {
     navigate("/");
   };
-
-  const isWalletConnected = Boolean(account) || isPhantomConnected;
 
   const renderContent = () => {
     const path = location.pathname;
@@ -77,12 +50,6 @@ const Dashboard = () => {
                  location.pathname.split("/").pop()?.slice(1)}
               </h1>
               <div className="flex items-center gap-2">
-                <WalletStatus
-                  isConnected={isWalletConnected}
-                  account={account}
-                  onConnect={handleConnect}
-                  onDisconnect={handleDisconnect}
-                />
                 <Button variant="outline" size="sm" onClick={handleLogout}>
                   Logout
                 </Button>
