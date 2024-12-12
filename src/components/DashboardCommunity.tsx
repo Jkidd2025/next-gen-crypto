@@ -3,6 +3,7 @@ import { CommunityStats } from "./community/CommunityStats";
 import { TokenCounselList } from "./community/TokenCounselList";
 import { CommentsList } from "./community/CommentsList";
 import { SocialLinks } from "./community/SocialLinks";
+import { CommunityPolls } from "./community/CommunityPolls";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const DashboardCommunity = () => {
@@ -25,6 +26,7 @@ export const DashboardCommunity = () => {
           <TabsList className="w-full justify-start">
             <TabsTrigger value="counsel">Token Counsel</TabsTrigger>
             <TabsTrigger value="discussions">Discussions</TabsTrigger>
+            <TabsTrigger value="polls">Polls</TabsTrigger>
             <TabsTrigger value="connect">Connect</TabsTrigger>
           </TabsList>
           
@@ -34,6 +36,10 @@ export const DashboardCommunity = () => {
           
           <TabsContent value="discussions" className="mt-6">
             <CommentsList />
+          </TabsContent>
+
+          <TabsContent value="polls" className="mt-6">
+            <CommunityPolls />
           </TabsContent>
           
           <TabsContent value="connect" className="mt-6">
