@@ -7,7 +7,7 @@ interface LoginButtonProps {
 
 export const LoginButton = ({ onLogin }: LoginButtonProps) => (
   <DropdownMenuItem 
-    className="flex items-center justify-center gap-2 cursor-pointer py-3 px-4 text-black dark:text-white hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-300 mt-2 w-full"
+    className="flex items-center justify-center gap-2 cursor-pointer py-3 px-4 text-black dark:text-white hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-300 w-full"
     onClick={onLogin}
   >
     <LogIn className="w-5 h-5" />

@@ -18,7 +18,6 @@ export const Menu = () => {
     { label: "Smart Contract", id: "smart-contract", icon: FileCode },
     { label: "Learn", id: "learn", icon: GraduationCap },
     { label: "Community", id: "community", icon: Users },
-    { label: "Contact Us", id: "contact-us", icon: Mail }
   ];
 
   const closeMenu = () => {
@@ -62,19 +61,27 @@ export const Menu = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-[320px] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
+          className="w-[360px] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
         >
-          <div className="grid grid-cols-2 gap-2 p-4">
-            {menuItems.map((item) => (
+          <div className="p-4">
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {menuItems.map((item) => (
+                <MenuItem
+                  key={item.label}
+                  label={item.label}
+                  id={item.id}
+                  icon={item.icon}
+                  onItemClick={scrollToSection}
+                />
+              ))}
+            </div>
+            <div className="space-y-2">
               <MenuItem
-                key={item.label}
-                label={item.label}
-                id={item.id}
-                icon={item.icon}
+                label="Contact Us"
+                id="contact-us"
+                icon={Mail}
                 onItemClick={scrollToSection}
               />
-            ))}
-            <div className="col-span-2">
               <LoginButton onLogin={handleLogin} />
             </div>
           </div>
