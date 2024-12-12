@@ -8,7 +8,6 @@ import { ContactUs } from "@/components/ContactUs";
 import { Menu } from "@/components/Menu";
 import { PriceTracker } from "@/components/PriceTracker";
 import { LearnSection } from "@/components/LearnSection";
-import { SecurityFeatures } from "@/components/SecurityFeatures";
 import { NetworkStats } from "@/components/NetworkStats";
 
 const Index = () => {
@@ -20,7 +19,6 @@ const Index = () => {
       <NetworkStats />
       <OurStory />
       <Community />
-      <SecurityFeatures />
       <Tokenomics />
       <Roadmap />
       <SmartContract />
