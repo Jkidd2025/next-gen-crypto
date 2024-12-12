@@ -1,6 +1,6 @@
+import { useEffect } from 'react';
 import { useWalletConnection } from './useWalletConnection';
 import { useWalletEvents } from './useWalletEvents';
-import { useEffect } from 'react';
 
 export const useWallet = () => {
   const {
@@ -8,14 +8,11 @@ export const useWallet = () => {
     isConnecting,
     connect,
     disconnect,
-    checkIfWalletIsConnected
+    checkIfWalletIsConnected,
+    setAccount
   } = useWalletConnection();
 
-  useWalletEvents(account => {
-    if (account !== null) {
-      checkIfWalletIsConnected();
-    }
-  });
+  useWalletEvents(setAccount);
 
   useEffect(() => {
     checkIfWalletIsConnected();

@@ -7,9 +7,12 @@ export const useWalletConnection = () => {
   const [isConnecting, setIsConnecting] = useState(false);
 
   const checkIfWalletIsConnected = useCallback(async () => {
-    try {
-      if (!checkWalletAvailability()) return;
+    if (!checkWalletAvailability()) {
+      setAccount(null);
+      return;
+    }
 
+    try {
       const accounts = await window.ethereum!.request({ method: 'eth_accounts' });
       if (accounts.length > 0) {
         setAccount(accounts[0]);
@@ -77,6 +80,7 @@ export const useWalletConnection = () => {
     isConnecting,
     connect,
     disconnect,
-    checkIfWalletIsConnected
+    checkIfWalletIsConnected,
+    setAccount
   };
 };
