@@ -1,10 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, Heart, Star, MessageCircle, MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { ThumbsUp, ThumbsDown, MessageCircle, MoreHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
 import { CommentForm } from "./CommentForm";
 import { formatDistanceToNow } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthProvider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,12 +26,8 @@ interface CommentItemProps {
   replies?: any[];
   onReply?: (parentId: string, content: string) => void;
   depth?: number;
-}
-
-interface Reaction {
-  icon: JSX.Element;
-  count: number;
-  active: boolean;
+  voteCount?: number;
+  userVote?: number;
 }
 
 export const CommentItem = ({ 
@@ -41,26 +40,63 @@ export const CommentItem = ({
   formattedContent,
   replies = [],
   onReply,
-  depth = 0 
+  depth = 0,
+  voteCount: initialVoteCount = 0,
+  userVote: initialUserVote = 0
 }: CommentItemProps) => {
-  const [reactions, setReactions] = useState<Reaction[]>([
-    { icon: <ThumbsUp className="w-4 h-4" />, count: 0, active: false },
-    { icon: <Heart className="w-4 h-4" />, count: 0, active: false },
-    { icon: <Star className="w-4 h-4" />, count: 0, active: false },
-  ]);
   const [isReplying, setIsReplying] = useState(false);
+  const [voteCount, setVoteCount] = useState(initialVoteCount);
+  const [userVote, setUserVote] = useState(initialUserVote);
+  const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleReaction = (index: number) => {
-    setReactions(prev => prev.map((reaction, i) => {
-      if (i === index) {
-        return {
-          ...reaction,
-          count: reaction.active ? reaction.count - 1 : reaction.count + 1,
-          active: !reaction.active
-        };
+  const handleVote = async (voteType: number) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please login to vote on comments",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const newVoteType = userVote === voteType ? 0 : voteType;
+      
+      if (newVoteType === 0) {
+        // Delete the vote
+        await supabase
+          .from('comment_votes')
+          .delete()
+          .eq('comment_id', id)
+          .eq('user_id', user.id);
+        
+        setVoteCount(prev => prev - userVote);
+      } else {
+        // Upsert the vote
+        const { error } = await supabase
+          .from('comment_votes')
+          .upsert({
+            comment_id: id,
+            user_id: user.id,
+            vote_type: newVoteType
+          });
+
+        if (error) throw error;
+        
+        // Update local state
+        setVoteCount(prev => prev - userVote + newVoteType);
       }
-      return reaction;
-    }));
+      
+      setUserVote(newVoteType);
+    } catch (error) {
+      console.error('Error voting:', error);
+      toast({
+        title: "Error",
+        description: "Failed to register vote. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleReplySubmit = (content: string) => {
@@ -80,7 +116,6 @@ export const CommentItem = ({
       );
     }
 
-    // Highlight mentions
     if (mentions.length > 0) {
       const mentionPattern = new RegExp(`@(${mentions.join('|')})`, 'g');
       return content.split(mentionPattern).map((part, index) => {
@@ -125,19 +160,27 @@ export const CommentItem = ({
               </div>
               <div className="mt-2 text-gray-700">{renderContent()}</div>
               
-              <div className="mt-4 flex items-center space-x-2">
-                {reactions.map((reaction, index) => (
+              <div className="mt-4 flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
                   <Button
-                    key={index}
                     variant="ghost"
                     size="sm"
-                    className={`flex items-center space-x-1 ${reaction.active ? 'text-primary' : ''}`}
-                    onClick={() => handleReaction(index)}
+                    className={`flex items-center space-x-1 ${userVote === 1 ? 'text-primary' : ''}`}
+                    onClick={() => handleVote(1)}
                   >
-                    {reaction.icon}
-                    <span className="text-sm">{reaction.count}</span>
+                    <ThumbsUp className="w-4 h-4" />
                   </Button>
-                ))}
+                  <span className="text-sm font-medium">{voteCount}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`flex items-center space-x-1 ${userVote === -1 ? 'text-destructive' : ''}`}
+                    onClick={() => handleVote(-1)}
+                  >
+                    <ThumbsDown className="w-4 h-4" />
+                  </Button>
+                </div>
+                
                 {canReply && (
                   <Button
                     variant="ghost"
@@ -154,7 +197,7 @@ export const CommentItem = ({
               {isReplying && (
                 <div className="mt-4">
                   <CommentForm 
-                    onCommentAdded={(content) => handleReplySubmit(content)}
+                    onCommentAdded={handleReplySubmit}
                     placeholder="Write a reply..."
                     parentId={id}
                   />

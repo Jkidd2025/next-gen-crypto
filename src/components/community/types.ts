@@ -9,4 +9,6 @@ export interface Comment {
     username: string | null;
     avatar_url: string | null;
   } | null;
+  vote_count?: number;
+  user_vote?: number;
 }
