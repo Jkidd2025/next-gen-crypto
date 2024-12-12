@@ -22,10 +22,8 @@ export const Overview = () => {
 
   const handleConnect = async () => {
     try {
-      // Try Web3 wallet first (MetaMask)
       await connectWeb3();
     } catch (error) {
-      // If Web3 fails, try Phantom
       try {
         await connectPhantom();
       } catch (phantomError) {
@@ -44,40 +42,25 @@ export const Overview = () => {
 
   const isWalletConnected = account || isPhantomConnected;
 
+  const WalletButton = () => (
+    <Button 
+      onClick={isWalletConnected ? handleDisconnect : handleConnect}
+      variant="outline"
+      size="sm"
+      className="ml-2"
+    >
+      <Wallet className="mr-2 h-4 w-4" />
+      {isWalletConnected ? 'Disconnect' : 'Connect Wallet'}
+    </Button>
+  );
+
   return (
     <div className="space-y-6">
-      <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xl font-medium">Wallet Connection</CardTitle>
-          <Wallet className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          {!isWalletConnected ? (
-            <div className="space-y-4">
-              <p className="text-muted-foreground">Connect your wallet to view your token balances and perform transactions.</p>
-              <Button 
-                onClick={handleConnect}
-                className="w-full"
-              >
-                <Wallet className="mr-2 h-4 w-4" />
-                Connect Wallet
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Wallet Connected</p>
-              <p className="font-mono text-sm">{account}</p>
-              <Button 
-                onClick={handleDisconnect}
-                variant="outline"
-                className="w-full"
-              >
-                Disconnect Wallet
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {isWalletConnected && (
+        <div className="text-sm text-muted-foreground">
+          Connected: <span className="font-mono">{account}</span>
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
