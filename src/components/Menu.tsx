@@ -1,7 +1,6 @@
 import { Menu as MenuIcon, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWeb3 } from "./Web3Provider";
-import { ThemeToggle } from "./ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,8 +30,6 @@ export const Menu = () => {
 
   return (
     <div className="fixed top-8 right-8 z-50 flex items-center gap-4">
-      <ThemeToggle />
-      
       {!account ? (
         <button
           onClick={connect}
