@@ -16,7 +16,6 @@ const Login = () => {
       if (event === 'SIGNED_IN' && session) {
         navigate("/dashboard");
       } else if (event === 'SIGNED_OUT') {
-        // Handle sign out
         navigate("/login");
       }
     });
@@ -34,6 +33,15 @@ const Login = () => {
       });
     }
   }, [navigate, toast]);
+
+  const handleAuthError = (error: Error) => {
+    toast({
+      title: "Authentication Error",
+      description: "Invalid login credentials. Please check your email and password.",
+      variant: "destructive",
+    });
+    console.error("Auth error:", error);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/20 to-background flex items-center justify-center p-4">
@@ -68,6 +76,7 @@ const Login = () => {
           redirectTo={`${window.location.origin}/dashboard`}
           showLinks={true}
           view="sign_in"
+          onError={handleAuthError}
         />
       </div>
     </div>
