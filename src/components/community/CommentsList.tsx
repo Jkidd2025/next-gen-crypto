@@ -22,8 +22,14 @@ export const CommentsList = () => {
           schema: 'public',
           table: 'comments'
         },
-        (payload) => {
+        (payload: any) => {
           console.log('Change received!', payload);
+          if (payload.eventType === 'INSERT') {
+            toast({
+              title: "New Comment",
+              description: "Someone just posted a new comment!",
+            });
+          }
           fetchComments();
         }
       )
@@ -32,7 +38,7 @@ export const CommentsList = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [toast]);
 
   const fetchComments = async () => {
     const { data, error } = await supabase
