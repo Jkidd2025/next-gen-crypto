@@ -19,12 +19,12 @@ const Index = () => {
       <PriceTracker />
       <NetworkStats />
       <OurStory />
-      <LearnSection />
       <Community />
       <SecurityFeatures />
       <Tokenomics />
       <Roadmap />
       <SmartContract />
+      <LearnSection />
       <ContactUs />
     </div>
   );
