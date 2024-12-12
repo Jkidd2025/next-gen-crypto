@@ -11,40 +11,53 @@ export const TokenSwap = () => {
 
   const handleConnectWallet = async () => {
     try {
+      if (typeof window === 'undefined') {
+        throw new Error('Window object not available');
+      }
+
       // Check if Phantom is installed
-      const { solana } = window;
+      const phantom = window?.solana;
       
-      if (!solana?.isPhantom) {
+      if (!phantom?.isPhantom) {
         toast({
-          title: "Wallet Not Found",
-          description: "Please install Phantom wallet extension.",
+          title: "Phantom Wallet Not Found",
+          description: "Please install Phantom wallet extension first.",
           variant: "destructive",
         });
-        window.open("https://phantom.app/", "_blank");
+        // Open Phantom wallet installation page in a new tab
+        window.open('https://phantom.app/', '_blank');
         return;
       }
 
+      // Prompt wallet connection
       try {
-        const response = await solana.connect();
+        // Request connection to wallet
+        console.log("Requesting Phantom wallet connection...");
+        const response = await window.solana.connect();
+        console.log("Phantom connection response:", response);
+        
         const publicKey = response.publicKey.toString();
+        console.log("Connected wallet public key:", publicKey);
         
         if (publicKey) {
           setIsWalletConnected(true);
           toast({
-            title: "Wallet Connected",
-            description: "Your Phantom wallet has been successfully connected.",
+            title: "Success",
+            description: "Phantom wallet connected successfully!",
           });
         }
       } catch (err) {
+        console.error("Phantom connection error:", err);
         toast({
           title: "Connection Failed",
-          description: "Failed to connect Phantom wallet. Please try again.",
+          description: "Failed to connect to Phantom wallet. Please try again.",
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.error("Wallet connection error:", error);
       toast({
-        title: "Connection Failed",
+        title: "Error",
         description: "Failed to connect wallet. Please try again.",
         variant: "destructive",
       });
