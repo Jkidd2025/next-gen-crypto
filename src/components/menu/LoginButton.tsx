@@ -7,10 +7,10 @@ interface LoginButtonProps {
 
 export const LoginButton = ({ onLogin }: LoginButtonProps) => (
   <DropdownMenuItem 
-    className="cursor-pointer text-xl py-4 text-black dark:text-white hover:text-primary transition-colors"
+    className="flex items-center gap-3 cursor-pointer text-xl py-4 px-6 text-black dark:text-white hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-300 mt-4"
     onClick={onLogin}
   >
-    <LogIn className="mr-2 h-5 w-5" />
+    <LogIn className="w-5 h-5" />
     Login
   </DropdownMenuItem>
 );
