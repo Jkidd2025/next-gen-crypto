@@ -12,5 +12,10 @@ declare global {
       on: (event: string, callback: (...args: any[]) => void) => void;
       removeListener: (event: string, callback: (...args: any[]) => void) => void;
     };
+    solana?: {
+      isPhantom?: boolean;
+      connect: () => Promise<{ publicKey: { toString: () => string } }>;
+      disconnect: () => Promise<void>;
+    };
   }
 }

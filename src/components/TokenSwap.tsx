@@ -11,19 +11,34 @@ export const TokenSwap = () => {
 
   const handleConnectWallet = async () => {
     try {
-      if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts.length > 0) {
+      // Check if Phantom is installed
+      const { solana } = window;
+      
+      if (!solana?.isPhantom) {
+        toast({
+          title: "Wallet Not Found",
+          description: "Please install Phantom wallet extension.",
+          variant: "destructive",
+        });
+        window.open("https://phantom.app/", "_blank");
+        return;
+      }
+
+      try {
+        const response = await solana.connect();
+        const publicKey = response.publicKey.toString();
+        
+        if (publicKey) {
           setIsWalletConnected(true);
           toast({
             title: "Wallet Connected",
-            description: "Your wallet has been successfully connected.",
+            description: "Your Phantom wallet has been successfully connected.",
           });
         }
-      } else {
+      } catch (err) {
         toast({
-          title: "Wallet Not Found",
-          description: "Please install a Web3 wallet like MetaMask.",
+          title: "Connection Failed",
+          description: "Failed to connect Phantom wallet. Please try again.",
           variant: "destructive",
         });
       }
@@ -44,14 +59,14 @@ export const TokenSwap = () => {
           {!isWalletConnected ? (
             <div className="text-center space-y-4">
               <p className="text-gray-600 mb-4">
-                Connect your wallet to start swapping tokens
+                Connect your Phantom wallet to start swapping tokens
               </p>
               <Button 
                 onClick={handleConnectWallet}
                 className="w-full"
               >
                 <Wallet className="mr-2 h-4 w-4" />
-                Connect Wallet
+                Connect Phantom Wallet
               </Button>
             </div>
           ) : (
