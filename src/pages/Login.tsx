@@ -12,7 +12,7 @@ const Login = () => {
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
       if (event === 'SIGNED_IN' && session) {
         navigate("/dashboard");
       } else if (event === 'SIGNED_OUT') {
@@ -32,6 +32,10 @@ const Login = () => {
         variant: "destructive",
       });
     }
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   return (
