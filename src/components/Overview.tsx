@@ -19,28 +19,28 @@ export const Overview = () => {
       value: "$45,231.89",
       description: "+20.1% from last month",
       icon: DollarSign,
-      trend: "up",
+      trend: "up" as const,
     },
     {
       title: "Token Price",
       value: "$0.000001",
       description: "+10.5% from last week",
       icon: TrendingUp,
-      trend: "up",
+      trend: "up" as const,
     },
     {
       title: "Total Holders",
       value: "2,350",
       description: "+180 new holders this week",
       icon: Users,
-      trend: "up",
+      trend: "up" as const,
     },
     {
       title: "Trading Volume",
       value: "$12,234",
       description: "+7% from yesterday",
       icon: Activity,
-      trend: "up",
+      trend: "up" as const,
     },
   ];
 
