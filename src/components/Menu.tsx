@@ -1,14 +1,13 @@
-import { Menu as MenuIcon, LogIn, BookOpen } from "lucide-react";
+import { Menu as MenuIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MenuItem } from "./menu/MenuItems";
+import { LearnMenu } from "./menu/LearnMenu";
+import { LoginButton } from "./menu/LoginButton";
 
 export const Menu = () => {
   const navigate = useNavigate();
@@ -29,20 +28,29 @@ export const Menu = () => {
     { label: "Trading Basics", path: "/trading-basics" },
   ];
 
+  const closeMenu = () => {
+    const menuTrigger = document.querySelector('[aria-label="Toggle menu"]') as HTMLButtonElement;
+    if (menuTrigger) {
+      menuTrigger.click();
+    }
+  };
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
+      closeMenu();
     }
   };
 
   const handleLearnItemClick = (path: string) => {
     navigate(path);
-    // Find and click the menu trigger button to close the dropdown
-    const menuTrigger = document.querySelector('[aria-label="Toggle menu"]') as HTMLButtonElement;
-    if (menuTrigger) {
-      menuTrigger.click();
-    }
+    closeMenu();
+  };
+
+  const handleLogin = () => {
+    navigate("/login");
+    closeMenu();
   };
 
   return (
@@ -69,54 +77,18 @@ export const Menu = () => {
         >
           <div className="flex flex-col gap-8">
             {menuItems.map((item) => (
-              <DropdownMenuItem 
-                key={item.label} 
-                className="cursor-pointer text-xl py-4 text-black dark:text-white hover:text-primary transition-colors"
-                onClick={() => {
-                  scrollToSection(item.id);
-                  const menuTrigger = document.querySelector('[aria-label="Toggle menu"]') as HTMLButtonElement;
-                  if (menuTrigger) {
-                    menuTrigger.click();
-                  }
-                }}
-              >
-                {item.label}
-              </DropdownMenuItem>
+              <MenuItem
+                key={item.label}
+                label={item.label}
+                id={item.id}
+                onItemClick={scrollToSection}
+              />
             ))}
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger className="cursor-pointer text-xl py-4 text-black dark:text-white hover:text-primary transition-colors">
-                <BookOpen className="mr-2 h-5 w-5" />
-                Learn
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md">
-                {learnItems.map((item) => (
-                  <DropdownMenuItem
-                    key={item.label}
-                    className="cursor-pointer text-lg py-3 text-black dark:text-white hover:text-primary transition-colors"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleLearnItemClick(item.path);
-                    }}
-                  >
-                    {item.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuItem 
-              className="cursor-pointer text-xl py-4 text-black dark:text-white hover:text-primary transition-colors"
-              onClick={() => {
-                navigate("/login");
-                const menuTrigger = document.querySelector('[aria-label="Toggle menu"]') as HTMLButtonElement;
-                if (menuTrigger) {
-                  menuTrigger.click();
-                }
-              }}
-            >
-              <LogIn className="mr-2 h-5 w-5" />
-              Login
-            </DropdownMenuItem>
+            <LearnMenu 
+              items={learnItems}
+              onItemClick={handleLearnItemClick}
+            />
+            <LoginButton onLogin={handleLogin} />
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
