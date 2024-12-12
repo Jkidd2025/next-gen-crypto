@@ -34,15 +34,6 @@ const Login = () => {
     }
   }, [navigate, toast]);
 
-  const handleAuthError = (error: Error) => {
-    toast({
-      title: "Authentication Error",
-      description: "Invalid login credentials. Please check your email and password.",
-      variant: "destructive",
-    });
-    console.error("Auth error:", error);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/20 to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 bg-white/90 backdrop-blur-md p-8 rounded-lg border border-white/20">
@@ -72,11 +63,24 @@ const Login = () => {
               },
             }
           }}
+          localization={{
+            variables: {
+              sign_in: {
+                email_input_placeholder: "Your email address",
+                password_input_placeholder: "Your password",
+                email_label: "Email address",
+                password_label: "Password",
+                button_label: "Sign in",
+                loading_button_label: "Signing in ...",
+                social_provider_text: "Sign in with {{provider}}",
+                link_text: "Already have an account? Sign in",
+              },
+            },
+          }}
           providers={[]}
           redirectTo={`${window.location.origin}/dashboard`}
           showLinks={true}
           view="sign_in"
-          onAuthError={handleAuthError}
         />
       </div>
     </div>
