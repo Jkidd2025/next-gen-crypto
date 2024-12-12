@@ -76,7 +76,7 @@ const Login = () => {
           redirectTo={`${window.location.origin}/dashboard`}
           showLinks={true}
           view="sign_in"
-          onError={handleAuthError}
+          onAuthError={handleAuthError}
         />
       </div>
     </div>
