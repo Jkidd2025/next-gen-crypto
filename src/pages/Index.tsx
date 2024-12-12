@@ -6,17 +6,13 @@ import { SmartContract } from "@/components/SmartContract";
 import { Community } from "@/components/Community";
 import { ContactUs } from "@/components/ContactUs";
 import { Menu } from "@/components/Menu";
-import { PriceTracker } from "@/components/PriceTracker";
 import { LearnSection } from "@/components/LearnSection";
-import { NetworkStats } from "@/components/NetworkStats";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Menu />
       <Hero />
-      <PriceTracker />
-      <NetworkStats />
       <OurStory />
       <Community />
       <Tokenomics />
