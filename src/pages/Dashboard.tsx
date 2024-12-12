@@ -47,11 +47,9 @@ const Dashboard = () => {
                  location.pathname.split("/").pop()?.charAt(0).toUpperCase() + 
                  location.pathname.split("/").pop()?.slice(1)}
               </h1>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </div>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                Logout
+              </Button>
             </div>
             {renderContent()}
           </div>
