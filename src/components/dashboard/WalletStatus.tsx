@@ -10,18 +10,28 @@ interface WalletStatusProps {
 
 export const WalletStatus = ({ isConnected, account, onConnect, onDisconnect }: WalletStatusProps) => {
   const handleClick = async () => {
-    if (isConnected) {
-      await onDisconnect();
-    } else {
-      await onConnect();
+    try {
+      if (isConnected) {
+        await onDisconnect();
+      } else {
+        await onConnect();
+      }
+    } catch (error) {
+      console.error("Wallet operation failed:", error);
     }
   };
 
+  const displayAddress = account === 'phantom-wallet' 
+    ? 'Phantom Wallet'
+    : account 
+      ? `${account.slice(0, 6)}...${account.slice(-4)}`
+      : '';
+
   return (
     <div className="flex items-center gap-2">
-      {isConnected && account && (
+      {isConnected && (
         <div className="text-sm text-muted-foreground">
-          Connected: <span className="font-mono">{`${account.slice(0, 6)}...${account.slice(-4)}`}</span>
+          Connected: <span className="font-mono">{displayAddress}</span>
         </div>
       )}
       <Button 
