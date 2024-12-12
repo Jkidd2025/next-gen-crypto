@@ -41,43 +41,32 @@ export const useWallet = () => {
       }
 
       setIsConnecting(true);
+      const accounts = await ethereum.request({ 
+        method: 'eth_requestAccounts' 
+      });
       
-      try {
-        const accounts = await ethereum.request({ 
-          method: 'eth_requestAccounts' 
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+        toast({
+          title: "Wallet Connected",
+          description: `Connected with address: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
         });
-        
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-          toast({
-            title: "Wallet Connected",
-            description: `Connected with address: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`,
-          });
-        }
-      } catch (error: any) {
-        // Handle user rejection or other MetaMask errors
-        if (error.code === 4001) {
-          toast({
-            title: "Connection Rejected",
-            description: "You rejected the connection request.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Connection Failed",
-            description: "Failed to connect to MetaMask. Please try again.",
-            variant: "destructive",
-          });
-        }
-        setAccount(null);
       }
     } catch (error: any) {
       console.error('Error connecting wallet:', error);
-      toast({
-        title: "Connection Error",
-        description: error.message || "An unexpected error occurred.",
-        variant: "destructive",
-      });
+      if (error.code === 4001) {
+        toast({
+          title: "Connection Rejected",
+          description: "You rejected the connection request.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Connection Failed",
+          description: "Failed to connect to MetaMask. Please try again.",
+          variant: "destructive",
+        });
+      }
       setAccount(null);
     } finally {
       setIsConnecting(false);
@@ -102,11 +91,12 @@ export const useWallet = () => {
   };
 
   useEffect(() => {
+    // Initial check
     checkIfWalletIsConnected();
 
+    // Setup event listeners
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts: string[]) => {
-        console.log('Account changed:', accounts);
         if (accounts.length > 0) {
           setAccount(accounts[0]);
           toast({
@@ -135,6 +125,7 @@ export const useWallet = () => {
       });
     }
 
+    // Cleanup function
     return () => {
       if (window.ethereum) {
         window.ethereum.removeListener('accountsChanged', () => {});
@@ -142,7 +133,7 @@ export const useWallet = () => {
         window.ethereum.removeListener('disconnect', () => {});
       }
     };
-  }, [checkIfWalletIsConnected]);
+  }, [checkIfWalletIsConnected, toast]);
 
   return {
     account,
