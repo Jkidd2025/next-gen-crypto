@@ -12,6 +12,7 @@ const SignupSuccess = lazy(() => import("./pages/SignupSuccess"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const TokenSwap = lazy(() => import("./pages/TokenSwap"));
+const GettingStarted = lazy(() => import("./pages/GettingStarted"));
 
 // Create a client with optimized settings
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ function App() {
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/getting-started" element={<GettingStarted />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/signup-success" element={<SignupSuccess />} />
