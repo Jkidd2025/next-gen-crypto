@@ -1,8 +1,13 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { useWallet } from '@/hooks/useWallet';
+import { createContext, useContext, useState } from 'react';
 import { usePhantomWallet } from '@/hooks/usePhantomWallet';
-import { Web3ContextType } from '@/types/web3';
 import { toast } from '@/hooks/use-toast';
+
+type Web3ContextType = {
+  account: string | null;
+  isConnecting: boolean;
+  connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
+};
 
 const Web3Context = createContext<Web3ContextType>({
   account: null,
@@ -14,47 +19,43 @@ const Web3Context = createContext<Web3ContextType>({
 export const useWeb3 = () => useContext(Web3Context);
 
 export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
-  const metamaskWallet = useWallet();
-  const { isWalletConnected: isPhantomConnected, handleConnectWallet: connectPhantom } = usePhantomWallet();
-  const [activeWallet, setActiveWallet] = useState<'metamask' | 'phantom' | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const { isWalletConnected, publicKey, handleConnectWallet, handleDisconnectWallet } = usePhantomWallet();
 
-  const handleConnect = async () => {
+  const connect = async () => {
     try {
-      // Try Phantom first
-      await connectPhantom();
-      setActiveWallet('phantom');
-    } catch (phantomError) {
-      console.log("Phantom connection failed, trying MetaMask...");
-      try {
-        await metamaskWallet.connect();
-        setActiveWallet('metamask');
-      } catch (metamaskError) {
-        console.error("Both wallet connections failed:", { phantomError, metamaskError });
-        toast({
-          title: "Connection Failed",
-          description: "Failed to connect to any wallet. Please try again.",
-          variant: "destructive",
-        });
-      }
+      setIsConnecting(true);
+      await handleConnectWallet();
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+      toast({
+        title: "Connection Failed",
+        description: "Failed to connect to Phantom wallet. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
     }
   };
 
-  const handleDisconnect = async () => {
-    if (activeWallet === 'metamask') {
-      await metamaskWallet.disconnect();
+  const disconnect = async () => {
+    try {
+      await handleDisconnectWallet();
+      toast({
+        title: "Wallet Disconnected",
+        description: "Your wallet has been disconnected.",
+      });
+    } catch (error) {
+      console.error('Failed to disconnect wallet:', error);
     }
-    setActiveWallet(null);
   };
-
-  const isConnected = isPhantomConnected || !!metamaskWallet.account;
-  const account = activeWallet === 'metamask' ? metamaskWallet.account : null;
 
   return (
     <Web3Context.Provider value={{
-      account: isConnected ? (account || 'phantom-wallet') : null,
-      isConnecting: metamaskWallet.isConnecting,
-      connect: handleConnect,
-      disconnect: handleDisconnect,
+      account: isWalletConnected ? publicKey : null,
+      isConnecting,
+      connect,
+      disconnect,
     }}>
       {children}
     </Web3Context.Provider>

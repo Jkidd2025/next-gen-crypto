@@ -8,7 +8,12 @@ interface WalletStatusProps {
   onDisconnect: () => Promise<void>;
 }
 
-export const WalletStatus = ({ isConnected, account, onConnect, onDisconnect }: WalletStatusProps) => {
+export const WalletStatus = ({ 
+  isConnected, 
+  account, 
+  onConnect, 
+  onDisconnect 
+}: WalletStatusProps) => {
   const handleClick = async () => {
     try {
       if (isConnected) {
@@ -21,11 +26,9 @@ export const WalletStatus = ({ isConnected, account, onConnect, onDisconnect }: 
     }
   };
 
-  const displayAddress = account === 'phantom-wallet' 
-    ? 'Phantom Wallet'
-    : account 
-      ? `${account.slice(0, 6)}...${account.slice(-4)}`
-      : '';
+  const displayAddress = account 
+    ? `${account.slice(0, 6)}...${account.slice(-4)}`
+    : '';
 
   return (
     <div className="flex items-center gap-2">
