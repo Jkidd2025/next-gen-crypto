@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "next-themes";
 import { Suspense, lazy } from "react";
 import { Web3Provider } from "./components/Web3Provider";
 import { AuthProvider } from "./components/AuthProvider";
@@ -29,49 +28,47 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-      <QueryClientProvider client={queryClient}>
-        <Web3Provider>
-          <AuthProvider>
-            <Router>
-              <Suspense fallback={<div>Loading...</div>}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/signup-success" element={<SignupSuccess />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route
-                    path="/dashboard/*"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/swap"
-                    element={
-                      <ProtectedRoute>
-                        <TokenSwap />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/community"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </Suspense>
-            </Router>
-          </AuthProvider>
-        </Web3Provider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <Web3Provider>
+        <AuthProvider>
+          <Router>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/signup-success" element={<SignupSuccess />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route
+                  path="/dashboard/*"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/swap"
+                  element={
+                    <ProtectedRoute>
+                      <TokenSwap />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/community"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </Suspense>
+          </Router>
+        </AuthProvider>
+      </Web3Provider>
+    </QueryClientProvider>
   );
 }
 
