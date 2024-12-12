@@ -1,10 +1,6 @@
 import { DollarSign, TrendingUp, Users, Activity } from "lucide-react";
-import { useWeb3 } from "./Web3Provider";
-import { usePhantomWallet } from "@/hooks/usePhantomWallet";
-import { useToast } from "@/hooks/use-toast";
 import { StatsCard } from "./dashboard/StatsCard";
 import { TokenPriceChart } from "./dashboard/TokenPriceChart";
-import { WalletStatus } from "./dashboard/WalletStatus";
 
 const data = [
   { name: 'Jan', value: 400 },
@@ -16,32 +12,6 @@ const data = [
 ];
 
 export const Overview = () => {
-  const { account, connect: connectWeb3, disconnect: disconnectWeb3 } = useWeb3();
-  const { isWalletConnected: isPhantomConnected, handleConnectWallet: connectPhantom } = usePhantomWallet();
-  const { toast } = useToast();
-
-  const handleConnect = async () => {
-    try {
-      await connectWeb3();
-    } catch (error) {
-      try {
-        await connectPhantom();
-      } catch (phantomError) {
-        toast({
-          title: "Connection Failed",
-          description: "Failed to connect wallet. Please try again.",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const handleDisconnect = async () => {
-    await disconnectWeb3();
-  };
-
-  const isWalletConnected = Boolean(account) || isPhantomConnected;
-
   const stats = [
     {
       title: "Market Cap",
@@ -71,19 +41,11 @@ export const Overview = () => {
 
   return (
     <div className="space-y-6">
-      <WalletStatus
-        isConnected={isWalletConnected}
-        account={account}
-        onConnect={handleConnect}
-        onDisconnect={handleDisconnect}
-      />
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <StatsCard key={stat.title} {...stat} />
         ))}
       </div>
-
       <TokenPriceChart data={data} />
     </div>
   );
