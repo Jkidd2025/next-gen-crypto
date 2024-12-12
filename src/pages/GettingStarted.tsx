@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Bitcoin, ShieldCheck, Wallet, BookOpen, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const GettingStarted = () => {
@@ -19,7 +19,10 @@ const GettingStarted = () => {
 
         <div className="space-y-12">
           <section className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg p-8 shadow-lg">
-            <h2 className="text-3xl font-semibold mb-6 text-primary">What is Cryptocurrency?</h2>
+            <div className="flex items-center gap-4 mb-6">
+              <Bitcoin className="h-8 w-8 text-primary" />
+              <h2 className="text-3xl font-semibold text-primary">What is Cryptocurrency?</h2>
+            </div>
             <p className="text-muted-foreground leading-relaxed mb-4">
               Cryptocurrency is a digital or virtual form of currency that uses cryptography for security. 
               Unlike traditional currencies issued by governments, cryptocurrencies are typically decentralized 
@@ -28,7 +31,10 @@ const GettingStarted = () => {
           </section>
 
           <section className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg p-8 shadow-lg">
-            <h2 className="text-3xl font-semibold mb-6 text-primary">Key Concepts</h2>
+            <div className="flex items-center gap-4 mb-6">
+              <BookOpen className="h-8 w-8 text-primary" />
+              <h2 className="text-3xl font-semibold text-primary">Key Concepts</h2>
+            </div>
             <ul className="list-none space-y-4 text-muted-foreground">
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 rounded-full bg-primary mt-2 mr-3"></span>
@@ -69,7 +75,10 @@ const GettingStarted = () => {
           </section>
 
           <section className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg p-8 shadow-lg">
-            <h2 className="text-3xl font-semibold mb-6 text-primary">Safety First</h2>
+            <div className="flex items-center gap-4 mb-6">
+              <ShieldCheck className="h-8 w-8 text-primary" />
+              <h2 className="text-3xl font-semibold text-primary">Safety First</h2>
+            </div>
             <div className="space-y-6 text-muted-foreground">
               <div>
                 <strong className="text-foreground block mb-2">Research thoroughly</strong>
@@ -91,7 +100,10 @@ const GettingStarted = () => {
           </section>
 
           <section className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg p-8 shadow-lg">
-            <h2 className="text-3xl font-semibold mb-6 text-primary">Getting Your First Cryptocurrency</h2>
+            <div className="flex items-center gap-4 mb-6">
+              <Wallet className="h-8 w-8 text-primary" />
+              <h2 className="text-3xl font-semibold text-primary">Getting Your First Cryptocurrency</h2>
+            </div>
             <ol className="list-decimal list-inside space-y-4 text-muted-foreground ml-4">
               <li className="pl-2">Choose a reputable cryptocurrency exchange</li>
               <li className="pl-2">Create and verify your account</li>
@@ -103,7 +115,10 @@ const GettingStarted = () => {
           </section>
 
           <section className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg p-8 shadow-lg">
-            <h2 className="text-3xl font-semibold mb-6 text-primary">Common Mistakes to Avoid</h2>
+            <div className="flex items-center gap-4 mb-6">
+              <AlertTriangle className="h-8 w-8 text-accent" />
+              <h2 className="text-3xl font-semibold text-primary">Common Mistakes to Avoid</h2>
+            </div>
             <ul className="list-none space-y-4 text-muted-foreground">
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 rounded-full bg-accent mt-2 mr-3"></span>
