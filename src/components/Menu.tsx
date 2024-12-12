@@ -1,8 +1,5 @@
 import { Menu as MenuIcon, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useWeb3 } from "./Web3Provider";
-import { usePhantomWallet } from "@/hooks/usePhantomWallet";
-import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +9,6 @@ import {
 
 export const Menu = () => {
   const navigate = useNavigate();
-  const { account, connect: connectWeb3, disconnect: disconnectWeb3 } = useWeb3();
-  const { isWalletConnected: isPhantomConnected, handleConnectWallet: connectPhantom } = usePhantomWallet();
-  const { toast } = useToast();
   
   const menuItems = [
     { label: "Our Story", id: "our-story" },
@@ -25,29 +19,6 @@ export const Menu = () => {
     { label: "Contact Us", id: "contact-us" }
   ];
 
-  const handleConnect = async () => {
-    try {
-      // Try Web3 wallet first (MetaMask)
-      await connectWeb3();
-    } catch (error) {
-      // If Web3 fails, try Phantom
-      try {
-        await connectPhantom();
-      } catch (phantomError) {
-        toast({
-          title: "Connection Failed",
-          description: "Failed to connect wallet. Please try again.",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const handleDisconnect = async () => {
-    await disconnectWeb3();
-    // Phantom wallet disconnection is handled automatically through its event listener
-  };
-
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -55,25 +26,14 @@ export const Menu = () => {
     }
   };
 
-  const isWalletConnected = account || isPhantomConnected;
-
   return (
     <div className="fixed top-8 right-8 z-50 flex items-center gap-4">
-      {!isWalletConnected ? (
-        <button
-          onClick={handleConnect}
-          className="hidden md:flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          Connect Wallet
-        </button>
-      ) : (
-        <button
-          onClick={handleDisconnect}
-          className="hidden md:flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          Disconnect Wallet
-        </button>
-      )}
+      <button
+        onClick={() => navigate("/login")}
+        className="hidden md:flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+      >
+        Login
+      </button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
