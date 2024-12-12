@@ -35,8 +35,8 @@ export const CommentsFeed = ({ comments, onReply }: CommentsFeedProps) => {
   }, {});
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
+    <div className="space-y-8">
+      <div className="flex items-center justify-end border-b pb-4">
         <Select defaultValue="newest">
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
@@ -49,7 +49,7 @@ export const CommentsFeed = ({ comments, onReply }: CommentsFeedProps) => {
         </Select>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         {Object.values(threadedComments)
           .filter((comment: any) => !comment.parent_id)
           .map((comment: any) => (
