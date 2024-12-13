@@ -6,12 +6,14 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  supabase: typeof supabase;
 }
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   loading: true,
+  supabase: supabase,
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -40,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, user, loading }}>
+    <AuthContext.Provider value={{ session, user, loading, supabase }}>
       {children}
     </AuthContext.Provider>
   );
