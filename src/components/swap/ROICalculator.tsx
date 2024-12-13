@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Calculator } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { Slider } from "@/components/ui/slider";
 
 const fetchCurrentPrice = async () => {
   const { data, error } = await supabase
@@ -19,7 +20,7 @@ const fetchCurrentPrice = async () => {
 
 export const ROICalculator = () => {
   const [investment, setInvestment] = useState("");
-  const [duration, setDuration] = useState("");
+  const [targetPrice, setTargetPrice] = useState<number>(1);
   const [estimatedReturns, setEstimatedReturns] = useState<number | null>(null);
   const [tokenAmount, setTokenAmount] = useState<number | null>(null);
 
@@ -30,28 +31,23 @@ export const ROICalculator = () => {
 
   const calculateROI = () => {
     const principal = parseFloat(investment);
-    const months = parseFloat(duration);
     
-    if (principal && months && currentPrice) {
+    if (principal && currentPrice && targetPrice) {
       // Calculate number of tokens that can be bought with the investment
       const tokens = principal / currentPrice;
       setTokenAmount(tokens);
 
-      // Example calculation - replace with actual tokenomics
-      const annualRate = 0.15; // 15% annual return
-      const monthlyRate = annualRate / 12;
-      const projectedPrice = currentPrice * Math.pow(1 + monthlyRate, months);
-      const returns = tokens * projectedPrice;
-      
+      // Calculate returns based on target price
+      const returns = tokens * targetPrice;
       setEstimatedReturns(returns);
     }
   };
 
   useEffect(() => {
-    if (investment && duration && currentPrice) {
+    if (investment && currentPrice && targetPrice) {
       calculateROI();
     }
-  }, [investment, duration, currentPrice]);
+  }, [investment, currentPrice, targetPrice]);
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm">
@@ -76,16 +72,19 @@ export const ROICalculator = () => {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="duration">Time Period (Months)</Label>
-          <Input
-            id="duration"
-            type="number"
-            placeholder="Enter months"
-            value={duration}
-            onChange={(e) => {
-              setDuration(e.target.value);
-            }}
-          />
+          <Label>Target Price (USD)</Label>
+          <div className="pt-6">
+            <Slider
+              value={[targetPrice]}
+              onValueChange={(value) => setTargetPrice(value[0])}
+              max={100}
+              min={currentPrice || 0.000001}
+              step={0.1}
+            />
+          </div>
+          <p className="text-sm text-muted-foreground mt-2">
+            Target Price: ${targetPrice.toFixed(2)}
+          </p>
         </div>
 
         {currentPrice && (
