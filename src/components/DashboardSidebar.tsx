@@ -28,7 +28,7 @@ export const DashboardSidebar = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/login");
+    navigate("/"); // Changed from "/login" to "/" to redirect to landing page
   };
 
   const links = [
