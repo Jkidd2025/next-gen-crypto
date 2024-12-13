@@ -54,14 +54,6 @@ function App() {
                 }
               />
               <Route
-                path="/dashboard/analytics"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/dashboard/swap"
                 element={
                   <ProtectedRoute>
