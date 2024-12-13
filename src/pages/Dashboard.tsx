@@ -19,7 +19,7 @@ const Dashboard = () => {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate("/"); // Changed from "/login" to "/"
+      navigate("/");
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -28,6 +28,10 @@ const Dashboard = () => {
   const getPageTitle = () => {
     const path = location.pathname.split("/dashboard/")[1] || "";
     if (!path) return "Overview";
+    
+    // Special case for strategic reserve to ensure proper capitalization
+    if (path === "strategic-reserve") return "Strategic Reserve";
+    
     return path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, " ");
   };
 
