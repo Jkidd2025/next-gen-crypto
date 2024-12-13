@@ -11,7 +11,6 @@ const Signup = lazy(() => import("./pages/Signup"));
 const SignupSuccess = lazy(() => import("./pages/SignupSuccess"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const TokenSwap = lazy(() => import("./pages/TokenSwap"));
 const GettingStarted = lazy(() => import("./pages/GettingStarted"));
 const SecurityBestPractices = lazy(() => import("./pages/SecurityBestPractices"));
 const WalletManagement = lazy(() => import("./pages/WalletManagement"));
@@ -21,8 +20,8 @@ const TradingBasics = lazy(() => import("./pages/TradingBasics"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000, // 1 minute
-      gcTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 60 * 1000,
+      gcTime: 5 * 60 * 1000,
       retry: 1,
       refetchOnWindowFocus: false,
     },
