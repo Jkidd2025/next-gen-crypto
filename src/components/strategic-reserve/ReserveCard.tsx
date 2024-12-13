@@ -19,8 +19,8 @@ export const ReserveCard = ({
 }: ReserveCardProps) => {
   return (
     <Card className="transition-all duration-200 hover:shadow-lg">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{title}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <InfoTooltip content={tooltipContent} />
       </CardHeader>
       <CardContent>
@@ -28,9 +28,9 @@ export const ReserveCard = ({
           <Skeleton className="h-8 w-32" />
         ) : (
           <>
-            <p className="text-2xl font-bold">{value}</p>
+            <p className="text-lg font-bold sm:text-xl lg:text-2xl truncate">{value}</p>
             {subtitle && (
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">{subtitle}</p>
             )}
           </>
         )}

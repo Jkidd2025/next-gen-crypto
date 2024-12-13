@@ -69,8 +69,8 @@ export const StrategicReserve = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <ReserveCard
           title="Total Reserve"
           tooltipContent="The total amount of Bitcoin held in the strategic reserve"
@@ -95,7 +95,9 @@ export const StrategicReserve = () => {
         />
       </div>
 
-      <TransactionsTable transactions={transactions} isLoading={isLoading} />
+      <div className="mt-8">
+        <TransactionsTable transactions={transactions} isLoading={isLoading} />
+      </div>
     </div>
   );
 };
