@@ -11,13 +11,13 @@ export const TokenSwap = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   return (
-    <div className="py-20" id="swap">
+    <div className="py-8" id="swap">
       <div className="container mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-          Swap Tokens
+        <h2 className="text-4xl font-bold text-center mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          Tokens
         </h2>
         
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Price Chart Section */}
           <PriceChart />
           
