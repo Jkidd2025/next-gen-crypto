@@ -9,6 +9,7 @@ import { Settings } from "@/components/Settings";
 import { TokenSwap } from "@/components/TokenSwap";
 import { Routes, Route } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 const Dashboard = () => {
   const isMobile = useIsMobile();
