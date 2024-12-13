@@ -78,7 +78,10 @@ export const StrategicReserve = () => {
         <TooltipTrigger>
           <InfoIcon className="h-4 w-4 ml-2 text-muted-foreground" />
         </TooltipTrigger>
-        <TooltipContent className="bg-popover border border-border shadow-lg">
+        <TooltipContent 
+          className="bg-popover border border-border shadow-lg" 
+          sideOffset={8}
+        >
           <p className="max-w-xs text-popover-foreground font-medium px-1 py-0.5">{content}</p>
         </TooltipContent>
       </Tooltip>
