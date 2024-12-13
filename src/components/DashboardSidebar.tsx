@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export const DashboardSidebar = () => {
-  const { isOpen } = useSidebar();
+  const { open } = useSidebar();
   const location = useLocation();
 
   const isActive = (path: string) => {
@@ -34,7 +34,7 @@ export const DashboardSidebar = () => {
     <aside
       className={cn(
         "border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-        isOpen ? "w-64" : "w-16",
+        open ? "w-64" : "w-16",
         "transition-all duration-300 ease-in-out"
       )}
     >
@@ -45,13 +45,13 @@ export const DashboardSidebar = () => {
             variant={isActive(to) ? "secondary" : "ghost"}
             className={cn(
               "justify-start",
-              !isOpen && "justify-center px-0"
+              !open && "justify-center px-0"
             )}
             asChild
           >
             <Link to={`/dashboard${to}`}>
               <Icon className="h-4 w-4" />
-              {isOpen && <span className="ml-2">{label}</span>}
+              {open && <span className="ml-2">{label}</span>}
             </Link>
           </Button>
         ))}
