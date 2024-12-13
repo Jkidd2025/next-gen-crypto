@@ -3,6 +3,10 @@ import { TokenDistributionTable } from "./analytics/TokenDistributionTable";
 import { TransactionsTable } from "./analytics/TransactionsTable";
 import { HoldersList } from "./analytics/HoldersList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { InfoIcon } from "lucide-react";
+import { NetworkStatsChart } from "./analytics/NetworkStatsChart";
 
 interface WalletStats {
   totalHolders: number;
@@ -32,6 +36,7 @@ interface Holder {
 }
 
 export const Analytics = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletStats, setWalletStats] = useState<WalletStats>({
     totalHolders: 0,
@@ -72,6 +77,31 @@ export const Analytics = () => {
     }
   ];
 
+  useEffect(() => {
+    // Simulate data loading
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+  }, []);
+
+  const statsData = [
+    {
+      label: "Total Holders",
+      value: walletStats.totalHolders.toLocaleString(),
+      tooltip: "Number of unique addresses holding the token"
+    },
+    {
+      label: "Transaction Count",
+      value: walletStats.transactionCount.toLocaleString(),
+      tooltip: "Total number of transactions involving the token"
+    },
+    {
+      label: "Transaction Volume",
+      value: `$${walletStats.transactionVolume.toLocaleString()}`,
+      tooltip: "Total value of all transactions in USD"
+    }
+  ];
+
   return (
     <div className="space-y-6">      
       <Card>
@@ -79,29 +109,64 @@ export const Analytics = () => {
           <CardTitle>Network Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Total Holders</h3>
-              <p className="text-2xl font-bold mt-1">{walletStats.totalHolders.toLocaleString()}</p>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-4 w-[100px]" />
+                  <Skeleton className="h-8 w-[120px]" />
+                </div>
+              ))}
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Transaction Count</h3>
-              <p className="text-2xl font-bold mt-1">{walletStats.transactionCount.toLocaleString()}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Transaction Volume</h3>
-              <p className="text-2xl font-bold mt-1">${walletStats.transactionVolume.toLocaleString()}</p>
-            </div>
-          </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {statsData.map((stat) => (
+                  <div key={stat.label}>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center space-x-2">
+                            <h3 className="text-sm font-medium text-muted-foreground">{stat.label}</h3>
+                            <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{stat.tooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6">
+                <NetworkStatsChart data={statsData} />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TokenDistributionTable distribution={tokenDistribution} />
-        <HoldersList holders={holders} />
+        {isLoading ? (
+          <>
+            <Skeleton className="h-[400px]" />
+            <Skeleton className="h-[400px]" />
+          </>
+        ) : (
+          <>
+            <TokenDistributionTable distribution={tokenDistribution} />
+            <HoldersList holders={holders} />
+          </>
+        )}
       </div>
       
-      <TransactionsTable transactions={recentTransactions} />
+      {isLoading ? (
+        <Skeleton className="h-[300px]" />
+      ) : (
+        <TransactionsTable transactions={recentTransactions} />
+      )}
     </div>
   );
 };
