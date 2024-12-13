@@ -1,10 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { TransactionsTable } from "@/components/analytics/TransactionsTable";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { InfoIcon } from "lucide-react";
+import { ReserveCard } from "./strategic-reserve/ReserveCard";
 
 export const StrategicReserve = () => {
   const [bitcoinPrice, setBitcoinPrice] = useState<string>("Loading...");
@@ -52,7 +49,6 @@ export const StrategicReserve = () => {
         return;
       }
 
-      // Transform the data to match the TransactionsTable component format
       const formattedTransactions = data.map(tx => ({
         hash: tx.transaction_hash,
         type: 'buy',
@@ -72,74 +68,31 @@ export const StrategicReserve = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const InfoTooltip = ({ content }: { content: string }) => (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <InfoIcon className="h-4 w-4 ml-2 text-muted-foreground" />
-        </TooltipTrigger>
-        <TooltipContent 
-          className="bg-popover border border-border shadow-lg" 
-          sideOffset={16}
-        >
-          <p className="max-w-xs text-popover-foreground font-medium px-1 py-0.5">{content}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="transition-all duration-200 hover:shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Total Reserve</CardTitle>
-            <InfoTooltip content="The total amount of Bitcoin held in the strategic reserve" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <p className="text-2xl font-bold">
-                {TOTAL_RESERVE.toLocaleString()} BTC
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <ReserveCard
+          title="Total Reserve"
+          tooltipContent="The total amount of Bitcoin held in the strategic reserve"
+          value={`${TOTAL_RESERVE.toLocaleString()} BTC`}
+          isLoading={isLoading}
+        />
 
-        <Card className="transition-all duration-200 hover:shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Bitcoin Market Value</CardTitle>
-            <InfoTooltip content="Current market price of Bitcoin, updated every minute" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <>
-                <p className="text-2xl font-bold">{bitcoinPrice}</p>
-                <p className="text-sm text-muted-foreground">Current Market Price</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        <ReserveCard
+          title="Bitcoin Market Value"
+          tooltipContent="Current market price of Bitcoin, updated every minute"
+          value={bitcoinPrice}
+          subtitle="Current Market Price"
+          isLoading={isLoading}
+        />
 
-        <Card className="transition-all duration-200 hover:shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Strategic Reserve Value</CardTitle>
-            <InfoTooltip content="Total value of the strategic reserve in USD based on current Bitcoin price" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <>
-                <p className="text-2xl font-bold">{reserveValue}</p>
-                <p className="text-sm text-muted-foreground">Total Value in USD</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        <ReserveCard
+          title="Strategic Reserve Value"
+          tooltipContent="Total value of the strategic reserve in USD based on current Bitcoin price"
+          value={reserveValue}
+          subtitle="Total Value in USD"
+          isLoading={isLoading}
+        />
       </div>
 
       <TransactionsTable transactions={transactions} isLoading={isLoading} />
