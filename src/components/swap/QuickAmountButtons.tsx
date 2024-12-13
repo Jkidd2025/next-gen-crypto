@@ -7,7 +7,7 @@ interface QuickAmountButtonsProps {
 
 export const QuickAmountButtons = ({ onSelect, isWalletConnected }: QuickAmountButtonsProps) => {
   return (
-    <div className="flex gap-2 mt-2">
+    <div className="flex flex-wrap gap-2">
       {[25, 50, 75, 100].map((percentage) => (
         <Button
           key={percentage}
@@ -15,6 +15,7 @@ export const QuickAmountButtons = ({ onSelect, isWalletConnected }: QuickAmountB
           size="sm"
           onClick={() => onSelect(percentage)}
           disabled={!isWalletConnected}
+          className="flex-1 min-w-[60px]"
         >
           {percentage === 100 ? 'MAX' : `${percentage}%`}
         </Button>

@@ -27,9 +27,9 @@ export const SwapInput = ({
   onTokenSelect,
 }: SwapInputProps) => {
   return (
-    <div>
-      <label className="block text-sm font-medium mb-2">{label}</label>
-      <div className="flex gap-2">
+    <div className="space-y-2">
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      <div className="flex flex-col sm:flex-row gap-2">
         <Input
           type="number"
           placeholder="0.0"
@@ -37,11 +37,11 @@ export const SwapInput = ({
           onChange={(e) => onChange?.(e.target.value)}
           readOnly={readOnly}
           disabled={!isWalletConnected}
-          className="flex-1"
+          className="flex-1 text-lg"
         />
         <Button
           variant="outline"
-          className="flex items-center gap-2"
+          className="flex items-center justify-center gap-2 w-full sm:w-auto"
           onClick={onTokenSelect}
         >
           {label.split(" ")[1].replace(/[()]/g, "")}
@@ -49,10 +49,12 @@ export const SwapInput = ({
         </Button>
       </div>
       {showQuickAmounts && onQuickAmountSelect && (
-        <QuickAmountButtons
-          onSelect={onQuickAmountSelect}
-          isWalletConnected={isWalletConnected}
-        />
+        <div className="mt-2">
+          <QuickAmountButtons
+            onSelect={onQuickAmountSelect}
+            isWalletConnected={isWalletConnected}
+          />
+        </div>
       )}
       {minimumReceived && (
         <div className="mt-2 text-sm text-muted-foreground">
