@@ -16,8 +16,8 @@ const Index = () => {
       <main className="w-full">
         <div className="flex flex-col">
           <Hero />
-          <OurStory />
           <TokenSwap />
+          <OurStory />
           <Community />
           <Tokenomics />
           <Roadmap />
