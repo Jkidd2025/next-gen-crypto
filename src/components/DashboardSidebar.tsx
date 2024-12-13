@@ -11,10 +11,12 @@ import {
   Shield,
   Home,
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const DashboardSidebar = () => {
   const { open } = useSidebar();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   const isActive = (path: string) => {
     return location.pathname === "/dashboard" + path;
@@ -33,19 +35,21 @@ export const DashboardSidebar = () => {
   return (
     <aside
       className={cn(
-        "border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "fixed left-0 top-0 z-30 h-full border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         open ? "w-64" : "w-16",
-        "transition-all duration-300 ease-in-out"
+        "transition-all duration-300 ease-in-out",
+        isMobile && !open && "w-0 -translate-x-full"
       )}
     >
-      <nav className="flex flex-col gap-2 p-4">
+      <nav className="flex h-full flex-col gap-2 p-4">
         {links.map(({ to, icon: Icon, label }) => (
           <Button
             key={to}
             variant={isActive(to) ? "secondary" : "ghost"}
             className={cn(
               "justify-start",
-              !open && "justify-center px-0"
+              !open && "justify-center px-0",
+              isMobile && !open && "hidden"
             )}
             asChild
           >
