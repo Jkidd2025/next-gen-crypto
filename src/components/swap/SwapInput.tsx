@@ -30,18 +30,20 @@ export const SwapInput = ({
     <div className="space-y-2">
       <label className="block text-sm font-medium mb-1">{label}</label>
       <div className="flex flex-col sm:flex-row gap-2">
-        <Input
-          type="number"
-          placeholder="0.0"
-          value={value}
-          onChange={(e) => onChange?.(e.target.value)}
-          readOnly={readOnly}
-          disabled={!isWalletConnected}
-          className="flex-1 text-lg"
-        />
+        <div className="flex-1">
+          <Input
+            type="number"
+            placeholder="0.0"
+            value={value}
+            onChange={(e) => onChange?.(e.target.value)}
+            readOnly={readOnly}
+            disabled={!isWalletConnected}
+            className="w-full text-lg"
+          />
+        </div>
         <Button
           variant="outline"
-          className="flex items-center justify-center gap-2 w-full sm:w-auto"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 min-w-[120px]"
           onClick={onTokenSelect}
         >
           {label.split(" ")[1].replace(/[()]/g, "")}

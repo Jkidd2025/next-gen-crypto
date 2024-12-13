@@ -20,17 +20,17 @@ export const PriceChart = () => {
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <span>Price Chart</span>
-          <div className="flex flex-wrap gap-2">
+      <CardHeader className="space-y-4">
+        <CardTitle className="flex flex-col space-y-4">
+          <span className="text-xl md:text-2xl">Price Chart</span>
+          <div className="flex flex-wrap gap-2 justify-start">
             {timeframes.map((timeframe) => (
               <Button
                 key={timeframe}
                 variant={selectedTimeframe === timeframe ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedTimeframe(timeframe)}
-                className="flex-1 sm:flex-none min-w-[60px]"
+                className="flex-1 sm:flex-none min-w-[60px] max-w-[100px]"
               >
                 {timeframe}
               </Button>
@@ -39,7 +39,7 @@ export const PriceChart = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[250px] sm:h-[300px] w-full">
+        <div className="h-[200px] xs:h-[250px] sm:h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mockData}>
               <XAxis 

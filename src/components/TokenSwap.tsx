@@ -13,20 +13,24 @@ export const TokenSwap = () => {
   return (
     <div className="py-4 md:py-8" id="swap">
       <div className="container mx-auto px-4 md:px-6">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 md:mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-4 md:mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
           Tokens
         </h2>
         
         <div className="space-y-4 md:space-y-6">
           {/* Price Chart Section */}
-          <div className="overflow-hidden">
+          <div className="w-full overflow-hidden rounded-lg">
             <PriceChart />
           </div>
           
           {/* Stats Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MarketStats />
-            <LiquidityPoolStats />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            <div className="w-full">
+              <MarketStats />
+            </div>
+            <div className="w-full">
+              <LiquidityPoolStats />
+            </div>
           </div>
 
           {/* ROI Calculator Row */}
@@ -35,8 +39,8 @@ export const TokenSwap = () => {
           </div>
           
           {/* Swap Form Section */}
-          <div className="max-w-xl mx-auto">
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-8 border border-primary/10">
+          <div className="w-full max-w-xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-3 md:p-6 border border-primary/10">
               {!isWalletConnected ? (
                 <WalletConnect onConnect={setIsWalletConnected} />
               ) : (
