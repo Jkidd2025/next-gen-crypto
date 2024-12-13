@@ -63,7 +63,6 @@ export const Menu = () => {
           <DropdownMenuContent
             align="end"
             className="w-[360px] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
-            forceMount={false}
             sideOffset={8}
           >
             <div className="p-4">
