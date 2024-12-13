@@ -19,7 +19,7 @@ export const DashboardSidebar = () => {
       
       <aside
         className={cn(
-          "fixed left-0 top-0 z-30 h-screen w-[280px] border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+          "fixed left-0 top-0 z-40 h-screen w-[280px] border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
           "transition-all duration-300 ease-in-out",
           isMobile && !open && "-translate-x-full",
           !isMobile && !open && "w-20"

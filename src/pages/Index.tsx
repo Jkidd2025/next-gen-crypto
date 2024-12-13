@@ -11,7 +11,7 @@ import { TokenSwap } from "@/components/TokenSwap";
 
 const Index = () => {
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="relative min-h-screen w-full overflow-x-hidden">
       <Menu />
       <main className="w-full">
         <div className="flex flex-col">
