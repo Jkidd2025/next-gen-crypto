@@ -1,4 +1,5 @@
 import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface MobileMenuButtonProps {
   onClick: () => void;
@@ -6,11 +7,13 @@ interface MobileMenuButtonProps {
 
 export const MobileMenuButton = ({ onClick }: MobileMenuButtonProps) => {
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={onClick}
-      className="fixed top-4 right-4 z-50 p-2 bg-background border rounded-lg md:hidden"
+      className="fixed top-2 right-2 z-50 md:hidden"
     >
-      <Menu className="h-6 w-6" />
-    </button>
+      <Menu className="h-5 w-5" />
+    </Button>
   );
 };

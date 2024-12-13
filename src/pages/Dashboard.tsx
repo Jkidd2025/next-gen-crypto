@@ -8,21 +8,27 @@ import { DashboardCommunity } from "@/components/DashboardCommunity";
 import { Settings } from "@/components/Settings";
 import { TokenSwap } from "@/components/TokenSwap";
 import { Routes, Route } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Dashboard = () => {
+  const isMobile = useIsMobile();
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-background">
         <DashboardSidebar />
         
-        <main className="flex-1 ml-[280px] w-[calc(100%-280px)] overflow-y-auto">
+        <main className={cn(
+          "flex-1 overflow-y-auto",
+          isMobile ? "w-full" : "ml-[280px] w-[calc(100%-280px)]"
+        )}>
           <div className="sticky top-0 z-20 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-            <div className="flex h-16 items-center gap-4 px-4 md:px-6">
-              <h1 className="text-xl font-semibold">Dashboard</h1>
+            <div className="flex h-14 md:h-16 items-center gap-4 px-3 md:px-6">
+              <h1 className="text-lg md:text-xl font-semibold">Dashboard</h1>
             </div>
           </div>
           
-          <div className="container mx-auto max-w-7xl">
+          <div className="container mx-auto px-3 md:px-6 py-4 md:py-6">
             <Routes>
               <Route index element={<Overview />} />
               <Route path="analytics" element={<Analytics />} />
