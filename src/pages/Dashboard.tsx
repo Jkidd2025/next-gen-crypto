@@ -8,6 +8,7 @@ import { DashboardCommunity } from "@/components/DashboardCommunity";
 import { Reports } from "@/components/Reports";
 import { Settings } from "@/components/Settings";
 import { TokenSwap } from "@/components/TokenSwap";
+import { StrategicReserve } from "@/components/StrategicReserve";
 import { useAuth } from "@/components/AuthProvider";
 
 const Dashboard = () => {
@@ -27,7 +28,7 @@ const Dashboard = () => {
   const getPageTitle = () => {
     const path = location.pathname.split("/dashboard/")[1] || "";
     if (!path) return "Overview";
-    return path.charAt(0).toUpperCase() + path.slice(1);
+    return path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, " ");
   };
 
   return (
@@ -50,6 +51,7 @@ const Dashboard = () => {
               <Route index element={<Overview />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="community" element={<DashboardCommunity />} />
+              <Route path="strategic-reserve" element={<StrategicReserve />} />
               <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
               <Route path="swap" element={<TokenSwap />} />

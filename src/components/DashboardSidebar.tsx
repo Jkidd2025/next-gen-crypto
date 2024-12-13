@@ -1,51 +1,61 @@
-import { Home, BarChart3, Settings, FileText, Repeat, Users } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+  BarChart3,
+  Users,
+  FileText,
+  Settings,
+  Repeat,
+  Shield,
+  Home,
+} from "lucide-react";
 
-const menuItems = [
-  { title: "Overview", icon: Home, url: "/dashboard" },
-  { title: "Analytics", icon: BarChart3, url: "/dashboard/analytics" },
-  { title: "Token Swap", icon: Repeat, url: "/dashboard/swap" },
-  { title: "Community", icon: Users, url: "/dashboard/community" },
-  { title: "Reports", icon: FileText, url: "/dashboard/reports" },
-  { title: "Settings", icon: Settings, url: "/dashboard/settings" },
-];
-
-export function DashboardSidebar() {
+export const DashboardSidebar = () => {
+  const { isOpen } = useSidebar();
   const location = useLocation();
 
+  const isActive = (path: string) => {
+    return location.pathname === "/dashboard" + path;
+  };
+
+  const links = [
+    { to: "", icon: Home, label: "Overview" },
+    { to: "/analytics", icon: BarChart3, label: "Analytics" },
+    { to: "/community", icon: Users, label: "Community" },
+    { to: "/strategic-reserve", icon: Shield, label: "Strategic Reserve" },
+    { to: "/reports", icon: FileText, label: "Reports" },
+    { to: "/swap", icon: Repeat, label: "Swap" },
+    { to: "/settings", icon: Settings, label: "Settings" },
+  ];
+
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link 
-                      to={item.url}
-                      className="flex items-center gap-2"
-                      data-active={location.pathname === item.url}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+    <aside
+      className={cn(
+        "border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        isOpen ? "w-64" : "w-16",
+        "transition-all duration-300 ease-in-out"
+      )}
+    >
+      <nav className="flex flex-col gap-2 p-4">
+        {links.map(({ to, icon: Icon, label }) => (
+          <Button
+            key={to}
+            variant={isActive(to) ? "secondary" : "ghost"}
+            className={cn(
+              "justify-start",
+              !isOpen && "justify-center px-0"
+            )}
+            asChild
+          >
+            <Link to={`/dashboard${to}`}>
+              <Icon className="h-4 w-4" />
+              {isOpen && <span className="ml-2">{label}</span>}
+            </Link>
+          </Button>
+        ))}
+      </nav>
+    </aside>
   );
-}
+};
