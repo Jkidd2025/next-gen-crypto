@@ -19,11 +19,11 @@ export const PriceChart = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('24H');
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm">
+    <Card className="bg-white/80 backdrop-blur-sm w-full">
       <CardHeader className="space-y-4">
         <CardTitle className="flex flex-col space-y-4">
           <span className="text-xl md:text-2xl">Price Chart</span>
-          <div className="flex flex-wrap gap-2 justify-start">
+          <div className="flex flex-wrap gap-2">
             {timeframes.map((timeframe) => (
               <Button
                 key={timeframe}

@@ -27,10 +27,10 @@ export const SwapInput = ({
   onTokenSelect,
 }: SwapInputProps) => {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       <label className="block text-sm font-medium mb-1">{label}</label>
       <div className="flex flex-col sm:flex-row gap-2">
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <Input
             type="number"
             placeholder="0.0"
@@ -51,7 +51,7 @@ export const SwapInput = ({
         </Button>
       </div>
       {showQuickAmounts && onQuickAmountSelect && (
-        <div className="mt-2">
+        <div className="mt-2 w-full">
           <QuickAmountButtons
             onSelect={onQuickAmountSelect}
             isWalletConnected={isWalletConnected}
