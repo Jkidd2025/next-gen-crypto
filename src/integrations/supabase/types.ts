@@ -386,6 +386,42 @@ export type Database = {
         }
         Relationships: []
       }
+      token_metrics: {
+        Row: {
+          burn_amount: number | null
+          created_at: string
+          id: string
+          market_cap: number
+          price: number
+          timeframe: string
+          timestamp: string
+          volume_24h: number
+          wallet_count: number
+        }
+        Insert: {
+          burn_amount?: number | null
+          created_at?: string
+          id?: string
+          market_cap: number
+          price: number
+          timeframe: string
+          timestamp?: string
+          volume_24h: number
+          wallet_count: number
+        }
+        Update: {
+          burn_amount?: number | null
+          created_at?: string
+          id?: string
+          market_cap?: number
+          price?: number
+          timeframe?: string
+          timestamp?: string
+          volume_24h?: number
+          wallet_count?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

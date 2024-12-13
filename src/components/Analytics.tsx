@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
 import { NetworkStatsChart } from "./analytics/NetworkStatsChart";
+import { TokenMetricsCharts } from "./analytics/TokenMetricsCharts";
 
 interface WalletStats {
   totalHolders: number;
@@ -103,7 +104,7 @@ export const Analytics = () => {
   ];
 
   return (
-    <div className="space-y-6">      
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Network Statistics</CardTitle>
@@ -147,6 +148,8 @@ export const Analytics = () => {
           )}
         </CardContent>
       </Card>
+
+      <TokenMetricsCharts />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {isLoading ? (
