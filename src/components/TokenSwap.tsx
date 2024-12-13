@@ -4,7 +4,6 @@ import { BuyWithCard } from "./swap/BuyWithCard";
 import { useState } from "react";
 import { PriceChart } from "./swap/PriceChart";
 import { MarketStats } from "./swap/MarketStats";
-import { QuickPresets } from "./swap/QuickPresets";
 import { ROICalculator } from "./swap/ROICalculator";
 import { LiquidityPoolStats } from "./swap/LiquidityPoolStats";
 
@@ -18,9 +17,19 @@ export const TokenSwap = () => {
           Swap Tokens
         </h2>
         
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-6">
+        <div className="space-y-8">
+          {/* Price Chart Section */}
+          <PriceChart />
+          
+          {/* Stats Row */}
+          <div className="grid md:grid-cols-3 gap-4">
             <ROICalculator />
+            <MarketStats />
+            <LiquidityPoolStats />
+          </div>
+          
+          {/* Swap Form Section */}
+          <div className="max-w-xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-8 border border-primary/10">
               {!isWalletConnected ? (
                 <WalletConnect onConnect={setIsWalletConnected} />
@@ -29,13 +38,6 @@ export const TokenSwap = () => {
               )}
               <BuyWithCard />
             </div>
-            <QuickPresets />
-          </div>
-
-          <div className="space-y-6">
-            <PriceChart />
-            <MarketStats />
-            <LiquidityPoolStats />
           </div>
         </div>
       </div>
