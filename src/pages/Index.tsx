@@ -7,7 +7,6 @@ import { Community } from "@/components/Community";
 import { ContactUs } from "@/components/ContactUs";
 import { Menu } from "@/components/Menu";
 import { LearnSection } from "@/components/LearnSection";
-import { TokenSwap } from "@/components/TokenSwap";
 
 const Index = () => {
   return (
@@ -16,7 +15,6 @@ const Index = () => {
       <main className="w-full">
         <div className="flex flex-col">
           <Hero />
-          <TokenSwap />
           <OurStory />
           <Community />
           <Tokenomics />
