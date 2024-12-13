@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
-import { TokenDistributionTable } from "./analytics/TokenDistributionTable";
 import { TransactionsTable } from "./analytics/TransactionsTable";
-import { HoldersList } from "./analytics/HoldersList";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { InfoIcon } from "lucide-react";
-import { NetworkStatsChart } from "./analytics/NetworkStatsChart";
+import { NetworkStatsSection } from "./analytics/NetworkStatsSection";
 import { TokenMetricsCharts } from "./analytics/TokenMetricsCharts";
+import { DistributionSection } from "./analytics/DistributionSection";
 
 interface WalletStats {
   totalHolders: number;
@@ -79,7 +75,6 @@ export const Analytics = () => {
   ];
 
   useEffect(() => {
-    // Simulate data loading
     setTimeout(() => {
       setIsLoading(false);
     }, 1500);
@@ -105,66 +100,13 @@ export const Analytics = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Network Statistics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-[100px]" />
-                  <Skeleton className="h-8 w-[120px]" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {statsData.map((stat) => (
-                  <div key={stat.label}>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="flex items-center space-x-2">
-                            <h3 className="text-sm font-medium text-muted-foreground">{stat.label}</h3>
-                            <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{stat.tooltip}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6">
-                <NetworkStatsChart data={statsData} />
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
+      <NetworkStatsSection isLoading={isLoading} statsData={statsData} />
       <TokenMetricsCharts />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {isLoading ? (
-          <>
-            <Skeleton className="h-[400px]" />
-            <Skeleton className="h-[400px]" />
-          </>
-        ) : (
-          <>
-            <TokenDistributionTable distribution={tokenDistribution} />
-            <HoldersList holders={holders} />
-          </>
-        )}
-      </div>
-      
+      <DistributionSection 
+        isLoading={isLoading}
+        tokenDistribution={tokenDistribution}
+        holders={holders}
+      />
       {isLoading ? (
         <Skeleton className="h-[300px]" />
       ) : (
