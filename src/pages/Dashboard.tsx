@@ -20,10 +20,9 @@ const Dashboard = () => {
   };
 
   const getPageTitle = () => {
-    const path = location.pathname;
-    const segment = path.split("/").pop();
-    if (segment === "dashboard") return "Overview";
-    return segment?.charAt(0).toUpperCase() + segment?.slice(1);
+    const path = location.pathname.split("/dashboard/")[1] || "";
+    if (!path) return "Overview";
+    return path.charAt(0).toUpperCase() + path.slice(1);
   };
 
   return (

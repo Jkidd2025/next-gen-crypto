@@ -16,7 +16,6 @@ const SecurityBestPractices = lazy(() => import("./pages/SecurityBestPractices")
 const WalletManagement = lazy(() => import("./pages/WalletManagement"));
 const TradingBasics = lazy(() => import("./pages/TradingBasics"));
 
-// Create a client with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
