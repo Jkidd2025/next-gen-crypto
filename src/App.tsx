@@ -53,22 +53,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/dashboard/swap"
-                element={
-                  <ProtectedRoute>
-                    <TokenSwap />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/community"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
             </Routes>
           </Suspense>
         </Router>

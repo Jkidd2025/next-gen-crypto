@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Analytics } from "@/components/Analytics";
@@ -8,6 +8,7 @@ import { DashboardCommunity } from "@/components/DashboardCommunity";
 import { Reports } from "@/components/Reports";
 import { Settings } from "@/components/Settings";
 import { useToast } from "@/hooks/use-toast";
+import TokenSwap from "./TokenSwap";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -18,23 +19,11 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  const renderContent = () => {
+  const getPageTitle = () => {
     const path = location.pathname;
-    
-    switch (path) {
-      case "/dashboard":
-        return <Overview />;
-      case "/dashboard/analytics":
-        return <Analytics />;
-      case "/dashboard/community":
-        return <DashboardCommunity />;
-      case "/dashboard/reports":
-        return <Reports />;
-      case "/dashboard/settings":
-        return <Settings />;
-      default:
-        return <Overview />;
-    }
+    const segment = path.split("/").pop();
+    if (segment === "dashboard") return "Overview";
+    return segment?.charAt(0).toUpperCase() + segment?.slice(1);
   };
 
   return (
@@ -45,9 +34,7 @@ const Dashboard = () => {
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold text-black">
-                {location.pathname === "/dashboard" ? "Overview" : 
-                 location.pathname.split("/").pop()?.charAt(0).toUpperCase() + 
-                 location.pathname.split("/").pop()?.slice(1)}
+                {getPageTitle()}
               </h1>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -55,7 +42,14 @@ const Dashboard = () => {
                 </Button>
               </div>
             </div>
-            {renderContent()}
+            <Routes>
+              <Route index element={<Overview />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="community" element={<DashboardCommunity />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="swap" element={<TokenSwap />} />
+            </Routes>
           </div>
         </main>
       </div>
