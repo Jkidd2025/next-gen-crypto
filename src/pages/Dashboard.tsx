@@ -8,13 +8,20 @@ import { DashboardCommunity } from "@/components/DashboardCommunity";
 import { Reports } from "@/components/Reports";
 import { Settings } from "@/components/Settings";
 import { TokenSwap } from "@/components/TokenSwap";
+import { useAuth } from "@/components/AuthProvider";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { supabase } = useAuth();
 
-  const handleLogout = () => {
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
 
   const getPageTitle = () => {
