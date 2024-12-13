@@ -303,6 +303,39 @@ export type Database = {
         }
         Relationships: []
       }
+      strategic_reserve_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          price_per_btc: number
+          total_value: number
+          transaction_date: string
+          transaction_hash: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          price_per_btc: number
+          total_value: number
+          transaction_date?: string
+          transaction_hash: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          price_per_btc?: number
+          total_value?: number
+          transaction_date?: string
+          transaction_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       swap_transactions: {
         Row: {
           created_at: string
