@@ -1,5 +1,5 @@
 import { Menu as MenuIcon, BookOpen, Coins, Route, FileCode, GraduationCap, Users, Mail, LogIn } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,13 +42,13 @@ export const Menu = () => {
 
   return (
     <div className="fixed top-8 right-8 z-50 flex items-center gap-4">
-      <button
-        onClick={() => navigate("/login")}
+      <Link
+        to="/login"
         className="hidden md:flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-300 hover:scale-105"
       >
         <LogIn className="w-4 h-4" />
         <span>Login</span>
-      </button>
+      </Link>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
