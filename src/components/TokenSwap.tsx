@@ -22,10 +22,14 @@ export const TokenSwap = () => {
           <PriceChart />
           
           {/* Stats Row */}
-          <div className="grid md:grid-cols-3 gap-4">
-            <ROICalculator />
+          <div className="grid md:grid-cols-2 gap-4">
             <MarketStats />
             <LiquidityPoolStats />
+          </div>
+
+          {/* ROI Calculator Row */}
+          <div className="w-full">
+            <ROICalculator />
           </div>
           
           {/* Swap Form Section */}
