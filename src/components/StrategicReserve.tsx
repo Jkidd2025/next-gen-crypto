@@ -8,8 +8,7 @@ export const StrategicReserve = () => {
           <CardTitle>Total Reserve</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-bold">1,000,000 TOKENS</p>
-          <p className="text-sm text-muted-foreground">10% of Total Supply</p>
+          <p className="text-2xl font-bold">1,000,000 BITCOIN</p>
         </CardContent>
       </Card>
 
