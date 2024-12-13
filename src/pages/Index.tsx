@@ -13,16 +13,18 @@ const Index = () => {
   return (
     <div className="relative min-h-screen w-full">
       <Menu />
-      <main className="relative w-full">
-        <Hero />
-        <OurStory />
-        <TokenSwap />
-        <Community />
-        <Tokenomics />
-        <Roadmap />
-        <SmartContract />
-        <LearnSection />
-        <ContactUs />
+      <main className="w-full">
+        <div className="flex flex-col">
+          <Hero />
+          <OurStory />
+          <TokenSwap />
+          <Community />
+          <Tokenomics />
+          <Roadmap />
+          <SmartContract />
+          <LearnSection />
+          <ContactUs />
+        </div>
       </main>
     </div>
   );
