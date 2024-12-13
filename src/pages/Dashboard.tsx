@@ -7,13 +7,11 @@ import { Overview } from "@/components/Overview";
 import { DashboardCommunity } from "@/components/DashboardCommunity";
 import { Reports } from "@/components/Reports";
 import { Settings } from "@/components/Settings";
-import { useToast } from "@/hooks/use-toast";
 import { TokenSwap } from "@/components/TokenSwap";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
 
   const handleLogout = () => {
     navigate("/");
