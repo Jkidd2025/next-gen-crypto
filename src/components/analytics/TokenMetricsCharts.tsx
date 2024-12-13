@@ -1,113 +1,50 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TokenPriceChart } from "@/components/dashboard/TokenPriceChart";
-import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-
-type TimeFrame = "24h" | "7d" | "30d";
-
-const fetchTokenMetrics = async (timeframe: TimeFrame) => {
-  const { data, error } = await supabase
-    .from("token_metrics")
-    .select("*")
-    .eq("timeframe", timeframe)
-    .order("timestamp", { ascending: true });
-
-  if (error) throw error;
-  return data;
-};
+import { TimeframeSelector } from "./charts/TimeframeSelector";
+import { MetricsChart } from "./charts/MetricsChart";
+import { useTokenMetrics } from "./hooks/useTokenMetrics";
+import type { TimeFrame } from "./hooks/useTokenMetrics";
 
 export const TokenMetricsCharts = () => {
   const [timeframe, setTimeframe] = useState<TimeFrame>("24h");
+  const { data: metricsData, isLoading } = useTokenMetrics(timeframe);
 
-  const { data: metricsData, isLoading } = useQuery({
-    queryKey: ["tokenMetrics", timeframe],
-    queryFn: () => fetchTokenMetrics(timeframe),
-  });
+  const formatChartData = (key: keyof typeof metricsData[0]) =>
+    metricsData?.map((metric) => ({
+      name: new Date(metric.timestamp).toLocaleTimeString(),
+      value: Number(metric[key]),
+    })) || [];
 
-  const chartData = metricsData?.map((metric) => ({
-    name: new Date(metric.timestamp).toLocaleTimeString(),
-    value: Number(metric.price),
-  })) || [];
-
-  const burnData = metricsData?.map((metric) => ({
-    name: new Date(metric.timestamp).toLocaleTimeString(),
-    value: Number(metric.burn_amount),
-  })) || [];
-
-  const volumeData = metricsData?.map((metric) => ({
-    name: new Date(metric.timestamp).toLocaleTimeString(),
-    value: Number(metric.volume_24h),
-  })) || [];
+  const priceData = formatChartData("price");
+  const burnData = formatChartData("burn_amount");
+  const volumeData = formatChartData("volume_24h");
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
+      <MetricsChart
+        title={
           <div className="flex items-center justify-between">
-            <CardTitle>Price History</CardTitle>
-            <div className="flex gap-2">
-              <Button
-                variant={timeframe === "24h" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeframe("24h")}
-              >
-                24H
-              </Button>
-              <Button
-                variant={timeframe === "7d" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeframe("7d")}
-              >
-                7D
-              </Button>
-              <Button
-                variant={timeframe === "30d" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTimeframe("30d")}
-              >
-                30D
-              </Button>
-            </div>
+            <span>Price History</span>
+            <TimeframeSelector
+              timeframe={timeframe}
+              onTimeframeChange={setTimeframe}
+            />
           </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <Skeleton className="h-[300px] w-full" />
-          ) : (
-            <TokenPriceChart data={chartData} />
-          )}
-        </CardContent>
-      </Card>
+        }
+        data={priceData}
+        isLoading={isLoading}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Token Burn Tracking</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : (
-              <TokenPriceChart data={burnData} />
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Trading Volume</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : (
-              <TokenPriceChart data={volumeData} />
-            )}
-          </CardContent>
-        </Card>
+        <MetricsChart
+          title="Token Burn Tracking"
+          data={burnData}
+          isLoading={isLoading}
+        />
+        <MetricsChart
+          title="Trading Volume"
+          data={volumeData}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );
