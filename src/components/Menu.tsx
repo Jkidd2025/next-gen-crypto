@@ -41,7 +41,7 @@ export const Menu = () => {
   };
 
   return (
-    <div className="fixed top-8 right-8 z-[100]">
+    <div className="fixed top-4 right-4 md:top-8 md:right-8 z-30">
       <div className="flex items-center gap-4">
         <Link
           to="/login"
@@ -62,11 +62,11 @@ export const Menu = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-[360px] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
+            className="w-[280px] md:w-[360px] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
             sideOffset={8}
           >
             <div className="p-4">
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
                 {menuItems.map((item) => (
                   <MenuItem
                     key={item.label}

@@ -11,9 +11,9 @@ import { TokenSwap } from "@/components/TokenSwap";
 
 const Index = () => {
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden">
+    <div className="relative min-h-screen w-full">
       <Menu />
-      <main className="w-full">
+      <main className="w-full overflow-x-hidden">
         <Hero />
         <OurStory />
         <TokenSwap />
