@@ -10,16 +10,18 @@ import { LearnSection } from "@/components/LearnSection";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen w-full overflow-x-hidden">
       <Menu />
-      <Hero />
-      <OurStory />
-      <Community />
-      <Tokenomics />
-      <Roadmap />
-      <SmartContract />
-      <LearnSection />
-      <ContactUs />
+      <div className="w-full">
+        <Hero />
+        <OurStory />
+        <Community />
+        <Tokenomics />
+        <Roadmap />
+        <SmartContract />
+        <LearnSection />
+        <ContactUs />
+      </div>
     </div>
   );
 };
