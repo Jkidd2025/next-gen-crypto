@@ -1,31 +1,30 @@
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 
-interface PriceSliderProps {
+interface PercentageInputProps {
   currentPrice: number;
-  targetPrice: number;
-  onTargetPriceChange: (value: number) => void;
+  percentage: string;
+  onPercentageChange: (value: string) => void;
 }
 
-export const PriceSlider = ({ 
+export const PercentageInput = ({ 
   currentPrice, 
-  targetPrice, 
-  onTargetPriceChange 
-}: PriceSliderProps) => {
+  percentage,
+  onPercentageChange 
+}: PercentageInputProps) => {
   return (
     <div className="space-y-2">
-      <Label>Target Price (USD)</Label>
-      <div className="pt-6">
-        <Slider
-          value={[targetPrice]}
-          onValueChange={(value) => onTargetPriceChange(value[0])}
-          max={100}
-          min={currentPrice || 0.000001}
-          step={0.1}
-        />
-      </div>
+      <Label>Expected Price Increase (%)</Label>
+      <Input
+        type="number"
+        value={percentage}
+        onChange={(e) => onPercentageChange(e.target.value)}
+        placeholder="Enter expected percentage increase"
+        min="0"
+        step="1"
+      />
       <p className="text-sm text-muted-foreground mt-2">
-        Target Price: ${targetPrice.toFixed(2)}
+        Target Price: ${((parseFloat(percentage) / 100 + 1) * currentPrice).toFixed(6)}
       </p>
     </div>
   );

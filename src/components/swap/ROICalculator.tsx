@@ -4,7 +4,7 @@ import { Calculator } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { InvestmentInput } from "./roi/InvestmentInput";
-import { PriceSlider } from "./roi/PriceSlider";
+import { PercentageInput } from "./roi/PriceSlider";
 import { ResultsDisplay } from "./roi/ResultsDisplay";
 
 const fetchCurrentPrice = async () => {
@@ -20,7 +20,7 @@ const fetchCurrentPrice = async () => {
 
 export const ROICalculator = () => {
   const [investment, setInvestment] = useState("");
-  const [targetPrice, setTargetPrice] = useState<number>(1);
+  const [percentage, setPercentage] = useState("");
   const [estimatedReturns, setEstimatedReturns] = useState<number | null>(null);
   const [tokenAmount, setTokenAmount] = useState<number | null>(null);
 
@@ -31,20 +31,22 @@ export const ROICalculator = () => {
 
   const calculateROI = () => {
     const principal = parseFloat(investment);
+    const percentageValue = parseFloat(percentage);
     
-    if (principal && currentPrice && targetPrice) {
+    if (principal && currentPrice && !isNaN(percentageValue)) {
       const tokens = principal / currentPrice;
       setTokenAmount(tokens);
+      const targetPrice = currentPrice * (1 + percentageValue / 100);
       const returns = tokens * targetPrice;
       setEstimatedReturns(returns);
     }
   };
 
   useEffect(() => {
-    if (investment && currentPrice && targetPrice) {
+    if (investment && currentPrice && percentage) {
       calculateROI();
     }
-  }, [investment, currentPrice, targetPrice]);
+  }, [investment, currentPrice, percentage]);
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm">
@@ -61,10 +63,10 @@ export const ROICalculator = () => {
         />
         
         {currentPrice && (
-          <PriceSlider
+          <PercentageInput
             currentPrice={currentPrice}
-            targetPrice={targetPrice}
-            onTargetPriceChange={setTargetPrice}
+            percentage={percentage}
+            onPercentageChange={setPercentage}
           />
         )}
 
