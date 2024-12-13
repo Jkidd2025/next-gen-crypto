@@ -15,13 +15,13 @@ interface NetworkStatsSectionProps {
 
 export const NetworkStatsSection = ({ isLoading, statsData }: NetworkStatsSectionProps) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Network Statistics</CardTitle>
+    <Card className="w-full">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-2xl">Network Statistics</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="space-y-2">
                 <Skeleton className="h-4 w-[100px]" />
@@ -31,9 +31,9 @@ export const NetworkStatsSection = ({ isLoading, statsData }: NetworkStatsSectio
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {statsData.map((stat) => (
-                <div key={stat.label}>
+                <div key={stat.label} className="p-4 rounded-lg bg-card/50">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -47,7 +47,7 @@ export const NetworkStatsSection = ({ isLoading, statsData }: NetworkStatsSectio
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                  <p className="text-2xl font-bold mt-2">{stat.value}</p>
                 </div>
               ))}
             </div>

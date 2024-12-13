@@ -99,7 +99,7 @@ export const Analytics = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 px-4 md:px-6 py-6">
       <NetworkStatsSection isLoading={isLoading} statsData={statsData} />
       <TokenMetricsCharts />
       <DistributionSection 
