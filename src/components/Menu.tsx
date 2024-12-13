@@ -41,52 +41,56 @@ export const Menu = () => {
   };
 
   return (
-    <div className="fixed top-8 right-8 z-50 flex items-center gap-4">
-      <Link
-        to="/login"
-        className="hidden md:flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-300 hover:scale-105"
-      >
-        <LogIn className="w-4 h-4" />
-        <span>Login</span>
-      </Link>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
-            aria-label="Toggle menu"
-          >
-            <MenuIcon className="w-6 h-6 text-white" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="w-[360px] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
+    <div className="fixed top-8 right-8 z-50">
+      <div className="flex items-center gap-4">
+        <Link
+          to="/login"
+          className="hidden md:flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-300 hover:scale-105"
         >
-          <div className="p-4">
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              {menuItems.map((item) => (
+          <LogIn className="w-4 h-4" />
+          <span>Login</span>
+        </Link>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
+              aria-label="Toggle menu"
+            >
+              <MenuIcon className="w-6 h-6 text-white" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-[360px] mt-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-white/20 animate-in slide-in-from-top-2 duration-300"
+            forceMount={false}
+            sideOffset={8}
+          >
+            <div className="p-4">
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {menuItems.map((item) => (
+                  <MenuItem
+                    key={item.label}
+                    label={item.label}
+                    id={item.id}
+                    icon={item.icon}
+                    onItemClick={scrollToSection}
+                  />
+                ))}
+              </div>
+              <div className="space-y-2">
                 <MenuItem
-                  key={item.label}
-                  label={item.label}
-                  id={item.id}
-                  icon={item.icon}
+                  label="Contact Us"
+                  id="contact-us"
+                  icon={Mail}
                   onItemClick={scrollToSection}
                 />
-              ))}
+                <LoginButton onLogin={handleLogin} />
+              </div>
             </div>
-            <div className="space-y-2">
-              <MenuItem
-                label="Contact Us"
-                id="contact-us"
-                icon={Mail}
-                onItemClick={scrollToSection}
-              />
-              <LoginButton onLogin={handleLogin} />
-            </div>
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 };
