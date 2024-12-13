@@ -81,7 +81,8 @@ export const HoldersList = ({ holders }: HoldersListProps) => {
                   <TableCell>{holder.balance.toLocaleString()}</TableCell>
                   <TableCell>{percentage.toFixed(2)}%</TableCell>
                 </TableRow>
-              ))}
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>
