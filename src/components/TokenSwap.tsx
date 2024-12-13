@@ -5,6 +5,8 @@ import { useState } from "react";
 import { PriceChart } from "./swap/PriceChart";
 import { MarketStats } from "./swap/MarketStats";
 import { QuickPresets } from "./swap/QuickPresets";
+import { ROICalculator } from "./swap/ROICalculator";
+import { LiquidityPoolStats } from "./swap/LiquidityPoolStats";
 
 export const TokenSwap = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -28,11 +30,13 @@ export const TokenSwap = () => {
             </div>
             
             <QuickPresets />
+            <ROICalculator />
           </div>
 
           <div className="space-y-6">
             <PriceChart />
             <MarketStats />
+            <LiquidityPoolStats />
           </div>
         </div>
       </div>
