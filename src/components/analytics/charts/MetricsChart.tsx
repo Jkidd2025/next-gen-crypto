@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TokenPriceChart } from "@/components/dashboard/TokenPriceChart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ReactNode } from "react";
 
 interface ChartData {
   name: string;
@@ -8,7 +9,7 @@ interface ChartData {
 }
 
 interface MetricsChartProps {
-  title: string;
+  title: ReactNode;
   data: ChartData[];
   isLoading: boolean;
 }
