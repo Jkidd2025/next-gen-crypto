@@ -41,7 +41,7 @@ export const Menu = () => {
   };
 
   return (
-    <div className="fixed top-8 right-8 z-50">
+    <div className="fixed top-8 right-8 z-[100]">
       <div className="flex items-center gap-4">
         <Link
           to="/login"

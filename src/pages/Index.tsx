@@ -13,7 +13,7 @@ const Index = () => {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
       <Menu />
-      <div className="w-full">
+      <main className="w-full">
         <Hero />
         <OurStory />
         <TokenSwap />
@@ -23,7 +23,7 @@ const Index = () => {
         <SmartContract />
         <LearnSection />
         <ContactUs />
-      </div>
+      </main>
     </div>
   );
 };
