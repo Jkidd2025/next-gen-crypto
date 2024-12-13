@@ -18,7 +18,7 @@ const Dashboard = () => {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate("/login");
+      navigate("/"); // Changed from "/login" to "/"
     } catch (error) {
       console.error("Error logging out:", error);
     }
