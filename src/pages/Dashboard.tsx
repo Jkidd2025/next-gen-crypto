@@ -1,4 +1,4 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { Overview } from "@/components/Overview";
 import { Analytics } from "@/components/Analytics";
@@ -16,12 +16,12 @@ const Dashboard = () => {
         
         <main className="flex-1 w-full transition-all duration-300">
           <div className="sticky top-0 z-10 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-            <div className="flex h-16 items-center gap-4 px-4">
+            <div className="flex h-16 items-center gap-4 px-4 md:px-6">
               <h1 className="text-xl font-semibold">Dashboard</h1>
             </div>
           </div>
           
-          <div className="container mx-auto p-4 max-w-7xl overflow-x-hidden">
+          <div className="container mx-auto p-4 md:p-6 max-w-7xl">
             <Routes>
               <Route index element={<Overview />} />
               <Route path="analytics" element={<Analytics />} />
