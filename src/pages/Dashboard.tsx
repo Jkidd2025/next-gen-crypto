@@ -14,15 +14,14 @@ const Dashboard = () => {
       <div className="min-h-screen flex w-full bg-background">
         <DashboardSidebar />
         
-        <main className="flex-1 ml-0 md:ml-20 transition-all duration-300">
+        <main className="flex-1 w-full transition-all duration-300">
           <div className="sticky top-0 z-10 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-            <div className="flex h-16 items-center gap-4 px-4 md:px-4">
-              <div className="w-8 md:hidden"></div>
+            <div className="flex h-16 items-center gap-4 px-4">
               <h1 className="text-xl font-semibold">Dashboard</h1>
             </div>
           </div>
           
-          <div className="container mx-auto p-4 md:p-6 max-w-7xl">
+          <div className="container mx-auto p-4 max-w-7xl overflow-x-hidden">
             <Routes>
               <Route index element={<Overview />} />
               <Route path="analytics" element={<Analytics />} />

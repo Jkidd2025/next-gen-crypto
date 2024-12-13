@@ -44,14 +44,12 @@ export const DashboardSidebar = () => {
   return (
     <>
       {/* Mobile menu button */}
-      {isMobile && (
-        <button
-          onClick={() => setOpen(!open)}
-          className="fixed top-4 left-4 z-50 p-2 bg-background border rounded-lg"
-        >
-          <Menu className="h-6 w-6" />
-        </button>
-      )}
+      <button
+        onClick={() => setOpen(!open)}
+        className="fixed top-4 left-4 z-50 p-2 bg-background border rounded-lg md:hidden"
+      >
+        <Menu className="h-6 w-6" />
+      </button>
       
       {/* Mobile overlay */}
       {isMobile && open && (
@@ -80,6 +78,7 @@ export const DashboardSidebar = () => {
                   !open && !isMobile && "justify-center px-0",
                   "transition-all duration-300"
                 )}
+                onClick={() => isMobile && setOpen(false)}
                 asChild
               >
                 <Link to={`/dashboard${to}`}>
@@ -102,7 +101,10 @@ export const DashboardSidebar = () => {
               !open && !isMobile && "justify-center px-0",
               "transition-all duration-300"
             )}
-            onClick={handleLogout}
+            onClick={() => {
+              handleLogout();
+              isMobile && setOpen(false);
+            }}
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span className={cn(
