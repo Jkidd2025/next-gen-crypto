@@ -11,7 +11,7 @@ export const TokenSwap = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   return (
-    <div className="w-full min-h-screen bg-background py-4 md:py-8 px-4 md:px-8" id="swap">
+    <section className="w-full min-h-screen bg-background py-4 md:py-8 px-4 md:px-8" id="swap">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-4 md:mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
           Tokens
@@ -51,6 +51,6 @@ export const TokenSwap = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
