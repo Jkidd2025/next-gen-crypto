@@ -11,8 +11,8 @@ export const TokenSwap = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   return (
-    <section id="swap" className="w-full py-12 md:py-20 px-4 md:px-8 bg-background">
-      <div className="container mx-auto max-w-7xl">
+    <section id="swap" className="relative w-full py-12 md:py-20 bg-background">
+      <div className="container mx-auto max-w-7xl px-4 md:px-8">
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
           Tokens
         </h2>
