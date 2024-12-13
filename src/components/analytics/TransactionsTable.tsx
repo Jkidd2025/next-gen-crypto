@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExternalLinkIcon, ArrowUpRight, ArrowDownRight, RefreshCcw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Transaction {
   hash: string;
@@ -14,6 +15,7 @@ interface Transaction {
 
 interface TransactionsTableProps {
   transactions: Transaction[];
+  isLoading?: boolean;
 }
 
 const getTransactionIcon = (type: string) => {
@@ -42,7 +44,29 @@ const getTransactionTypeColor = (type: string) => {
   }
 };
 
-export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
+const truncateHash = (hash: string) => {
+  if (!hash) return '';
+  return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
+};
+
+export const TransactionsTable = ({ transactions, isLoading }: TransactionsTableProps) => {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Transactions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -60,54 +84,63 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transactions.map((tx) => (
-              <TableRow key={tx.hash}>
-                <TableCell className="font-mono">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        {tx.hash}
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Click to view full transaction details</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    {getTransactionIcon(tx.type)}
-                    <Badge className={getTransactionTypeColor(tx.type)}>
-                      {tx.type}
-                    </Badge>
-                  </div>
-                </TableCell>
-                <TableCell>{tx.amount.toLocaleString()}</TableCell>
-                <TableCell>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        {formatDistanceToNow(new Date(tx.timestamp), { addSuffix: true })}
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{new Date(tx.timestamp).toLocaleString()}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </TableCell>
-                <TableCell className="text-right">
-                  <a
-                    href={`https://solscan.io/tx/${tx.hash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-500 hover:text-blue-600"
-                  >
-                    View
-                    <ExternalLinkIcon className="ml-1 h-4 w-4" />
-                  </a>
+            {transactions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  No transactions found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              transactions.map((tx) => (
+                <TableRow key={tx.hash} className="group hover:bg-muted/50 transition-colors">
+                  <TableCell className="font-mono">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="cursor-help">
+                          {truncateHash(tx.hash)}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-mono">{tx.hash}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Click to view full transaction details</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      {getTransactionIcon(tx.type)}
+                      <Badge className={getTransactionTypeColor(tx.type)}>
+                        {tx.type}
+                      </Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell>{tx.amount.toLocaleString()} BTC</TableCell>
+                  <TableCell>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          {formatDistanceToNow(new Date(tx.timestamp), { addSuffix: true })}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{new Date(tx.timestamp).toLocaleString()}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <a
+                      href={`https://solscan.io/tx/${tx.hash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-blue-500 hover:text-blue-600 transition-colors"
+                    >
+                      View
+                      <ExternalLinkIcon className="ml-1 h-4 w-4" />
+                    </a>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </CardContent>
