@@ -8,7 +8,7 @@ export const Roadmap = () => {
     {
       phase: "Phase 2",
       title: "Market Expansion",
-      items: ["Exchange Listings", "Marketing Campaigns", "Partnership Development"],
+      items: ["Social Presences", "Marketing Campagin", "Infrastructure Buildout"],
     },
     {
       phase: "Phase 3",
