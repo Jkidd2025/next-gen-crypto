@@ -3,7 +3,7 @@ export const Roadmap = () => {
     {
       phase: "Phase 1",
       title: "Launch & Community Building",
-      items: ["Token Launch", "Community Growth", "Social Media Presence"],
+      items: ["Legal/Compliance"],
     },
     {
       phase: "Phase 2",
