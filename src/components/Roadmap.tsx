@@ -12,7 +12,7 @@ export const Roadmap = () => {
     },
     {
       phase: "Phase 3",
-      title: "Ecosystem Development",
+      title: "Payment System Platform",
       items: ["NFT Integration", "Governance Implementation", "Utility Expansion"],
     },
   ];
