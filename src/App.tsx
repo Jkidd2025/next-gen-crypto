@@ -14,7 +14,6 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const GettingStarted = lazy(() => import("./pages/GettingStarted"));
 const SecurityBestPractices = lazy(() => import("./pages/SecurityBestPractices"));
 const WalletManagement = lazy(() => import("./pages/WalletManagement"));
-const TradingBasics = lazy(() => import("./pages/TradingBasics"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,7 +37,6 @@ function App() {
               <Route path="/getting-started" element={<GettingStarted />} />
               <Route path="/security-best-practices" element={<SecurityBestPractices />} />
               <Route path="/wallet-management" element={<WalletManagement />} />
-              <Route path="/trading-basics" element={<TradingBasics />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/signup-success" element={<SignupSuccess />} />

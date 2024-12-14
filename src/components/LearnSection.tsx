@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Shield, Wallet, ArrowUpDown } from "lucide-react";
+import { BookOpen, Shield, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const LearnSection = () => {
@@ -22,19 +22,13 @@ export const LearnSection = () => {
       icon: Wallet,
       link: "/wallet-management"
     },
-    {
-      title: "Trading Basics",
-      description: "Understanding the fundamentals of token trading.",
-      icon: ArrowUpDown,
-      link: "/trading-basics"
-    },
   ];
 
   return (
     <div className="py-20 bg-gradient-to-b from-background to-primary/5" id="learn">
       <div className="container mx-auto px-6">
         <h2 className="text-4xl font-bold text-center mb-16">Learn</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {guides.map((guide, index) => (
             <Link key={index} to={guide.link}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
