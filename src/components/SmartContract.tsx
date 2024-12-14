@@ -44,7 +44,8 @@ export const SmartContract = () => {
             <h3 className="text-2xl font-bold mb-6">Tax System</h3>
             <p className="text-gray-600 mb-4">Every transaction is subject to a 3% tax, ensuring continuous ecosystem health:</p>
             <ul className="list-disc pl-5 text-gray-600 space-y-2">
-              <li>70% of the tax contributes to the liquidity pool, supporting stability</li>
+              <li>40% of the tax contributes to the liquidity pool, supporting stability</li>
+              <li>30% Bitcoin strategic reserve for project sustainability and token holder protection</li>
               <li>30% supports the marketing wallet, driving project visibility and growth</li>
             </ul>
           </CardContent>
