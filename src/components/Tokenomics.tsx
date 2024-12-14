@@ -11,7 +11,8 @@ export const Tokenomics = () => {
   ];
 
   const taxData = [
-    { name: "Liquidity Pool", value: 70, color: "#D946EF" },
+    { name: "Liquidity Pool", value: 40, color: "#D946EF" },
+    { name: "Bitcoin Strategic Reserve", value: 30, color: "#F97316" },
     { name: "Marketing Wallet", value: 30, color: "#3B82F6" },
   ];
 
