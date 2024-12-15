@@ -1,11 +1,15 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -15,6 +19,25 @@ const Signup = () => {
       }
     });
   }, [navigate]);
+
+  // Override the signUp function to check for terms agreement
+  const handleSignUp = async (email: string, password: string) => {
+    if (!agreedToTerms) {
+      toast.error("You must agree to the Terms of Service to create an account");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast.error(error.message);
+    } else if (data) {
+      navigate("/signup-success");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/20 to-background flex items-center justify-center p-4">
@@ -45,6 +68,20 @@ const Signup = () => {
           redirectTo={`${window.location.origin}/dashboard`}
           showLinks={true}
         />
+
+        <div className="flex items-center space-x-2 mt-4">
+          <Checkbox 
+            id="terms" 
+            checked={agreedToTerms}
+            onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+          />
+          <Label htmlFor="terms" className="text-sm text-gray-600">
+            I agree to the{" "}
+            <Link to="/terms-of-service" className="text-primary hover:underline" target="_blank">
+              Terms of Service
+            </Link>
+          </Label>
+        </div>
       </div>
     </div>
   );
