@@ -1,4 +1,5 @@
 import { Facebook, Twitter, Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const SocialConnect = () => {
   return (
@@ -34,12 +35,12 @@ export const SocialConnect = () => {
         </a>
       </div>
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <a
-          href="/privacy-policy"
+        <Link
+          to="/privacy-policy"
           className="text-sm text-gray-600 hover:text-primary transition-colors"
         >
           Privacy Policy
-        </a>
+        </Link>
       </div>
     </div>
   );
