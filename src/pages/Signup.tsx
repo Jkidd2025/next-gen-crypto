@@ -20,25 +20,6 @@ const Signup = () => {
     });
   }, [navigate]);
 
-  // Override the signUp function to check for terms agreement
-  const handleSignUp = async (email: string, password: string) => {
-    if (!agreedToTerms) {
-      toast.error("You must agree to the Terms of Service to create an account");
-      return;
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast.error(error.message);
-    } else if (data) {
-      navigate("/signup-success");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/20 to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 bg-white/95 backdrop-blur-md p-8 rounded-lg border border-white/20">
@@ -67,6 +48,37 @@ const Signup = () => {
           providers={[]}
           redirectTo={`${window.location.origin}/dashboard`}
           showLinks={true}
+          localization={{
+            variables: {
+              sign_up: {
+                button_label: "Create account",
+                email_label: "Email",
+                password_label: "Password",
+              }
+            }
+          }}
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.target as HTMLFormElement;
+            const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+            const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+
+            if (!agreedToTerms) {
+              toast.error("You must agree to the Terms of Service to create an account");
+              return;
+            }
+
+            const { data, error } = await supabase.auth.signUp({
+              email,
+              password,
+            });
+
+            if (error) {
+              toast.error(error.message);
+            } else if (data) {
+              navigate("/signup-success");
+            }
+          }}
         />
 
         <div className="flex items-center space-x-2 mt-4">
