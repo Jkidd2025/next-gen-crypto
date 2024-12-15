@@ -57,8 +57,9 @@ const Signup = () => {
               }
             }
           }}
-          beforeSignUp={(e) => {
+          onSubmit={(e) => {
             if (!agreedToTerms) {
+              e.preventDefault();
               toast.error("You must agree to the Terms of Service to create an account");
               return false;
             }
