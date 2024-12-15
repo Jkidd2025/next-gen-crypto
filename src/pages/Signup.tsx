@@ -57,26 +57,11 @@ const Signup = () => {
               }
             }
           }}
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const form = e.target as HTMLFormElement;
-            const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-            const password = (form.elements.namedItem('password') as HTMLInputElement).value;
-
+          onSignUp={async (e) => {
             if (!agreedToTerms) {
+              e.preventDefault();
               toast.error("You must agree to the Terms of Service to create an account");
               return;
-            }
-
-            const { data, error } = await supabase.auth.signUp({
-              email,
-              password,
-            });
-
-            if (error) {
-              toast.error(error.message);
-            } else if (data) {
-              navigate("/signup-success");
             }
           }}
         />
