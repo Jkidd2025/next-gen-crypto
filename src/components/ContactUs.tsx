@@ -17,7 +17,7 @@ export const ContactUs = () => {
   };
 
   return (
-    <section id="contact-us" className="py-24 px-4 md:px-8 bg-gradient-to-b from-white to-purple-50 relative">
+    <section id="contact-us" className="py-24 px-4 md:px-8 bg-gradient-to-b from-white to-purple-50">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4 text-primary">Contact Us</h2>
@@ -95,19 +95,17 @@ export const ContactUs = () => {
                   <Instagram className="w-6 h-6 text-primary" />
                 </a>
               </div>
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <a
+                  href="/privacy-policy"
+                  className="text-sm text-gray-600 hover:text-primary transition-colors"
+                >
+                  Privacy Policy
+                </a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Privacy Policy Link */}
-      <div className="absolute bottom-4 right-4">
-        <a
-          href="/privacy-policy"
-          className="text-sm text-gray-600 hover:text-primary transition-colors"
-        >
-          Privacy Policy
-        </a>
       </div>
     </section>
   );
