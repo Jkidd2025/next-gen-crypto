@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Instagram } from "lucide-react";
+import { Facebook, Twitter, Instagram, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const SocialConnect = () => {
@@ -34,12 +34,20 @@ export const SocialConnect = () => {
           <Instagram className="w-6 h-6 text-primary" />
         </a>
       </div>
-      <div className="mt-6 pt-6 border-t border-gray-200">
+      <div className="mt-6 pt-6 border-t border-gray-200 flex gap-4 text-sm text-gray-600">
         <Link
           to="/privacy-policy"
-          className="text-sm text-gray-600 hover:text-primary transition-colors"
+          className="hover:text-primary transition-colors flex items-center gap-1"
         >
+          <FileText className="w-4 h-4" />
           Privacy Policy
+        </Link>
+        <Link
+          to="/terms-of-service"
+          className="hover:text-primary transition-colors flex items-center gap-1"
+        >
+          <FileText className="w-4 h-4" />
+          Terms of Service
         </Link>
       </div>
     </div>
