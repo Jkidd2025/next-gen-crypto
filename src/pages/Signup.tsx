@@ -57,12 +57,12 @@ const Signup = () => {
               }
             }
           }}
-          onSignUp={async (e) => {
+          beforeSignUp={(e) => {
             if (!agreedToTerms) {
-              e.preventDefault();
               toast.error("You must agree to the Terms of Service to create an account");
-              return;
+              return false;
             }
+            return true;
           }}
         />
 
