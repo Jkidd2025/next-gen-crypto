@@ -11,6 +11,7 @@ import TradingBasics from "@/pages/TradingBasics";
 import WalletManagement from "@/pages/WalletManagement";
 import SecurityBestPractices from "@/pages/SecurityBestPractices";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AuthProvider } from "@/components/AuthProvider";
 import { Toaster } from "@/components/ui/toaster";
@@ -27,6 +28,7 @@ function App() {
           <Route path="/signup-success" element={<SignupSuccess />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route
             path="/dashboard"
             element={
