@@ -4,7 +4,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
-export default function TokenSwapPage() {
+export default function TokenSwap() {
   const isMobile = useIsMobile();
 
   return (
@@ -20,9 +20,7 @@ export default function TokenSwapPage() {
               <h1 className="text-lg md:text-xl font-semibold">Token Swap</h1>
             </div>
           </div>
-          <div className="container mx-auto px-4 py-6">
-            <TokenSwapComponent />
-          </div>
+          <TokenSwapComponent />
         </main>
       </div>
     </SidebarProvider>
