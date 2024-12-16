@@ -13,7 +13,7 @@ export const Roadmap = () => {
     {
       phase: "Phase 3",
       title: "Payment System Platform",
-      items: ["Gateway", "In-store", "Mobile"],
+      items: ["Online", "In-store", "Mobile"],
     },
   ];
 
