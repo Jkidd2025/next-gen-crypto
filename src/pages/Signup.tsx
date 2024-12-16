@@ -1,15 +1,11 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { useNavigate, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -57,29 +53,7 @@ const Signup = () => {
               }
             }
           }}
-          onSubmit={(e) => {
-            if (!agreedToTerms) {
-              e.preventDefault();
-              toast.error("You must agree to the Terms of Service to create an account");
-              return false;
-            }
-            return true;
-          }}
         />
-
-        <div className="flex items-center space-x-2 mt-4">
-          <Checkbox 
-            id="terms" 
-            checked={agreedToTerms}
-            onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-          />
-          <Label htmlFor="terms" className="text-sm text-gray-600">
-            I agree to the{" "}
-            <Link to="/terms-of-service" className="text-primary hover:underline" target="_blank">
-              Terms of Service
-            </Link>
-          </Label>
-        </div>
       </div>
     </div>
   );
