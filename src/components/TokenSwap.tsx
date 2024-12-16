@@ -11,31 +11,31 @@ export const TokenSwap = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   return (
-    <section id="swap" className="w-full py-6 md:py-10 bg-background">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+    <section className="w-full py-6 md:py-10">
+      <div className="container mx-auto px-4">
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-          Tokens
+          Token Swap
         </h2>
         
-        <div className="space-y-6 md:space-y-8">
-          <div className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden min-h-[300px]">
+        <div className="grid gap-6 md:gap-8">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden">
             <PriceChart />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <div className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6">
               <MarketStats />
             </div>
-            <div className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6">
               <LiquidityPoolStats />
             </div>
           </div>
 
-          <div className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6">
             <ROICalculator />
           </div>
           
-          <div className="w-full max-w-xl mx-auto">
+          <div className="max-w-xl mx-auto w-full">
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6 border border-primary/10">
               {!isWalletConnected ? (
                 <WalletConnect onConnect={setIsWalletConnected} />

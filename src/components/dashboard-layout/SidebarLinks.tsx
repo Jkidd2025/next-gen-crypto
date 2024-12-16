@@ -31,6 +31,9 @@ export const SidebarLinks = ({ open, isMobile, onLinkClick }: SidebarLinksProps)
   const location = useLocation();
   
   const isActive = (path: string) => {
+    if (path === "/swap") {
+      return location.pathname === "/swap";
+    }
     return location.pathname === "/dashboard" + path;
   };
 
@@ -48,7 +51,7 @@ export const SidebarLinks = ({ open, isMobile, onLinkClick }: SidebarLinksProps)
           onClick={onLinkClick}
           asChild
         >
-          <Link to={`/dashboard${to}`}>
+          <Link to={to === "/swap" ? "/swap" : `/dashboard${to}`}>
             <Icon className="h-4 w-4 shrink-0" />
             <span className={cn(
               "ml-2",

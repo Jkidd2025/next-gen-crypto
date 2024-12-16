@@ -39,7 +39,7 @@ function App() {
               }
             />
             <Route
-              path="/token-swap"
+              path="/swap"
               element={
                 <ProtectedRoute>
                   <TokenSwap />

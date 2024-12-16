@@ -5,10 +5,12 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 export default function TokenSwapPage() {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="flex min-h-screen bg-background">
         <DashboardSidebar />
-        <main className="flex-1 bg-gradient-to-b from-primary/5 to-background">
-          <TokenSwap />
+        <main className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-4 py-6">
+            <TokenSwap />
+          </div>
         </main>
       </div>
     </SidebarProvider>
