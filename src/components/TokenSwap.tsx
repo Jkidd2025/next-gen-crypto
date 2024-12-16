@@ -13,7 +13,7 @@ export const TokenSwap = () => {
   return (
     <section className="w-full py-6 md:py-10">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 bg-gradient-to-r from-[#9b87f5] via-[#7E69AB] to-[#6E59A5] bg-clip-text text-transparent">
           Token Swap
         </h2>
         
@@ -49,4 +49,4 @@ export const TokenSwap = () => {
       </div>
     </section>
   );
-};
+}
