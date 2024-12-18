@@ -1,4 +1,4 @@
-const DEX_SCREENER_BASE_URL = 'https://api.dexscreener.com/latest';
+const DEX_SCREENER_BASE_URL = 'https://api.dexscreener.com/latest/dex';
 
 export interface DexScreenerPairResponse {
   pairs: {
@@ -24,13 +24,27 @@ export interface DexScreenerPairResponse {
 
 export const fetchTokenPrice = async (pairAddress: string): Promise<DexScreenerPairResponse> => {
   try {
-    const response = await fetch(`${DEX_SCREENER_BASE_URL}/dex/pairs/${pairAddress}`);
+    console.log(`Fetching price data for pair: ${pairAddress}`);
+    const response = await fetch(`${DEX_SCREENER_BASE_URL}/pairs/${pairAddress}`);
+    
     if (!response.ok) {
-      throw new Error('Failed to fetch price data');
+      console.error('DEXScreener API response not ok:', {
+        status: response.status,
+        statusText: response.statusText
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+    
+    const data = await response.json();
+    console.log('DEXScreener API response:', data);
+    
+    if (!data.pairs || data.pairs.length === 0) {
+      throw new Error('No pair data found');
+    }
+    
+    return data;
   } catch (error) {
-    console.error('Error fetching price data:', error);
+    console.error('Error in fetchTokenPrice:', error);
     throw error;
   }
 };
@@ -39,6 +53,7 @@ export const savePriceData = async (data: DexScreenerPairResponse['pairs'][0]) =
   const { supabase } = await import('@/integrations/supabase/client');
   
   try {
+    console.log('Saving price data:', data);
     const { error } = await supabase.from('price_data').insert({
       symbol: data.baseToken.symbol,
       price: parseFloat(data.priceUsd),
@@ -49,9 +64,12 @@ export const savePriceData = async (data: DexScreenerPairResponse['pairs'][0]) =
       last_updated: new Date(data.timestamp).toISOString(),
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error saving price data:', error);
+      throw error;
+    }
   } catch (error) {
-    console.error('Error saving price data:', error);
+    console.error('Error in savePriceData:', error);
     throw error;
   }
 };
