@@ -8,13 +8,16 @@
 
 There are several ways of editing your application.
 
-**Use Lovable**
+### 1. Use Lovable (Recommended for quick changes)
 
 Simply visit the [Lovable Project](https://lovable.dev/projects/5dd39058-341a-4429-9596-425b806ee201) and start prompting.
 
-Changes made via Lovable will be committed automatically to this repo.
+Changes made via Lovable will be:
+- Committed automatically to your repo
+- Deployed instantly to your live site
+- Version controlled through Git
 
-**Use your preferred IDE**
+### 2. Use your preferred IDE (Recommended for extensive development)
 
 If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
@@ -36,29 +39,34 @@ npm i
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### 3. Edit directly in GitHub
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+For quick file edits:
+1. Navigate to the desired file(s)
+2. Click the "Edit" button (pencil icon)
+3. Make your changes
+4. Commit directly to the main branch
+5. Changes will automatically deploy
 
-**Use GitHub Codespaces**
+### 4. Use GitHub Codespaces
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+For a cloud-based development environment:
+1. Go to your repository's main page
+2. Click "Code" > "Codespaces"
+3. Click "New codespace"
+4. Edit files in the cloud IDE
+5. Commit and push changes
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with modern web technologies:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Vite - Next Generation Frontend Tooling
+- TypeScript - JavaScript with syntax for types
+- React - UI Component Library
+- shadcn-ui - Beautifully designed components
+- Tailwind CSS - Utility-first CSS framework
+- Supabase - Open source Firebase alternative
 
 ## How can I deploy this project?
 
