@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { TransactionsTable } from "@/components/analytics/TransactionsTable";
-import { supabase } from "@/integrations/supabase/client";
+import { TransactionsTable } from "./analytics/TransactionsTable";
+import { supabase } from "../integrations/supabase/client";
 import { ReserveCard } from "./strategic-reserve/ReserveCard";
 
 export const StrategicReserve = () => {

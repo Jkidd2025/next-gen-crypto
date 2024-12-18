@@ -25,12 +25,17 @@ if (!root) {
   throw new Error("Root element not found");
 }
 
-const app = (
-  <QueryClientProvider client={queryClient}>
-    <App />
-  </QueryClientProvider>
-);
+console.log("Creating React root...");
 
-console.log("Mounting application...");
+try {
+  const app = (
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  );
 
-createRoot(root).render(app);
+  console.log("Mounting application...");
+  createRoot(root).render(app);
+} catch (error) {
+  console.error("Error mounting application:", error);
+}
