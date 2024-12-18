@@ -46,6 +46,9 @@ export const fetchTokenPrice = async (pairAddress: string): Promise<DexScreenerP
       throw new Error('No pair data found');
     }
     
+    // Save the price data to Supabase
+    await savePriceData(data.pairs[0]);
+    
     return data;
   } catch (error) {
     console.error('Error in fetchTokenPrice:', error);
@@ -72,6 +75,8 @@ export const savePriceData = async (data: DexScreenerPairResponse['pairs'][0]) =
       console.error('Error saving price data:', error);
       throw error;
     }
+
+    console.log('Price data saved successfully');
   } catch (error) {
     console.error('Error in savePriceData:', error);
     throw error;
