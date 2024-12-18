@@ -25,6 +25,8 @@ export default defineConfig(({ mode }) => ({
       "https": "https-browserify",
       "os": "os-browserify/browser",
       "process": "process/browser",
+      "events": "events",
+      "vm": "vm-browserify"
     },
     mainFields: ['browser', 'module', 'main'],
   },
