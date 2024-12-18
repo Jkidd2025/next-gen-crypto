@@ -6,7 +6,6 @@ import { SmartContract } from "@/components/SmartContract";
 import { Community } from "@/components/Community";
 import { ContactUs } from "@/components/ContactUs";
 import { LearnSection } from "@/components/LearnSection";
-import { TestIntegration } from "@/components/TestIntegration";
 
 const Index = () => {
   return (
@@ -14,7 +13,6 @@ const Index = () => {
       <main className="w-full">
         <div className="flex flex-col">
           <Hero />
-          <TestIntegration />
           <OurStory />
           <Tokenomics />
           <Roadmap />
