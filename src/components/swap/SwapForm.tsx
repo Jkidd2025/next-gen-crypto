@@ -11,7 +11,6 @@ import { TransactionHistory } from "./TransactionHistory";
 import { TokenSelector } from "./TokenSelector";
 import { SwapRoute } from "./SwapRoute";
 import { RefreshCw } from "lucide-react";
-import { getAccountBalance, getSolanaConnection } from "@/utils/solana";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -64,7 +63,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const priceImpact = calculatePriceImpact(fromAmount);
   const isHighImpact = priceImpact > 5;
 
-  const handleSwapClick = async () => {
+  const handleSwapClick = () => {
     if (!isWalletConnected) {
       toast({
         title: "Wallet Not Connected",
@@ -73,48 +72,8 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       });
       return;
     }
-
-    // Verify balance before proceeding
-    try {
-      const balance = await getAccountBalance(window.solana.publicKey.toString());
-      if (balance < parseFloat(fromAmount)) {
-        toast({
-          title: "Insufficient Balance",
-          description: "You don't have enough SOL for this swap",
-          variant: "destructive",
-        });
-        return;
-      }
-      setIsConfirmationOpen(true);
-    } catch (error) {
-      console.error("Error checking balance:", error);
-      toast({
-        title: "Error",
-        description: "Failed to verify balance",
-        variant: "destructive",
-      });
-    }
+    setIsConfirmationOpen(true);
   };
-
-  useEffect(() => {
-    const updateBalance = async () => {
-      if (isWalletConnected && window.solana?.publicKey) {
-        try {
-          const balance = await getAccountBalance(window.solana.publicKey.toString());
-          // Update max amount based on balance
-          const maxAmount = balance * 0.99; // Leave some for gas
-          setFromAmount(maxAmount.toString());
-          calculateToAmount(maxAmount.toString());
-        } catch (error) {
-          console.error("Error updating balance:", error);
-        }
-      }
-    };
-
-    if (isWalletConnected) {
-      updateBalance();
-    }
-  }, [isWalletConnected]);
 
   const handleConfirmSwap = async () => {
     try {

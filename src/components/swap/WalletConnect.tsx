@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getAccountBalance } from "@/utils/solana";
 
 interface WalletConnectProps {
   onConnect: (isConnected: boolean) => void;
@@ -22,6 +21,7 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
       console.log("Checking for Phantom wallet...");
       console.log("window.solana:", window?.solana);
       
+      // Check if Phantom is installed
       const phantom = window?.solana;
       
       if (!phantom?.isPhantom) {
@@ -31,6 +31,7 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
           description: "Please install Phantom wallet extension first.",
           variant: "destructive",
         });
+        // Open Phantom wallet installation page in a new tab
         window.open('https://phantom.app/', '_blank');
         return;
       }
@@ -38,6 +39,8 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
       console.log("Phantom wallet found, attempting connection...");
 
       try {
+        // Request connection to wallet
+        console.log("Requesting Phantom wallet connection...");
         const response = await window.solana.connect();
         console.log("Phantom connection response:", response);
         
@@ -45,15 +48,11 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
         console.log("Connected wallet public key:", publicKey);
         
         if (publicKey) {
-          // Get initial balance
-          const balance = await getAccountBalance(publicKey);
-          console.log("Wallet balance:", balance, "SOL");
-
           console.log("Connection successful, updating state and showing success toast");
           onConnect(true);
           toast({
             title: "Success",
-            description: `Phantom wallet connected successfully! Balance: ${balance.toFixed(4)} SOL`,
+            description: "Phantom wallet connected successfully!",
           });
         }
       } catch (err) {
