@@ -24,13 +24,17 @@ export interface DexScreenerPairResponse {
 
 export const fetchTokenPrice = async (pairAddress: string): Promise<DexScreenerPairResponse> => {
   try {
-    console.log(`Fetching price data for pair: ${pairAddress}`);
-    const response = await fetch(`${DEX_SCREENER_BASE_URL}/pairs/${pairAddress}`);
+    // Use the correct endpoint format: /pairs/ethereum/ADDRESS
+    const endpoint = `${DEX_SCREENER_BASE_URL}/pairs/ethereum/${pairAddress}`;
+    console.log(`Fetching price data from endpoint: ${endpoint}`);
+    
+    const response = await fetch(endpoint);
     
     if (!response.ok) {
       console.error('DEXScreener API response not ok:', {
         status: response.status,
-        statusText: response.statusText
+        statusText: response.statusText,
+        url: endpoint
       });
       throw new Error(`HTTP error! status: ${response.status}`);
     }
