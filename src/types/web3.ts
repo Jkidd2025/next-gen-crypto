@@ -16,6 +16,7 @@ declare global {
       isPhantom?: boolean;
       connect: () => Promise<{ publicKey: { toString: () => string } }>;
       disconnect: () => Promise<void>;
+      publicKey?: { toString: () => string };
     };
   }
 }

@@ -1,4 +1,4 @@
-import { Connection, PublicKey, Transaction, LAMPORTS_PER_SOL, clusterApiUrl } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, LAMPORTS_PER_SOL, clusterApiUrl, SystemProgram } from '@solana/web3.js';
 
 // Use devnet for development, change to mainnet-beta for production
 const SOLANA_NETWORK = 'devnet';
