@@ -37,11 +37,15 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       },
     },
+    include: ['@jup-ag/core'],
+    exclude: ['@jup-ag/common']
   },
   build: {
     outDir: "dist",
     assetsDir: "assets",
-    sourcemap: true,
+    sourcemap: mode === 'development',
+    minify: mode === 'development' ? false : 'esbuild',
+    cssMinify: mode === 'development' ? false : true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
@@ -55,11 +59,14 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: "assets/[name]-[hash][extname]",
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        }
       }
     },
     target: 'esnext',
-    minify: mode === 'development' ? false : 'esbuild',
-    cssMinify: mode === 'development' ? false : true,
     chunkSizeWarningLimit: 2000,
   }
 }));
