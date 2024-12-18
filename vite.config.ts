@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -20,8 +19,14 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "stream": "stream-browserify",
+      "crypto": "crypto-browserify",
+      "http": "stream-http",
+      "https": "https-browserify",
+      "os": "os-browserify/browser",
+      "process": "process/browser",
     },
-    mainFields: ['module', 'main'],
+    mainFields: ['browser', 'module', 'main'],
   },
   optimizeDeps: {
     esbuildOptions: {

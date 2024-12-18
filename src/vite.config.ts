@@ -19,8 +19,14 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "stream": "stream-browserify",
+      "crypto": "crypto-browserify",
+      "http": "stream-http",
+      "https": "https-browserify",
+      "os": "os-browserify/browser",
+      "process": "process/browser",
     },
-    mainFields: ['module', 'main'],
+    mainFields: ['browser', 'module', 'main'],
   },
   optimizeDeps: {
     esbuildOptions: {
