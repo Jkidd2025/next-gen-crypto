@@ -26,7 +26,8 @@ export default defineConfig(({ mode }) => ({
       "os": "os-browserify/browser",
       "process": "process/browser",
       "events": "events",
-      "vm": "vm-browserify"
+      "vm": "vm-browserify",
+      "@jup-ag/common": path.resolve(__dirname, 'node_modules/@jup-ag/common')
     },
     mainFields: ['browser', 'module', 'main'],
   },
@@ -36,14 +37,14 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       },
     },
-    include: ['@jup-ag/core'],
+    include: ['@jup-ag/core', '@jup-ag/common'],
   },
   build: {
     commonjsOptions: {
       transformMixedEsModules: true,
     },
     rollupOptions: {
-      external: ['@jup-ag/common'],
+      external: [],
     }
   }
 }));
