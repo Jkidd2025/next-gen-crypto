@@ -276,6 +276,45 @@ export type Database = {
           },
         ]
       }
+      price_data: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_updated: string | null
+          market_cap: number | null
+          price: number
+          price_change_24h: number | null
+          source: string
+          symbol: string
+          updated_at: string | null
+          volume_24h: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          market_cap?: number | null
+          price: number
+          price_change_24h?: number | null
+          source: string
+          symbol: string
+          updated_at?: string | null
+          volume_24h?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          market_cap?: number | null
+          price?: number
+          price_change_24h?: number | null
+          source?: string
+          symbol?: string
+          updated_at?: string | null
+          volume_24h?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
