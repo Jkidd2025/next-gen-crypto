@@ -21,5 +21,22 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Add mainFields to properly resolve Jupiter packages
+    mainFields: ['browser', 'module', 'main'],
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      // Node.js global to browser globalThis
+      define: {
+        global: 'globalThis'
+      },
+    },
+    // Include Jupiter packages for optimization
+    include: ['@jup-ag/core', '@jup-ag/common'],
+  },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  }
 }));
