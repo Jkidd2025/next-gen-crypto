@@ -36,18 +36,16 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       },
     },
+    include: ['@jup-ag/core', '@jup-ag/common'],
   },
   build: {
     commonjsOptions: {
       transformMixedEsModules: true,
     },
     rollupOptions: {
-      external: ['@jup-ag/common', '@jup-ag/core'],
       output: {
-        globals: {
-          '@jup-ag/common': 'JupiterCommon',
-          '@jup-ag/core': 'JupiterCore'
-        }
+        format: 'es',
+        inlineDynamicImports: true,
       }
     }
   }
