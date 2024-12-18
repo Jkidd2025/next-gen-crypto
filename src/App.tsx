@@ -20,10 +20,29 @@ import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "./components/ui/sonner";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
-// Loading component
+// Loading component with visible feedback
 const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center">
+      <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+      <p className="text-muted-foreground">Loading application...</p>
+    </div>
+  </div>
+);
+
+// Error fallback component
+const ErrorFallback = ({ error }: { error: Error }) => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center p-4">
+      <h2 className="text-xl font-bold text-red-500 mb-4">Something went wrong</h2>
+      <p className="text-muted-foreground mb-4">{error.message}</p>
+      <button
+        onClick={() => window.location.reload()}
+        className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+      >
+        Refresh Page
+      </button>
+    </div>
   </div>
 );
 
@@ -33,7 +52,7 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
       <Router>
         <AuthProvider>
           <Suspense fallback={<LoadingSpinner />}>

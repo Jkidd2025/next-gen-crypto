@@ -19,9 +19,18 @@ const queryClient = new QueryClient({
   },
 })
 
+window.addEventListener('error', (event) => {
+  console.error('Global error:', event.error);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+});
+
 const root = document.getElementById("root");
 
 if (!root) {
+  console.error("Root element not found in the DOM");
   throw new Error("Root element not found");
 }
 
@@ -36,6 +45,13 @@ try {
 
   console.log("Mounting application...");
   createRoot(root).render(app);
+  console.log("Application mounted successfully");
 } catch (error) {
-  console.error("Error mounting application:", error);
+  console.error("Critical error mounting application:", error);
+  // Display error to user
+  root.innerHTML = `
+    <div style="padding: 20px; color: red;">
+      An error occurred while loading the application. Please check the console for details.
+    </div>
+  `;
 }

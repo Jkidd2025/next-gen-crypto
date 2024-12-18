@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
+  base: "/",  // Ensure proper base URL
   server: {
     host: "::",
     port: 8080,
@@ -30,15 +31,10 @@ export default defineConfig(({ mode }) => ({
     },
     mainFields: ['browser', 'module', 'main'],
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: 'globalThis'
-      },
-    },
-    include: ['@jup-ag/core'],
-  },
   build: {
+    outDir: "dist",
+    assetsDir: "assets",
+    sourcemap: true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
@@ -48,7 +44,10 @@ export default defineConfig(({ mode }) => ({
         format: 'es',
         globals: {
           '@jup-ag/common': 'JupiterCommon'
-        }
+        },
+        assetFileNames: "assets/[name]-[hash][extname]",
+        chunkFileNames: "assets/[name]-[hash].js",
+        entryFileNames: "assets/[name]-[hash].js",
       }
     }
   }
