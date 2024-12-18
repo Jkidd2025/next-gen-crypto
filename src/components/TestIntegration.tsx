@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchTokenPrice } from "@/services/dexscreener";
 import { useToast } from "@/hooks/use-toast";
 
-// Test pair address - replace with your actual token pair
-const TEST_PAIR_ADDRESS = "0x7213a321F1855CF1779f42c0CD85d3D95291D34C";
+// PEPE/WETH pair on Ethereum
+const TEST_PAIR_ADDRESS = "0xa43fe16908251ee70ef74718545e4fe6c5ccec9f";
 
 export const TestIntegration = () => {
   const [priceData, setPriceData] = useState<any>(null);

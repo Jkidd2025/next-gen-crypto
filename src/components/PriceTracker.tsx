@@ -3,8 +3,8 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTokenPrice, savePriceData } from "@/services/dexscreener";
 
-// Replace with your actual token pair address
-const TOKEN_PAIR_ADDRESS = "0x7213a321F1855CF1779f42c0CD85d3D95291D34C";
+// PEPE/WETH pair on Ethereum
+const TOKEN_PAIR_ADDRESS = "0xa43fe16908251ee70ef74718545e4fe6c5ccec9f";
 
 export const PriceTracker = () => {
   const { data: priceData, isError } = useQuery({
