@@ -27,11 +27,16 @@ export default defineConfig(({ mode }) => ({
       "os": "os-browserify/browser",
       "process": "process/browser",
       "events": "events",
-      "vm": "vm-browserify",
-      "fs": false,
-      "path": false,
+      "vm": "vm-browserify"
     },
     mainFields: ['browser', 'module', 'main'],
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      },
+    },
   },
   build: {
     outDir: "dist",
@@ -41,7 +46,7 @@ export default defineConfig(({ mode }) => ({
       transformMixedEsModules: true,
     },
     rollupOptions: {
-      external: ['@jup-ag/common'],
+      external: ['@jup-ag/common', 'fs', 'path'],
       output: {
         format: 'es',
         globals: {
