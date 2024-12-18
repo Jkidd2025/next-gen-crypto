@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,18 +7,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getTokensList } from "@/services/jupiter";
 
 interface Token {
   symbol: string;
   name: string;
-  logo?: string;
+  address: string;
+  logoURI?: string;
 }
-
-const AVAILABLE_TOKENS: Token[] = [
-  { symbol: "SOL", name: "Solana" },
-  { symbol: "MEME", name: "Memecoin" },
-  // Add more tokens as needed
-];
 
 interface TokenSelectorProps {
   isOpen: boolean;
@@ -28,12 +24,32 @@ interface TokenSelectorProps {
 
 export const TokenSelector = ({ isOpen, onClose, onSelect }: TokenSelectorProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
 
-  const filteredTokens = AVAILABLE_TOKENS.filter(
-    (token) =>
-      token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      token.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    const loadTokens = async () => {
+      try {
+        const tokensList = await getTokensList();
+        setTokens(tokensList);
+      } catch (error) {
+        console.error('Error loading tokens:', error);
+      }
+    };
+
+    if (isOpen) {
+      loadTokens();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const filtered = tokens.filter(
+      (token) =>
+        token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredTokens(filtered);
+  }, [searchQuery, tokens]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -50,16 +66,16 @@ export const TokenSelector = ({ isOpen, onClose, onSelect }: TokenSelectorProps)
           <ScrollArea className="h-[300px]">
             {filteredTokens.map((token) => (
               <button
-                key={token.symbol}
+                key={token.address}
                 className="w-full flex items-center p-3 hover:bg-accent rounded-lg transition-colors"
                 onClick={() => {
                   onSelect(token);
                   onClose();
                 }}
               >
-                {token.logo && (
+                {token.logoURI && (
                   <img
-                    src={token.logo}
+                    src={token.logoURI}
                     alt={token.name}
                     className="w-8 h-8 mr-3 rounded-full"
                   />

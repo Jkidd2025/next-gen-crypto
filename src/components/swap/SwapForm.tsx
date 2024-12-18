@@ -11,6 +11,8 @@ import { TransactionHistory } from "./TransactionHistory";
 import { TokenSelector } from "./TokenSelector";
 import { SwapRoute } from "./SwapRoute";
 import { RefreshCw } from "lucide-react";
+import { initJupiter, getRoutes, executeSwap, getTokensList } from "@/services/jupiter";
+import { PublicKey } from "@solana/web3.js";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -32,51 +34,78 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const calculatePriceImpact = (amount: string): number => {
-    return parseFloat(amount) * 0.2;
-  };
+  const [availableTokens, setAvailableTokens] = useState([]);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [isLoadingRoute, setIsLoadingRoute] = useState(false);
 
-  const calculateMinimumReceived = (): string => {
-    const minimumAmount = parseFloat(toAmount) * (1 - slippage / 100);
-    return minimumAmount.toFixed(6);
-  };
+  useEffect(() => {
+    const loadTokens = async () => {
+      try {
+        const tokens = await getTokensList();
+        setAvailableTokens(tokens);
+      } catch (error) {
+        console.error('Error loading tokens:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load available tokens",
+          variant: "destructive",
+        });
+      }
+    };
 
-  const calculateToAmount = (value: string) => {
-    setFromAmount(value);
-    setToAmount((parseFloat(value) * 1000).toString());
-  };
+    loadTokens();
+  }, []);
 
-  const handleQuickAmountSelect = (percentage: number) => {
-    const maxAmount = 10;
-    const amount = ((maxAmount * percentage) / 100).toString();
-    calculateToAmount(amount);
-  };
-
-  const refreshPrice = async () => {
-    setIsRefreshing(true);
-    // Simulate price refresh
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    calculateToAmount(fromAmount);
-    setIsRefreshing(false);
-  };
-
-  const priceImpact = calculatePriceImpact(fromAmount);
-  const isHighImpact = priceImpact > 5;
-
-  const handleSwapClick = () => {
-    if (!isWalletConnected) {
-      toast({
-        title: "Wallet Not Connected",
-        description: "Please connect your wallet first",
-        variant: "destructive",
-      });
+  const calculateToAmount = async (value: string) => {
+    if (!value || !isWalletConnected) {
+      setToAmount("");
       return;
     }
-    setIsConfirmationOpen(true);
+
+    setIsRefreshing(true);
+    setFromAmount(value);
+
+    try {
+      // Initialize Jupiter
+      const userPublicKey = new PublicKey(""); // TODO: Get from wallet
+      const jupiter = await initJupiter(userPublicKey);
+
+      // Get routes
+      const routes = await getRoutes(
+        jupiter,
+        selectedTokens.from,
+        selectedTokens.to,
+        parseFloat(value),
+        slippage
+      );
+
+      if (routes.length > 0) {
+        const bestRoute = routes[0];
+        setSelectedRoute(bestRoute);
+        setToAmount(bestRoute.outAmount.toString());
+      }
+    } catch (error) {
+      console.error('Error calculating amount:', error);
+      toast({
+        title: "Error",
+        description: "Failed to calculate swap amount",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleConfirmSwap = async () => {
+    if (!selectedRoute || !isWalletConnected) return;
+
     try {
+      const userPublicKey = new PublicKey(""); // TODO: Get from wallet
+      const jupiter = await initJupiter(userPublicKey);
+      
+      const txid = await executeSwap(jupiter, selectedRoute, userPublicKey);
+
+      // Save transaction to Supabase
       const { error } = await supabase.from("swap_transactions").insert({
         user_id: user?.id,
         from_token: selectedTokens.from,
@@ -86,7 +115,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         slippage: slippage,
         status: "completed",
         gas_fee: gasFee,
-        swap_route: swapRoute,
+        swap_route: selectedRoute,
       });
 
       if (error) throw error;
@@ -96,6 +125,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         description: `Swapped ${fromAmount} ${selectedTokens.from} for ${toAmount} ${selectedTokens.to}`,
       });
     } catch (error) {
+      console.error('Error executing swap:', error);
       toast({
         title: "Swap Failed",
         description: "There was an error processing your swap",
