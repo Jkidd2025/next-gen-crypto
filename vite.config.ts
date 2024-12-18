@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
       "process": "process/browser",
       "events": "events",
       "vm": "vm-browserify",
-      "@jup-ag/common": path.resolve(__dirname, 'node_modules/@jup-ag/common')
+      "@jup-ag/common": path.resolve(__dirname, 'node_modules/@jup-ag/common/dist/lib/index.js')
     },
     mainFields: ['browser', 'module', 'main'],
   },
@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       },
     },
-    include: ['@jup-ag/core', '@jup-ag/common'],
+    include: ['@jup-ag/core'],
   },
   build: {
     commonjsOptions: {
