@@ -1,5 +1,6 @@
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, VersionedTransaction, AddressLookupTableAccount } from '@solana/web3.js';
 import { Jupiter } from '@jup-ag/core';
+import JSBI from 'jsbi';
 
 // Initialize Solana connection (using public RPC endpoint for now)
 const connection = new Connection('https://api.mainnet-beta.solana.com');
@@ -9,7 +10,7 @@ export const initJupiter = async (userPublicKey: PublicKey) => {
   const jupiter = await Jupiter.load({
     connection,
     cluster: 'mainnet-beta',
-    user: userPublicKey, // Required for swap instructions
+    user: userPublicKey,
   });
   return jupiter;
 };
@@ -23,10 +24,11 @@ export const getRoutes = async (
   slippage: number
 ) => {
   try {
+    const amountInJSBI = JSBI.BigInt(amount * Math.pow(10, 9)); // Convert to lamports
     const routes = await jupiter.computeRoutes({
       inputMint: new PublicKey(inputMint),
       outputMint: new PublicKey(outputMint),
-      amount: amount,
+      amount: amountInJSBI,
       slippageBps: Math.floor(slippage * 100),
       forceFetch: true,
     });
@@ -45,12 +47,14 @@ export const executeSwap = async (
   userPublicKey: PublicKey
 ) => {
   try {
-    const { transactions } = await jupiter.exchange({
+    const result = await jupiter.exchange({
       routeInfo: route,
       userPublicKey,
     });
 
-    const { txid } = await transactions.execute();
+    const { swapTransaction, addressLookupTableAccounts } = result;
+    const txid = await result.execute();
+    
     console.log('Swap executed successfully. Transaction ID:', txid);
     return txid;
   } catch (error) {
