@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "/",  // Ensure proper base URL
+  base: "/",
   server: {
     host: "::",
     port: 8080,
@@ -27,7 +27,9 @@ export default defineConfig(({ mode }) => ({
       "os": "os-browserify/browser",
       "process": "process/browser",
       "events": "events",
-      "vm": "vm-browserify"
+      "vm": "vm-browserify",
+      "fs": false,
+      "path": false,
     },
     mainFields: ['browser', 'module', 'main'],
   },
@@ -49,6 +51,10 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",
       }
-    }
+    },
+    target: 'esnext',
+    minify: mode === 'development' ? false : 'esbuild',
+    cssMinify: mode === 'development' ? false : true,
+    chunkSizeWarningLimit: 2000,
   }
 }));
