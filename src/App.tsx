@@ -1,24 +1,24 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Suspense, useEffect } from "react";
-import Index from "@/pages/Index";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
-import SignupSuccess from "@/pages/SignupSuccess";
-import ForgotPassword from "@/pages/ForgotPassword";
-import Dashboard from "@/pages/Dashboard";
-import TokenSwap from "@/pages/TokenSwap";
-import GettingStarted from "@/pages/GettingStarted";
-import TradingBasics from "@/pages/TradingBasics";
-import WalletManagement from "@/pages/WalletManagement";
-import SecurityBestPractices from "@/pages/SecurityBestPractices";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import TermsOfService from "@/pages/TermsOfService";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { AuthProvider } from "@/components/AuthProvider";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import SignupSuccess from "./pages/SignupSuccess";
+import ForgotPassword from "./pages/ForgotPassword";
+import Dashboard from "./pages/Dashboard";
+import TokenSwap from "./pages/TokenSwap";
+import GettingStarted from "./pages/GettingStarted";
+import TradingBasics from "./pages/TradingBasics";
+import WalletManagement from "./pages/WalletManagement";
+import SecurityBestPractices from "./pages/SecurityBestPractices";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AuthProvider } from "./components/AuthProvider";
+import { Toaster } from "./components/ui/toaster";
+import { Toaster as SonnerToaster } from "./components/ui/sonner";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // Loading component
 const LoadingSpinner = () => (

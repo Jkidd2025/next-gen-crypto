@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { Hero } from "@/components/Hero";
-import { OurStory } from "@/components/OurStory";
-import { Roadmap } from "@/components/Roadmap";
-import { Tokenomics } from "@/components/Tokenomics";
-import { SmartContract } from "@/components/SmartContract";
-import { Community } from "@/components/Community";
-import { ContactUs } from "@/components/ContactUs";
-import { LearnSection } from "@/components/LearnSection";
+import { Hero } from "../components/Hero";
+import { OurStory } from "../components/OurStory";
+import { Roadmap } from "../components/Roadmap";
+import { Tokenomics } from "../components/Tokenomics";
+import { SmartContract } from "../components/SmartContract";
+import { Community } from "../components/Community";
+import { ContactUs } from "../components/ContactUs";
+import { LearnSection } from "../components/LearnSection";
 
 const Index = () => {
   useEffect(() => {

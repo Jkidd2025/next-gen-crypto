@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Menu } from "@/components/Menu";
+import { Menu } from "./Menu";
 
 export const Hero = () => {
   useEffect(() => {
