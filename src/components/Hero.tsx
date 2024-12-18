@@ -1,6 +1,11 @@
+import { useEffect } from "react";
 import { Menu } from "@/components/Menu";
 
 export const Hero = () => {
+  useEffect(() => {
+    console.log("Hero component mounted");
+  }, []);
+
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-[#8B5CF6] via-[#D946EF] to-[#F97316]">
       <Menu />

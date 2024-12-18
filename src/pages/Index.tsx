@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Hero } from "@/components/Hero";
 import { OurStory } from "@/components/OurStory";
 import { Roadmap } from "@/components/Roadmap";
@@ -8,6 +9,10 @@ import { ContactUs } from "@/components/ContactUs";
 import { LearnSection } from "@/components/LearnSection";
 
 const Index = () => {
+  useEffect(() => {
+    console.log("Index page mounted");
+  }, []);
+
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
       <main className="w-full">

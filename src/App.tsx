@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
@@ -28,6 +28,10 @@ const LoadingSpinner = () => (
 );
 
 function App() {
+  useEffect(() => {
+    console.log("App component mounted");
+  }, []);
+
   return (
     <ErrorBoundary>
       <Router>
