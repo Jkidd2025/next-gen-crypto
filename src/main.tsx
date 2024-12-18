@@ -8,11 +8,20 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 60 * 1000, // 1 minute
       retry: 1,
+      onError: (error) => {
+        console.error('Query error:', error);
+      },
     },
   },
 })
 
-createRoot(document.getElementById("root")!).render(
+const root = document.getElementById("root");
+
+if (!root) {
+  throw new Error("Root element not found");
+}
+
+createRoot(root).render(
   <QueryClientProvider client={queryClient}>
     <App />
   </QueryClientProvider>
