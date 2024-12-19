@@ -1,8 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { componentTagger } from "lovable-tagger";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
@@ -10,7 +11,11 @@ export default defineConfig({
       "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co wss://*.supabase.co;"
     }
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    mode === 'development' &&
+    componentTagger(),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -20,9 +25,10 @@ export default defineConfig({
       "https": "https-browserify",
       "os": "os-browserify/browser",
       "process": "process/browser",
-      "events": "events"
+      "events": "events",
+      "vm": "vm-browserify"
     },
-    mainFields: ['browser', 'module', 'main']
+    mainFields: ['browser', 'module', 'main'],
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -34,13 +40,7 @@ export default defineConfig({
         global: 'globalThis'
       },
     },
-    include: [
-      '@jup-ag/core',
-      '@solana/web3.js',
-      'react',
-      'react-dom',
-      '@tanstack/react-query'
-    ]
+    include: ['@jup-ag/core'],
   },
   build: {
     outDir: "dist",
@@ -49,25 +49,15 @@ export default defineConfig({
     cssMinify: false,
     chunkSizeWarningLimit: 1600,
     commonjsOptions: {
-      transformMixedEsModules: true
+      transformMixedEsModules: true,
     },
     rollupOptions: {
       external: ['@jup-ag/common'],
       output: {
         globals: {
           '@jup-ag/common': 'JupiterCommon'
-        },
-        manualChunks: {
-          vendor: [
-            'react',
-            'react-dom',
-            'react-router-dom',
-            '@tanstack/react-query',
-            '@solana/web3.js',
-            '@jup-ag/core'
-          ]
         }
       }
     }
   }
-});
+}));
