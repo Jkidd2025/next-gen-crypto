@@ -16,6 +16,11 @@ declare global {
       isPhantom?: boolean;
       connect: () => Promise<{ publicKey: { toString: () => string } }>;
       disconnect: () => Promise<void>;
+      publicKey: { toString: () => string };
+      signTransaction: (transaction: any) => Promise<any>;
+      sendTransaction: (transaction: any, connection?: any) => Promise<string>;
+      signAllTransactions: (transactions: any[]) => Promise<any[]>;
+      signMessage: (message: Uint8Array) => Promise<{ signature: Uint8Array }>;
     };
   }
 }
