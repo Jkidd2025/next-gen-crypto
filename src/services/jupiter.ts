@@ -2,13 +2,9 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { Jupiter } from '@jup-ag/core';
 import JSBI from 'jsbi';
 
-// Initialize Solana connection
-const connection = new Connection('https://api.mainnet-beta.solana.com');
-
-// Initialize Jupiter
-export const initJupiter = async (userPublicKey: PublicKey) => {
+export const initializeJupiter = async (connection: Connection, userPublicKey: PublicKey | null) => {
   try {
-    console.log('Initializing Jupiter with user public key:', userPublicKey.toString());
+    console.log('Initializing Jupiter SDK');
     const jupiter = await Jupiter.load({
       connection,
       cluster: 'mainnet-beta',
@@ -22,7 +18,6 @@ export const initJupiter = async (userPublicKey: PublicKey) => {
   }
 };
 
-// Get routes for token swap
 export const getRoutes = async (
   jupiter: Jupiter,
   inputMint: string,
@@ -40,16 +35,15 @@ export const getRoutes = async (
       slippageBps: Math.floor(slippage * 100),
       forceFetch: true
     });
-
-    console.log('Routes fetched successfully:', routes.routesInfos.length);
-    return routes.routesInfos;
+    
+    console.log('Routes computed successfully:', routes);
+    return routes;
   } catch (error) {
-    console.error('Error fetching routes:', error);
+    console.error('Error getting routes:', error);
     throw error;
   }
 };
 
-// Execute token swap
 export const executeSwap = async (
   jupiter: Jupiter,
   route: any,
@@ -57,30 +51,15 @@ export const executeSwap = async (
 ) => {
   try {
     console.log('Executing swap with route:', route);
-    const { execute } = await jupiter.exchange({
+    const { transactions } = await jupiter.exchange({
       routeInfo: route,
       userPublicKey
     });
     
-    const result = await execute();
-    console.log('Swap executed successfully:', result);
-    return result;
+    console.log('Swap executed successfully:', transactions);
+    return transactions;
   } catch (error) {
     console.error('Error executing swap:', error);
-    throw error;
-  }
-};
-
-// Get token list from Jupiter
-export const getTokensList = async () => {
-  try {
-    console.log('Fetching tokens list');
-    const response = await fetch('https://token.jup.ag/strict');
-    const tokens = await response.json();
-    console.log('Tokens list fetched successfully:', tokens.length);
-    return tokens;
-  } catch (error) {
-    console.error('Error fetching tokens list:', error);
     throw error;
   }
 };
