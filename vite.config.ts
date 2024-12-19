@@ -37,36 +37,36 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       },
     },
-    include: ['@jup-ag/core'],
-    exclude: ['@jup-ag/common']
+    include: ['@jup-ag/core', '@jup-ag/common'],
   },
   build: {
     outDir: "dist",
     assetsDir: "assets",
-    sourcemap: mode === 'development',
-    minify: mode === 'development' ? false : 'esbuild',
-    cssMinify: mode === 'development' ? false : true,
+    sourcemap: false,
+    minify: false,
+    cssMinify: false,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
     rollupOptions: {
-      external: ['@jup-ag/common', 'fs', 'path'],
       output: {
         format: 'es',
-        globals: {
-          '@jup-ag/common': 'JupiterCommon'
+        manualChunks: {
+          vendor: [
+            '@jup-ag/core',
+            '@jup-ag/common',
+            '@tanstack/react-query',
+            'react',
+            'react-dom',
+            'react-router-dom'
+          ],
         },
         assetFileNames: "assets/[name]-[hash][extname]",
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        }
       }
     },
     target: 'esnext',
-    chunkSizeWarningLimit: 2000,
+    chunkSizeWarningLimit: 4000,
   }
 }));
