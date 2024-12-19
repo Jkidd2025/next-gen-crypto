@@ -40,14 +40,13 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       },
     },
-    include: ['@jup-ag/core', '@jup-ag/common', 'react', 'react-dom', '@tanstack/react-query'],
+    include: ['@jup-ag/core', '@jup-ag/common'],
   },
   build: {
     outDir: "dist",
-    sourcemap: false,
-    minify: false,
-    cssMinify: false,
-    chunkSizeWarningLimit: 1600,
+    sourcemap: true,
+    minify: mode === 'production',
+    cssMinify: mode === 'production',
     commonjsOptions: {
       transformMixedEsModules: true,
     },
