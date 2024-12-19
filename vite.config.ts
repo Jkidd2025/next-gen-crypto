@@ -22,21 +22,19 @@ export default defineConfig(({ mode }) => ({
       "os": "os-browserify/browser",
       "process": "process/browser",
       "events": "events",
+      "buffer": "buffer",
     },
     mainFields: ['browser', 'module', 'main'],
-  },
-  build: {
-    sourcemap: true,
-    commonjsOptions: {
-      transformMixedEsModules: true,
-    }
   },
   optimizeDeps: {
     esbuildOptions: {
       define: {
         global: 'globalThis'
       }
-    },
-    include: ['@jup-ag/core']
-  }
+    }
+  },
+  define: {
+    'process.env': {},
+    global: 'globalThis',
+  },
 }));
