@@ -32,10 +32,6 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     esbuildOptions: {
-      target: 'esnext',
-      supported: { 
-        bigint: true 
-      },
       define: {
         global: 'globalThis'
       },
@@ -43,25 +39,11 @@ export default defineConfig(({ mode }) => ({
     include: ['@jup-ag/core'],
   },
   build: {
-    outDir: "dist",
-    sourcemap: true,
-    minify: mode === 'production',
-    cssMinify: mode === 'production',
     commonjsOptions: {
       transformMixedEsModules: true,
     },
     rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: [
-            'react',
-            'react-dom',
-            'react-router-dom',
-            '@tanstack/react-query',
-            '@jup-ag/core'
-          ]
-        }
-      }
+      external: ['@jup-ag/common'],
     }
   }
 }));
