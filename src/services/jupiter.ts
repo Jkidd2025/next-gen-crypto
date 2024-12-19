@@ -12,7 +12,7 @@ export const initJupiter = async (userPublicKey: PublicKey) => {
     const jupiter = await Jupiter.load({
       connection,
       cluster: 'mainnet-beta',
-      user: userPublicKey, 
+      user: userPublicKey,
     });
     console.log('Jupiter initialized successfully');
     return jupiter;
@@ -32,10 +32,11 @@ export const getRoutes = async (
 ) => {
   try {
     console.log('Getting routes for swap:', { inputMint, outputMint, amount, slippage });
+    const amountInLamports = JSBI.BigInt(amount * Math.pow(10, 9)); // Convert to lamports
     const routes = await jupiter.computeRoutes({
       inputMint: new PublicKey(inputMint),
       outputMint: new PublicKey(outputMint),
-      amount: JSBI.BigInt(amount),
+      amount: amountInLamports,
       slippageBps: Math.floor(slippage * 100),
       forceFetch: true
     });

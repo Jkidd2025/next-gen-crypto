@@ -17,9 +17,6 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     commonjsOptions: {
       transformMixedEsModules: true,
-    },
-    rollupOptions: {
-      external: ['@jup-ag/common'],
     }
   },
   optimizeDeps: {
@@ -28,6 +25,6 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       }
     },
-    exclude: ['@jup-ag/common']
+    include: ['@jup-ag/core']
   }
 }));
