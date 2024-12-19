@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       },
     },
-    include: ['@jup-ag/core', '@jup-ag/common'],
+    include: ['@jup-ag/core'],
   },
   build: {
     outDir: "dist",
@@ -49,12 +49,15 @@ export default defineConfig(({ mode }) => ({
       transformMixedEsModules: true,
     },
     rollupOptions: {
+      external: ['@jup-ag/common'],
       output: {
         format: 'es',
+        globals: {
+          '@jup-ag/common': 'JupiterCommon'
+        },
         manualChunks: {
           vendor: [
             '@jup-ag/core',
-            '@jup-ag/common',
             '@tanstack/react-query',
             'react',
             'react-dom',
