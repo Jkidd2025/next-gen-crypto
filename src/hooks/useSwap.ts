@@ -12,7 +12,7 @@ export const useSwap = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const calculateToAmount = async (value: string) => {
+  const calculateToAmount = async (value: string, fromToken: string, toToken: string) => {
     if (!value) {
       setToAmount("");
       return;
@@ -38,13 +38,13 @@ export const useSwap = () => {
     }
   };
 
-  const handleSwap = async () => {
+  const handleSwap = async (fromToken: string, toToken: string) => {
     try {
       // Store the mock transaction in Supabase
       await supabase.from("swap_transactions").insert({
         user_id: user?.id,
-        from_token: "SOL",
-        to_token: "MEME",
+        from_token: fromToken,
+        to_token: toToken,
         from_amount: parseFloat(fromAmount),
         to_amount: parseFloat(toAmount),
         slippage,
@@ -54,7 +54,7 @@ export const useSwap = () => {
 
       toast({
         title: "Swap Successful",
-        description: `Swapped ${fromAmount} SOL for ${toAmount} MEME`,
+        description: `Swapped ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
       });
 
       return "mock-txid";
