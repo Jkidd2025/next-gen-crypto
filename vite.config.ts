@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       },
     },
-    include: ['@jup-ag/core', '@jup-ag/common'],
+    include: ['@jup-ag/core'],
   },
   build: {
     outDir: "dist",
@@ -58,8 +58,7 @@ export default defineConfig(({ mode }) => ({
             'react-dom',
             'react-router-dom',
             '@tanstack/react-query',
-            '@jup-ag/core',
-            '@jup-ag/common'
+            '@jup-ag/core'
           ]
         }
       }
