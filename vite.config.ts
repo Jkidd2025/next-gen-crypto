@@ -36,5 +36,6 @@ export default defineConfig(({ mode }) => ({
   define: {
     'process.env': {},
     global: 'globalThis',
+    'Buffer': ['buffer', 'Buffer'],
   },
 }));
