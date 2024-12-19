@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getTokensList } from "@/services/jupiter";
 
 interface Token {
   symbol: string;
@@ -29,12 +28,12 @@ export const TokenSelector = ({ isOpen, onClose, onSelect }: TokenSelectorProps)
 
   useEffect(() => {
     const loadTokens = async () => {
-      try {
-        const tokensList = await getTokensList();
-        setTokens(tokensList);
-      } catch (error) {
-        console.error('Error loading tokens:', error);
-      }
+      // Mock token list while Jupiter integration is removed
+      const mockTokens = [
+        { symbol: "SOL", name: "Solana", address: "sol", logoURI: "/sol-logo.png" },
+        { symbol: "MEME", name: "Memecoin", address: "meme", logoURI: "/meme-logo.png" },
+      ];
+      setTokens(mockTokens);
     };
 
     if (isOpen) {

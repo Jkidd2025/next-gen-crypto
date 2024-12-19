@@ -2,20 +2,17 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { initJupiter, getRoutes, executeSwap } from "@/services/jupiter";
-import { PublicKey } from "@solana/web3.js";
 
 export const useSwap = () => {
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
   const [slippage, setSlippage] = useState(0.5);
-  const [selectedRoute, setSelectedRoute] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [gasFee, setGasFee] = useState(0.000005);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const calculateToAmount = async (value: string, fromToken: string, toToken: string) => {
+  const calculateToAmount = async (value: string) => {
     if (!value) {
       setToAmount("");
       return;
@@ -25,21 +22,10 @@ export const useSwap = () => {
     setFromAmount(value);
 
     try {
-      const userPublicKey = new PublicKey(""); // TODO: Get from wallet
-      const jupiter = await initJupiter(userPublicKey);
-      const routes = await getRoutes(
-        jupiter,
-        fromToken,
-        toToken,
-        parseFloat(value),
-        slippage
-      );
-
-      if (routes.length > 0) {
-        const bestRoute = routes[0];
-        setSelectedRoute(bestRoute);
-        setToAmount(bestRoute.outAmount.toString());
-      }
+      // Temporary mock calculation while Jupiter is removed
+      const mockRate = 1.5;
+      const calculatedAmount = parseFloat(value) * mockRate;
+      setToAmount(calculatedAmount.toString());
     } catch (error) {
       console.error('Error calculating amount:', error);
       toast({
@@ -52,32 +38,26 @@ export const useSwap = () => {
     }
   };
 
-  const handleSwap = async (fromToken: string, toToken: string) => {
-    if (!selectedRoute) return;
-
+  const handleSwap = async () => {
     try {
-      const userPublicKey = new PublicKey(""); // TODO: Get from wallet
-      const jupiter = await initJupiter(userPublicKey);
-      const txid = await executeSwap(jupiter, selectedRoute, userPublicKey);
-
+      // Store the mock transaction in Supabase
       await supabase.from("swap_transactions").insert({
         user_id: user?.id,
-        from_token: fromToken,
-        to_token: toToken,
+        from_token: "SOL",
+        to_token: "MEME",
         from_amount: parseFloat(fromAmount),
         to_amount: parseFloat(toAmount),
         slippage,
         status: "completed",
         gas_fee: gasFee,
-        swap_route: selectedRoute,
       });
 
       toast({
         title: "Swap Successful",
-        description: `Swapped ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
+        description: `Swapped ${fromAmount} SOL for ${toAmount} MEME`,
       });
 
-      return txid;
+      return "mock-txid";
     } catch (error) {
       console.error('Error executing swap:', error);
       toast({
@@ -97,14 +77,14 @@ export const useSwap = () => {
 
   const refreshPrice = () => {
     if (fromAmount) {
-      calculateToAmount(fromAmount, "SOL", "MEME");
+      calculateToAmount(fromAmount);
     }
   };
 
   const handleQuickAmountSelect = (percentage: number) => {
-    // TODO: Implement based on wallet balance
+    // Mock implementation
     const amount = (1000 * percentage) / 100;
-    calculateToAmount(amount.toString(), "SOL", "MEME");
+    calculateToAmount(amount.toString());
   };
 
   return {
