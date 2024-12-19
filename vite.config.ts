@@ -1,34 +1,17 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { componentTagger } from "lovable-tagger";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import path from 'path';
 
 export default defineConfig(({ mode }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-    headers: {
-      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co wss://*.supabase.co;"
-    }
-  },
-  plugins: [
-    react(),
-    mode === 'development' &&
-    componentTagger(),
-  ].filter(Boolean),
+  plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "stream": "stream-browserify",
-      "crypto": "crypto-browserify",
-      "http": "stream-http",
-      "https": "https-browserify",
-      "os": "os-browserify/browser",
-      "process": "process/browser",
-      "events": "events",
-      "vm": "vm-browserify"
+      '@': path.resolve(__dirname, './src'),
     },
-    mainFields: ['browser', 'module', 'main'],
+  },
+  define: {
+    'process.env': {},
+    global: 'globalThis',
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -39,11 +22,25 @@ export default defineConfig(({ mode }) => ({
     include: ['@jup-ag/core'],
   },
   build: {
+    outDir: "dist",
+    sourcemap: true,
+    minify: mode === 'production',
+    cssMinify: mode === 'production',
     commonjsOptions: {
       transformMixedEsModules: true,
     },
     rollupOptions: {
       external: ['@jup-ag/common'],
+      output: {
+        manualChunks: {
+          vendor: [
+            'react',
+            'react-dom',
+            'react-router-dom',
+            '@tanstack/react-query'
+          ]
+        }
+      }
     }
   }
 }));
