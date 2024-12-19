@@ -3,29 +3,45 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 
+interface SwapState {
+  fromAmount: string;
+  toAmount: string;
+  slippage: number;
+  isRefreshing: boolean;
+  gasFee: number;
+}
+
 export const useSwap = () => {
-  const [fromAmount, setFromAmount] = useState("");
-  const [toAmount, setToAmount] = useState("");
-  const [slippage, setSlippage] = useState(0.5);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [gasFee, setGasFee] = useState(0.000005);
+  const [state, setState] = useState<SwapState>({
+    fromAmount: "",
+    toAmount: "",
+    slippage: 0.5,
+    isRefreshing: false,
+    gasFee: 0.000005,
+  });
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const calculateToAmount = async (value: string, fromToken: string, toToken: string) => {
+  const calculateToAmount = async (
+    value: string,
+    fromToken: string,
+    toToken: string
+  ) => {
     if (!value) {
-      setToAmount("");
+      setState(prev => ({ ...prev, toAmount: "" }));
       return;
     }
 
-    setIsRefreshing(true);
-    setFromAmount(value);
+    setState(prev => ({ ...prev, isRefreshing: true, fromAmount: value }));
 
     try {
       // Temporary mock calculation while Jupiter is removed
       const mockRate = 1.5;
       const calculatedAmount = parseFloat(value) * mockRate;
-      setToAmount(calculatedAmount.toString());
+      setState(prev => ({
+        ...prev,
+        toAmount: calculatedAmount.toString(),
+      }));
     } catch (error) {
       console.error('Error calculating amount:', error);
       toast({
@@ -34,7 +50,7 @@ export const useSwap = () => {
         variant: "destructive",
       });
     } finally {
-      setIsRefreshing(false);
+      setState(prev => ({ ...prev, isRefreshing: false }));
     }
   };
 
@@ -45,16 +61,16 @@ export const useSwap = () => {
         user_id: user?.id,
         from_token: fromToken,
         to_token: toToken,
-        from_amount: parseFloat(fromAmount),
-        to_amount: parseFloat(toAmount),
-        slippage,
+        from_amount: parseFloat(state.fromAmount),
+        to_amount: parseFloat(state.toAmount),
+        slippage: state.slippage,
         status: "completed",
-        gas_fee: gasFee,
+        gas_fee: state.gasFee,
       });
 
       toast({
         title: "Swap Successful",
-        description: `Swapped ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
+        description: `Swapped ${state.fromAmount} ${fromToken} for ${state.toAmount} ${toToken}`,
       });
 
       return "mock-txid";
@@ -70,29 +86,33 @@ export const useSwap = () => {
   };
 
   const calculateMinimumReceived = () => {
-    if (!toAmount) return "0";
-    const amount = parseFloat(toAmount);
-    return (amount * (1 - slippage / 100)).toFixed(6);
+    if (!state.toAmount) return "0";
+    const amount = parseFloat(state.toAmount);
+    return (amount * (1 - state.slippage / 100)).toFixed(6);
   };
 
   const refreshPrice = () => {
-    if (fromAmount) {
-      calculateToAmount(fromAmount);
+    if (state.fromAmount) {
+      calculateToAmount(state.fromAmount, "SOL", "MEME");
     }
   };
 
   const handleQuickAmountSelect = (percentage: number) => {
     // Mock implementation
     const amount = (1000 * percentage) / 100;
-    calculateToAmount(amount.toString());
+    calculateToAmount(amount.toString(), "SOL", "MEME");
+  };
+
+  const setSlippage = (value: number) => {
+    setState(prev => ({ ...prev, slippage: value }));
   };
 
   return {
-    fromAmount,
-    toAmount,
-    slippage,
-    isRefreshing,
-    gasFee,
+    fromAmount: state.fromAmount,
+    toAmount: state.toAmount,
+    slippage: state.slippage,
+    isRefreshing: state.isRefreshing,
+    gasFee: state.gasFee,
     calculateToAmount,
     handleSwap,
     calculateMinimumReceived,
