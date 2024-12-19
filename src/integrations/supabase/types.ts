@@ -494,6 +494,90 @@ export type Database = {
         }
         Relationships: []
       }
+      token_pairs: {
+        Row: {
+          base_token_id: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          max_amount: number | null
+          min_amount: number | null
+          quote_token_id: string
+          updated_at: string
+        }
+        Insert: {
+          base_token_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          max_amount?: number | null
+          min_amount?: number | null
+          quote_token_id: string
+          updated_at?: string
+        }
+        Update: {
+          base_token_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          max_amount?: number | null
+          min_amount?: number | null
+          quote_token_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_pairs_base_token_id_fkey"
+            columns: ["base_token_id"]
+            isOneToOne: false
+            referencedRelation: "tokens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "token_pairs_quote_token_id_fkey"
+            columns: ["quote_token_id"]
+            isOneToOne: false
+            referencedRelation: "tokens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tokens: {
+        Row: {
+          created_at: string
+          decimals: number
+          id: string
+          is_active: boolean | null
+          logo_uri: string | null
+          mint_address: string
+          name: string
+          symbol: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          decimals: number
+          id?: string
+          is_active?: boolean | null
+          logo_uri?: string | null
+          mint_address: string
+          name: string
+          symbol: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          decimals?: number
+          id?: string
+          is_active?: boolean | null
+          logo_uri?: string | null
+          mint_address?: string
+          name?: string
+          symbol?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
