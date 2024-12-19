@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { createSwapTransaction, getTokenBalance } from "@/utils/solana";
 
 interface SwapState {
   fromAmount: string;
@@ -36,7 +35,7 @@ export const useSwap = () => {
     setState(prev => ({ ...prev, isRefreshing: true, fromAmount: value }));
 
     try {
-      // In production, this should fetch real-time price from a DEX
+      // Mock exchange rate calculation (to be replaced with actual DEX integration)
       const mockRate = 1.5;
       const calculatedAmount = parseFloat(value) * mockRate;
       setState(prev => ({
@@ -56,41 +55,11 @@ export const useSwap = () => {
   };
 
   const handleSwap = async (fromToken: string, toToken: string) => {
-    if (!window.solana || !window.solana.publicKey) {
-      toast({
-        title: "Error",
-        description: "Please connect your wallet first",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
+      // Mock swap transaction (to be replaced with actual DEX integration)
       const fromAmount = parseFloat(state.fromAmount);
-      const balance = await getTokenBalance(window.solana.publicKey.toString());
       
-      if (balance < fromAmount) {
-        toast({
-          title: "Insufficient Balance",
-          description: "You don't have enough tokens for this swap",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const transaction = await createSwapTransaction(
-        window.solana.publicKey.toString(),
-        toToken,
-        fromAmount,
-        state.slippage
-      );
-
-      const signed = await window.solana.signTransaction(transaction);
-      const signature = await window.solana.sendTransaction(signed);
-
-      console.log('Transaction sent:', signature);
-
-      // Store the transaction in Supabase
+      // Store the mock transaction in Supabase
       await supabase.from("swap_transactions").insert({
         user_id: user?.id,
         from_token: fromToken,
@@ -107,7 +76,7 @@ export const useSwap = () => {
         description: `Swapped ${state.fromAmount} ${fromToken} for ${state.toAmount} ${toToken}`,
       });
 
-      return signature;
+      return "mock-transaction-signature";
     } catch (error) {
       console.error('Error executing swap:', error);
       toast({
@@ -132,13 +101,10 @@ export const useSwap = () => {
   };
 
   const handleQuickAmountSelect = (percentage: number) => {
-    // Calculate amount based on wallet balance
-    getTokenBalance(window.solana?.publicKey?.toString() || "")
-      .then(balance => {
-        const amount = (balance * percentage) / 100;
-        calculateToAmount(amount.toString(), "SOL", "MEME");
-      })
-      .catch(console.error);
+    // Mock balance calculation (to be replaced with actual wallet integration)
+    const mockBalance = 100;
+    const amount = (mockBalance * percentage) / 100;
+    calculateToAmount(amount.toString(), "SOL", "MEME");
   };
 
   const setSlippage = (value: number) => {
