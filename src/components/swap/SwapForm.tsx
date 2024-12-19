@@ -9,6 +9,7 @@ import { TokenSelector } from "./TokenSelector";
 import { SwapRoute } from "./SwapRoute";
 import { RefreshCw } from "lucide-react";
 import { useSwap } from "@/hooks/useSwap";
+import { useToast } from "@/hooks/use-toast";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -21,6 +22,8 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     from: "SOL",
     to: "MEME",
   });
+
+  const { toast } = useToast();
 
   const {
     fromAmount,
@@ -36,11 +39,15 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     setSlippage,
   } = useSwap();
 
-  const isHighImpact = false; // TODO: Implement price impact calculation
-  const priceImpact = 0; // TODO: Implement price impact calculation
-  const swapRoute = []; // TODO: Implement swap route display
-
   const handleSwapClick = () => {
+    if (!isWalletConnected) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet to proceed with the swap",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsConfirmationOpen(true);
   };
 
@@ -48,8 +55,16 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     try {
       await handleSwap(selectedTokens.from, selectedTokens.to);
       setIsConfirmationOpen(false);
+      toast({
+        title: "Swap successful",
+        description: `Successfully swapped ${fromAmount} ${selectedTokens.from} for ${toAmount} ${selectedTokens.to}`,
+      });
     } catch (error) {
-      // Error is already handled in handleSwap
+      toast({
+        title: "Swap failed",
+        description: error instanceof Error ? error.message : "An error occurred during the swap",
+        variant: "destructive",
+      });
       setIsConfirmationOpen(false);
     }
   };
@@ -93,14 +108,12 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       <SwapRoute
         fromToken={selectedTokens.from}
         toToken={selectedTokens.to}
-        route={swapRoute}
+        route={[]}
       />
 
       <div className="text-sm text-muted-foreground">
         Estimated Gas Fee: {gasFee} SOL
       </div>
-
-      <PriceImpactWarning isHighImpact={isHighImpact} fromAmount={fromAmount} />
 
       <Button
         className="w-full bg-primary hover:bg-primary/90"
@@ -116,9 +129,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={priceImpact}
+        priceImpact={0}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={isHighImpact}
+        isHighImpact={false}
       />
 
       <TokenSelector

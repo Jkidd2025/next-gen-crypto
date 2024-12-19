@@ -18,6 +18,17 @@ export const TokenSwap = () => {
         </h2>
         
         <div className="grid gap-6 md:gap-8">
+          <div className="max-w-xl mx-auto w-full">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6 border border-primary/10">
+              {!isWalletConnected ? (
+                <WalletConnect onConnect={setIsWalletConnected} />
+              ) : (
+                <SwapForm isWalletConnected={isWalletConnected} />
+              )}
+              <BuyWithCard />
+            </div>
+          </div>
+
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden">
             <PriceChart />
           </div>
@@ -34,19 +45,8 @@ export const TokenSwap = () => {
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6">
             <ROICalculator />
           </div>
-          
-          <div className="max-w-xl mx-auto w-full">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6 border border-primary/10">
-              {!isWalletConnected ? (
-                <WalletConnect onConnect={setIsWalletConnected} />
-              ) : (
-                <SwapForm isWalletConnected={isWalletConnected} />
-              )}
-              <BuyWithCard />
-            </div>
-          </div>
         </div>
       </div>
     </section>
   );
-}
+};
