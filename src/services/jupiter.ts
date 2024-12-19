@@ -2,7 +2,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { Jupiter } from '@jup-ag/core';
 import JSBI from 'jsbi';
 
-// Initialize Solana connection (using public RPC endpoint for now)
+// Initialize Solana connection
 const connection = new Connection('https://api.mainnet-beta.solana.com');
 
 // Initialize Jupiter
@@ -12,7 +12,7 @@ export const initJupiter = async (userPublicKey: PublicKey) => {
     const jupiter = await Jupiter.load({
       connection,
       cluster: 'mainnet-beta',
-      user: userPublicKey,
+      user: userPublicKey, 
     });
     console.log('Jupiter initialized successfully');
     return jupiter;
@@ -32,13 +32,12 @@ export const getRoutes = async (
 ) => {
   try {
     console.log('Getting routes for swap:', { inputMint, outputMint, amount, slippage });
-    const amountInJSBI = JSBI.BigInt(amount * Math.pow(10, 9)); // Convert to lamports
     const routes = await jupiter.computeRoutes({
       inputMint: new PublicKey(inputMint),
       outputMint: new PublicKey(outputMint),
-      amount: amountInJSBI,
+      amount: JSBI.BigInt(amount),
       slippageBps: Math.floor(slippage * 100),
-      forceFetch: true,
+      forceFetch: true
     });
 
     console.log('Routes fetched successfully:', routes.routesInfos.length);
@@ -57,14 +56,14 @@ export const executeSwap = async (
 ) => {
   try {
     console.log('Executing swap with route:', route);
-    const result = await jupiter.exchange({
+    const { execute } = await jupiter.exchange({
       routeInfo: route,
-      userPublicKey,
+      userPublicKey
     });
-
-    const txid = await result.execute();
-    console.log('Swap executed successfully. Transaction ID:', txid);
-    return txid;
+    
+    const result = await execute();
+    console.log('Swap executed successfully:', result);
+    return result;
   } catch (error) {
     console.error('Error executing swap:', error);
     throw error;
