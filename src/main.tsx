@@ -19,6 +19,7 @@ const queryClient = new QueryClient({
   },
 })
 
+// Global error handlers
 window.addEventListener('error', (event) => {
   console.error('Global error:', event.error);
 });
