@@ -4,12 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import './index.css'
 
-// Polyfills for Solana Web3.js
-import { Buffer } from 'buffer';
-// Explicitly set Buffer on the window object
-window.Buffer = Buffer;
-globalThis.Buffer = Buffer;
-
 console.log("Initializing application...");
 
 const queryClient = new QueryClient({

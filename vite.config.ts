@@ -15,27 +15,12 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "stream": "stream-browserify",
-      "crypto": "crypto-browserify",
-      "http": "stream-http",
-      "https": "https-browserify",
-      "os": "os-browserify/browser",
-      "process": "process/browser",
-      "events": "events",
-      "buffer": "buffer",
     },
-    mainFields: ['browser', 'module', 'main'],
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: 'globalThis'
-      }
+  build: {
+    sourcemap: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
     }
-  },
-  define: {
-    'process.env': {},
-    global: 'globalThis',
-    'Buffer': ['buffer', 'Buffer'],
-  },
+  }
 }));
