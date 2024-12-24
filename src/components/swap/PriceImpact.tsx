@@ -6,20 +6,20 @@ interface PriceImpactProps {
 }
 
 export const PriceImpact = ({ priceImpact }: PriceImpactProps) => {
-  const priceImpactNumber = typeof priceImpact === 'string' ? parseFloat(priceImpact) : priceImpact;
+  const priceImpactNum = Number(priceImpact);
   
-  if (isNaN(priceImpactNumber) || priceImpactNumber < 1) return null;
+  if (priceImpactNum < 1 || isNaN(priceImpactNum)) return null;
 
   const getAlertVariant = () => {
-    if (priceImpactNumber >= 5) return "destructive";
+    if (priceImpactNum >= 5) return "destructive";
     return "default";
   };
 
   const getMessage = () => {
-    if (priceImpactNumber >= 5) {
+    if (priceImpactNum >= 5) {
       return "High price impact! Your trade will move the market price significantly.";
     }
-    if (priceImpactNumber >= 3) {
+    if (priceImpactNum >= 3) {
       return "Medium price impact. Your trade will move the market price.";
     }
     return "Low price impact.";
@@ -29,7 +29,7 @@ export const PriceImpact = ({ priceImpact }: PriceImpactProps) => {
     <Alert variant={getAlertVariant()}>
       <AlertTriangle className="h-4 w-4" />
       <AlertDescription>
-        Price Impact: {priceImpactNumber.toFixed(2)}% - {getMessage()}
+        Price Impact: {priceImpactNum.toFixed(2)}% - {getMessage()}
       </AlertDescription>
     </Alert>
   );
