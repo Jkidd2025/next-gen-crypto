@@ -7,6 +7,8 @@ import { Button } from "./ui/button";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ConnectionHandler } from "./swap/ConnectionHandler";
 import { SwapInterface } from "./swap/SwapInterface";
+import { WalletConnect } from "./swap/WalletConnect";
+import { useToast } from "@/hooks/use-toast";
 
 const ConnectionErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
   <div className="container mx-auto px-4 py-8">
@@ -28,10 +30,11 @@ const ConnectionErrorFallback = ({ error, resetErrorBoundary }: { error: Error; 
 );
 
 export const TokenSwap = () => {
-  const { connected, connecting } = useWallet();
+  const { connected, connecting, publicKey } = useWallet();
   const [connection, setConnection] = useState<Connection | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   const handleConnectionEstablished = (conn: Connection) => {
     setConnection(conn);
@@ -41,6 +44,11 @@ export const TokenSwap = () => {
   const handleConnectionError = (errorMessage: string) => {
     setError(errorMessage);
     setIsLoading(false);
+    toast({
+      title: "Connection Error",
+      description: errorMessage,
+      variant: "destructive",
+    });
   };
 
   const handleRetryConnection = () => {
@@ -50,9 +58,20 @@ export const TokenSwap = () => {
 
   const handleWalletConnect = (isConnected: boolean) => {
     if (isConnected) {
-      console.log("Wallet connected successfully");
+      toast({
+        title: "Wallet Connected",
+        description: "Successfully connected to wallet",
+      });
     }
   };
+
+  if (!publicKey && !connecting) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <WalletConnect onConnect={handleWalletConnect} />
+      </div>
+    );
+  }
 
   if (error) {
     return (

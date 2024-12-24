@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, Loader2 } from "lucide-react";
 
 interface WalletConnectProps {
   onConnect: (isConnected: boolean) => void;
@@ -10,13 +10,22 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
   const { connected, connecting, connect, disconnect } = useWalletConnection();
 
   const handleConnect = async () => {
-    await connect();
-    onConnect(true);
+    try {
+      await connect();
+      onConnect(true);
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+      onConnect(false);
+    }
   };
 
   const handleDisconnect = async () => {
-    await disconnect();
-    onConnect(false);
+    try {
+      await disconnect();
+      onConnect(false);
+    } catch (error) {
+      console.error("Failed to disconnect wallet:", error);
+    }
   };
 
   return (
@@ -34,7 +43,7 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
         >
           {connecting ? (
             <>
-              <span className="animate-spin mr-2">⚪</span>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Connecting...
             </>
           ) : (
