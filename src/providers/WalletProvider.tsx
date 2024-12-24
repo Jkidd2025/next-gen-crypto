@@ -10,11 +10,13 @@ interface Props {
 }
 
 export const SolanaWalletProvider: FC<Props> = ({ children }) => {
+  // You can add more endpoints here for fallback
   const endpoint = useMemo(() => clusterApiUrl('mainnet-beta'), []);
 
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
+      // Add more wallet adapters here as needed
     ],
     []
   );

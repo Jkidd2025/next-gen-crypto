@@ -1,11 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Suspense, useEffect } from "react";
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
+import { SolanaWalletProvider } from "./providers/WalletProvider";
 import '@solana/wallet-adapter-react-ui/styles.css';
+
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -59,60 +57,53 @@ const ErrorFallback = ({ error }: { error: Error }) => {
 };
 
 function App() {
-  const endpoint = clusterApiUrl('mainnet-beta');
-  const wallets = [new PhantomWalletAdapter()];
-
   useEffect(() => {
     console.log("App component mounted");
   }, []);
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            <Router>
-              <AuthProvider>
-                <Suspense fallback={<LoadingSpinner />}>
-                  <div className="min-h-screen bg-background">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/signup" element={<Signup />} />
-                      <Route path="/signup-success" element={<SignupSuccess />} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
-                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                      <Route path="/terms-of-service" element={<TermsOfService />} />
-                      <Route
-                        path="/dashboard/*"
-                        element={
-                          <ProtectedRoute>
-                            <Dashboard />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="/swap"
-                        element={
-                          <ProtectedRoute>
-                            <TokenSwap />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route path="/getting-started" element={<GettingStarted />} />
-                      <Route path="/trading-basics" element={<TradingBasics />} />
-                      <Route path="/wallet-management" element={<WalletManagement />} />
-                      <Route path="/security-best-practices" element={<SecurityBestPractices />} />
-                    </Routes>
-                    <Toaster />
-                    <SonnerToaster />
-                  </div>
-                </Suspense>
-              </AuthProvider>
-            </Router>
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
+      <SolanaWalletProvider>
+        <Router>
+          <AuthProvider>
+            <Suspense fallback={<LoadingSpinner />}>
+              <div className="min-h-screen bg-background">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/signup-success" element={<SignupSuccess />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route
+                    path="/dashboard/*"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/swap"
+                    element={
+                      <ProtectedRoute>
+                        <TokenSwap />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/getting-started" element={<GettingStarted />} />
+                  <Route path="/trading-basics" element={<TradingBasics />} />
+                  <Route path="/wallet-management" element={<WalletManagement />} />
+                  <Route path="/security-best-practices" element={<SecurityBestPractices />} />
+                </Routes>
+                <Toaster />
+                <SonnerToaster />
+              </div>
+            </Suspense>
+          </AuthProvider>
+        </Router>
+      </SolanaWalletProvider>
     </ErrorBoundary>
   );
 }
