@@ -43,11 +43,7 @@ export const useSwapActions = (
         throw new Error("Invalid token selection");
       }
 
-      const calculatedAmount = await calcAmount(
-        value,
-        fromTokenInfo.address,
-        toTokenInfo.address
-      );
+      const calculatedAmount = await calcAmount(value, fromTokenInfo.address, toTokenInfo.address);
       setToAmount(calculatedAmount);
     } catch (error) {
       console.error("Error calculating swap amount:", error);
@@ -110,7 +106,7 @@ export const useSwapActions = (
     isRefreshing,
     calculateToAmount,
     handleSwap,
-    calculateMinimumReceived: () => calculateMinimumReceived(toAmount, slippage),
+    calculateMinimumReceived,
     refreshPrice,
     priceImpact: String(priceImpact),
     route,

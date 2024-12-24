@@ -342,6 +342,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rpc_health_metrics: {
+        Row: {
+          endpoint: string
+          error: string | null
+          id: string
+          latency: number | null
+          status: string
+          timestamp: string
+        }
+        Insert: {
+          endpoint: string
+          error?: string | null
+          id?: string
+          latency?: number | null
+          status: string
+          timestamp?: string
+        }
+        Update: {
+          endpoint?: string
+          error?: string | null
+          id?: string
+          latency?: number | null
+          status?: string
+          timestamp?: string
+        }
+        Relationships: []
+      }
       strategic_reserve_transactions: {
         Row: {
           amount: number
@@ -372,6 +399,42 @@ export type Database = {
           transaction_date?: string
           transaction_hash?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      swap_metrics: {
+        Row: {
+          amount: number
+          duration: number | null
+          error: string | null
+          from_token: string
+          id: string
+          price_impact: number | null
+          success: boolean
+          timestamp: string
+          to_token: string
+        }
+        Insert: {
+          amount: number
+          duration?: number | null
+          error?: string | null
+          from_token: string
+          id?: string
+          price_impact?: number | null
+          success: boolean
+          timestamp?: string
+          to_token: string
+        }
+        Update: {
+          amount?: number
+          duration?: number | null
+          error?: string | null
+          from_token?: string
+          id?: string
+          price_impact?: number | null
+          success?: boolean
+          timestamp?: string
+          to_token?: string
         }
         Relationships: []
       }
