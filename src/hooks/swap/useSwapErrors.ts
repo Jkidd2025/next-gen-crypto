@@ -23,6 +23,14 @@ export const getErrorTitle = (type: SwapErrorTypes): string => {
       return 'Validation Error';
     case SwapErrorTypes.SIMULATION_FAILED:
       return 'Simulation Failed';
+    case SwapErrorTypes.WALLET_NOT_CONNECTED:
+      return 'Wallet Not Connected';
+    case SwapErrorTypes.WALLET_NOT_SELECTED:
+      return 'Select a Wallet';
+    case SwapErrorTypes.INVALID_AMOUNT:
+      return 'Invalid Amount';
+    case SwapErrorTypes.CIRCUIT_BREAKER:
+      return 'Circuit Breaker';
     case SwapErrorTypes.UNKNOWN:
       return 'Error';
   }
@@ -36,19 +44,14 @@ export const useSwapErrors = () => {
   
   const { toast } = useToast();
 
-  const setError = useCallback((error: Omit<SwapError, 'timestamp'>) => {
-    const newError: SwapError = {
-      ...error,
-      timestamp: Date.now(),
-    };
-
+  const setError = useCallback((error: SwapError) => {
     setState(prev => ({
-      error: newError,
-      history: [...prev.history, newError].slice(-10),
+      error,
+      history: [...prev.history, error].slice(-10),
     }));
 
     toast({
-      title: getErrorTitle(error.type),
+      title: getErrorTitle(error.type as SwapErrorTypes),
       description: error.message,
       variant: 'destructive',
     });
@@ -69,5 +72,3 @@ export const useSwapErrors = () => {
     getErrorTitle,
   };
 };
-
-export type { SwapError };

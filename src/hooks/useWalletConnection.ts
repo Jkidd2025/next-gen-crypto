@@ -31,8 +31,8 @@ export const useWalletConnection = () => {
         throw createSwapError(SwapErrorTypes.WALLET_NOT_CONNECTED, "Please connect your wallet to continue");
       } else if (error instanceof Error && error.name === 'WalletNotSelectedError') {
         toast({
-          title: "Wallet Not Selected",
-          description: "Please select a wallet to continue.",
+          title: "Select a Wallet",
+          description: "Please select a wallet from the list to continue.",
           variant: "destructive",
         });
         throw createSwapError(SwapErrorTypes.WALLET_NOT_SELECTED, "Please select a wallet to continue");
