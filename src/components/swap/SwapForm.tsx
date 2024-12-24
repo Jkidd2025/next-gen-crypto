@@ -58,7 +58,13 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   };
 
   // Convert priceImpact to string for the PriceImpact component
-  const priceImpactValue = typeof priceImpact === 'string' ? priceImpact : String(priceImpact);
+  const priceImpactString = typeof priceImpact === 'number' 
+    ? priceImpact.toString() 
+    : priceImpact || '0';
+
+  // Convert to number for the confirmation dialog
+  const priceImpactNumber = parseFloat(priceImpactString);
+  const validPriceImpact = isNaN(priceImpactNumber) ? 0 : priceImpactNumber;
 
   return (
     <div className="space-y-6">
@@ -77,7 +83,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={priceImpactValue} />
+      <PriceImpact priceImpact={priceImpactString} />
       
       {route && <RouteVisualizer route={route} tokenMap={tokenMap} />}
 
@@ -93,9 +99,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={Number(priceImpactValue)}
+        priceImpact={validPriceImpact}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={Number(priceImpactValue) >= 5}
+        isHighImpact={validPriceImpact >= 5}
       />
 
       <TokenSelector
