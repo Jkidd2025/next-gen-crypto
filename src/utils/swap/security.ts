@@ -8,6 +8,7 @@ const MAX_SWAP_AMOUNT_USD = 100000;
 const MAX_SLIPPAGE = 50; // 50%
 const PRICE_IMPACT_WARNING = 3; // 3%
 const PRICE_IMPACT_CRITICAL = 5; // 5%
+const CIRCUIT_BREAKER_THRESHOLD = 10; // 10% price change
 
 export const validateTokenAddress = (address: string): boolean => {
   try {
@@ -57,5 +58,28 @@ export const validatePriceImpact = (priceImpact: number): void => {
       SwapErrorTypes.PRICE_IMPACT_HIGH,
       `Price impact is too high (${priceImpact.toFixed(2)}%)`
     );
+  }
+};
+
+export const checkCircuitBreaker = async (
+  fromToken: string,
+  toToken: string,
+  priceImpact: number
+): Promise<boolean> => {
+  // Check if price impact exceeds threshold
+  if (Math.abs(priceImpact) > CIRCUIT_BREAKER_THRESHOLD) {
+    return true;
+  }
+  
+  // Additional checks can be added here
+  return false;
+};
+
+export const validateTransactionSignature = (signature: string): boolean => {
+  try {
+    // Check if signature is valid base58
+    return /^[1-9A-HJ-NP-Za-km-z]{88}$/.test(signature);
+  } catch {
+    return false;
   }
 };

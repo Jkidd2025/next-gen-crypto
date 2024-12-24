@@ -5,6 +5,13 @@ import { useSwapCalculations } from './useSwapCalculations';
 import { SwapError, SwapErrorTypes } from '@/types/errors';
 import { logSwapMetrics } from '@/utils/swap/monitoring';
 import { TokenSymbol } from '@/types/token';
+import { 
+  validateTokenAddress, 
+  validateSwapAmount, 
+  validateSlippage,
+  validatePriceImpact,
+  checkCircuitBreaker 
+} from '@/utils/swap/security';
 
 interface UseSwapActionsProps {
   fromAmount: string;
@@ -50,6 +57,36 @@ export const useSwapActions = ({
         );
       }
 
+      // Validate token addresses
+      if (!validateTokenAddress(fromTokenInfo.address) || 
+          !validateTokenAddress(toTokenInfo.address)) {
+        throw new SwapError(
+          SwapErrorTypes.VALIDATION,
+          "Invalid token address"
+        );
+      }
+
+      // Validate amount
+      const amount = parseFloat(value);
+      await validateSwapAmount(amount, parseFloat(fromAmount));
+
+      // Validate slippage
+      validateSlippage(slippage);
+
+      // Check circuit breaker
+      const isCircuitBroken = await checkCircuitBreaker(
+        fromTokenInfo.address,
+        toTokenInfo.address,
+        parseFloat(priceImpact)
+      );
+
+      if (isCircuitBroken) {
+        throw new SwapError(
+          SwapErrorTypes.CIRCUIT_BREAKER,
+          "Circuit breaker triggered due to extreme market conditions"
+        );
+      }
+
       const calculatedAmount = await calcAmount(value, fromTokenInfo.address, toTokenInfo.address);
       setToAmount(calculatedAmount);
     } catch (error) {
@@ -59,47 +96,9 @@ export const useSwapActions = ({
     }
   };
 
-  const handleSwap = async () => {
-    if (!publicKey) {
-      throw new SwapError(
-        SwapErrorTypes.WALLET_NOT_CONNECTED,
-        "Please connect your wallet"
-      );
-    }
-
-    const startTime = Date.now();
-    
-    try {
-      await logSwapMetrics({
-        success: true,
-        fromToken: selectedTokens.from,
-        toToken: selectedTokens.to,
-        amount: parseFloat(fromAmount),
-        priceImpact: parseFloat(priceImpact),
-        duration: Date.now() - startTime
-      });
-      
-      setFromAmount('');
-      setToAmount('');
-    } catch (error) {
-      await logSwapMetrics({
-        success: false,
-        fromToken: selectedTokens.from,
-        toToken: selectedTokens.to,
-        amount: parseFloat(fromAmount),
-        priceImpact: parseFloat(priceImpact),
-        duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      
-      throw error;
-    }
-  };
-
   return {
     isRefreshing,
     calculateToAmount,
-    handleSwap,
     calculateMinimumReceived,
     refreshPrice,
     priceImpact: String(priceImpact),
