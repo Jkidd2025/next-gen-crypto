@@ -78,6 +78,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     setIsTokenSelectorOpen(false);
   };
 
+  const parsedPriceImpact = typeof priceImpact === 'string' ? parseFloat(priceImpact) : priceImpact;
+  const isHighImpact = parsedPriceImpact >= 5;
+
   return (
     <div className="space-y-6">
       <SwapErrorDisplay isOnline={isOnline} error={error} />
@@ -96,8 +99,12 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         calculateMinimumReceived={calculateMinimumReceived}
       />
 
-      <SlippageControl value={slippage.toString()} onChange={(value) => setSlippage(parseFloat(value))} />
-      <PriceImpact priceImpact={priceImpact.toString()} />
+      <SlippageControl 
+        value={slippage} 
+        onChange={setSlippage} 
+      />
+      
+      <PriceImpact priceImpact={parsedPriceImpact} />
       
       {route && <RouteVisualizer route={route} tokenMap={COMMON_TOKENS} />}
 
@@ -113,9 +120,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={Number(priceImpact)}
+        priceImpact={parsedPriceImpact}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={Number(priceImpact) >= 5}
+        isHighImpact={isHighImpact}
       />
 
       <TokenSelector
