@@ -96,9 +96,15 @@ export const useSwapActions = ({
     }
   };
 
+  const handleSwap = async () => {
+    // Implementation of swap logic
+    console.log("Swap initiated");
+  };
+
   return {
     isRefreshing,
     calculateToAmount,
+    handleSwap,
     calculateMinimumReceived,
     refreshPrice,
     priceImpact: String(priceImpact),
