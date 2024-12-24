@@ -30,15 +30,15 @@ export const Reports = () => {
   const { data: transactionCounts, isLoading: isLoadingCounts } = useQuery({
     queryKey: ['transaction-counts'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get total count
+      const { count: totalCount, error: totalError } = await supabase
         .from('swap_transactions')
-        .select('type, count(*)')
-        .group_by('type');
+        .count();
 
-      if (error) {
+      if (totalError) {
         toast({
-          title: "Error loading transaction counts",
-          description: error.message,
+          title: "Error loading total transactions",
+          description: totalError.message,
           variant: "destructive"
         });
         return {
@@ -48,19 +48,49 @@ export const Reports = () => {
         };
       }
 
-      const counts = {
-        total: 0,
-        buys: 0,
-        sells: 0
+      // Get buy count
+      const { count: buyCount, error: buyError } = await supabase
+        .from('swap_transactions')
+        .count()
+        .eq('type', 'buy');
+
+      if (buyError) {
+        toast({
+          title: "Error loading buy transactions",
+          description: buyError.message,
+          variant: "destructive"
+        });
+        return {
+          total: totalCount || 0,
+          buys: 0,
+          sells: 0
+        };
+      }
+
+      // Get sell count
+      const { count: sellCount, error: sellError } = await supabase
+        .from('swap_transactions')
+        .count()
+        .eq('type', 'sell');
+
+      if (sellError) {
+        toast({
+          title: "Error loading sell transactions",
+          description: sellError.message,
+          variant: "destructive"
+        });
+        return {
+          total: totalCount || 0,
+          buys: buyCount || 0,
+          sells: 0
+        };
+      }
+
+      return {
+        total: totalCount || 0,
+        buys: buyCount || 0,
+        sells: sellCount || 0
       };
-
-      data?.forEach(item => {
-        counts.total += item.count;
-        if (item.type === 'buy') counts.buys = item.count;
-        if (item.type === 'sell') counts.sells = item.count;
-      });
-
-      return counts;
     }
   });
 
