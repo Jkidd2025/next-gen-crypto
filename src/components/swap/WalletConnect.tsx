@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useWalletConnection } from "@/hooks/wallet/useWalletConnection";
+import { useWalletConnection } from "@/hooks/useWalletConnection";
 import { LogIn, LogOut } from "lucide-react";
 
 interface WalletConnectProps {
@@ -7,10 +7,10 @@ interface WalletConnectProps {
 }
 
 export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
-  const { connected, connecting, connect, disconnect } = useWalletConnection();
+  const { connected, connecting, connectWallet, disconnect } = useWalletConnection();
 
   const handleConnect = async () => {
-    await connect();
+    await connectWallet();
     onConnect(true);
   };
 

@@ -11,14 +11,14 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 import { useToast } from "@/hooks/use-toast";
 import { getConnection } from "@/utils/wallet/connection";
+import { useWalletConnection } from "@/hooks/useWalletConnection";
 
 export const TokenSwap = () => {
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const { connected } = useWalletConnection();
   const endpoint = clusterApiUrl('mainnet-beta');
   const wallets = [new PhantomWalletAdapter()];
   const { toast } = useToast();
 
-  // Initialize connection with fallback endpoints
   useEffect(() => {
     const initConnection = async () => {
       try {
@@ -48,10 +48,10 @@ export const TokenSwap = () => {
             <div className="grid gap-6 md:gap-8">
               <div className="max-w-xl mx-auto w-full">
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6 border border-primary/10">
-                  {!isWalletConnected ? (
-                    <WalletConnect onConnect={setIsWalletConnected} />
+                  {!connected ? (
+                    <WalletConnect onConnect={() => {}} />
                   ) : (
-                    <SwapForm isWalletConnected={isWalletConnected} />
+                    <SwapForm isWalletConnected={connected} />
                   )}
                   <BuyWithCard />
                 </div>
