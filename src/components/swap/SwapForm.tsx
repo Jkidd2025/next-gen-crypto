@@ -1,14 +1,16 @@
-import { useState, useMemo } from "react";
-import { SwapFormHeader } from "./SwapFormHeader";
-import { SwapInputsSection } from "./SwapInputsSection";
+import { useState } from "react";
+import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
+import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
 import { PriceImpact } from "./PriceImpact";
+import { TransactionHistory } from "./TransactionHistory";
+import { TokenSelector } from "./TokenSelector";
 import { RouteVisualizer } from "./RouteVisualizer";
-import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
-import { useTokenList } from "@/hooks/swap/useTokenList";
+import { SwapFormHeader } from "./SwapFormHeader";
+import { SwapFormActions } from "./SwapFormActions";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
+import type { TokenInfo } from "@/hooks/swap/useTokenList";
 import { useTokenPrices } from "@/hooks/swap/useTokenPrices";
-import { Token } from "@/types/web3";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -16,14 +18,16 @@ interface SwapFormProps {
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const { data: tokenList } = useTokenList();
+  
   const {
     fromAmount,
     toAmount,
     slippage,
-    selectedTokens,
     isRefreshing,
     gasFee,
+    selectedTokens,
+    isTokenSelectorOpen,
+    setIsTokenSelectorOpen,
     setSelectedTokens,
     calculateToAmount,
     handleSwap,
@@ -37,63 +41,81 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
   const { data: tokenPrices } = useTokenPrices([selectedTokens.from, selectedTokens.to]);
 
-  const tokenMap = useMemo(() => {
-    if (!tokenList) return {};
-    return tokenList.reduce((acc: Record<string, Token>, token: Token) => {
-      acc[token.symbol] = token;
-      return acc;
-    }, {});
-  }, [tokenList]);
+  const handleSwapClick = () => {
+    setIsConfirmationOpen(true);
+  };
 
   const handleConfirmSwap = async () => {
     await handleSwap();
     setIsConfirmationOpen(false);
   };
 
+  const handleTokenSelect = (token: TokenInfo) => {
+    setSelectedTokens((prev) => ({
+      ...prev,
+      from: token.symbol,
+    }));
+    setIsTokenSelectorOpen(false);
+  };
+
   return (
-    <div className="w-full max-w-md mx-auto p-4 space-y-4 bg-card rounded-lg shadow-lg">
+    <div className="space-y-6">
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
-      <div className="flex justify-between items-center mb-4">
-        {tokenPrices && tokenPrices[selectedTokens.from] && (
-          <div className="text-sm text-muted-foreground">
-            ${tokenPrices[selectedTokens.from].price.toFixed(2)}
-          </div>
-        )}
-        {tokenPrices && tokenPrices[selectedTokens.to] && (
-          <div className="text-sm text-muted-foreground">
-            ${tokenPrices[selectedTokens.to].price.toFixed(2)}
-          </div>
-        )}
-      </div>
+      {tokenPrices && tokenPrices[selectedTokens.from] && (
+        <div className="text-sm text-muted-foreground">
+          Price: ${tokenPrices[selectedTokens.from].price.toFixed(2)}
+        </div>
+      )}
 
-      <SwapInputsSection
-        fromAmount={fromAmount}
-        toAmount={toAmount}
-        selectedTokens={selectedTokens}
-        onTokenSelect={setSelectedTokens}
-        onAmountChange={calculateToAmount}
-        onQuickAmountSelect={handleQuickAmountSelect}
-        tokenList={tokenList}
+      <SwapInput
+        label={`From (${selectedTokens.from})`}
+        value={fromAmount}
+        onChange={(value) => calculateToAmount(value, selectedTokens.from, selectedTokens.to)}
         isWalletConnected={isWalletConnected}
+        onQuickAmountSelect={handleQuickAmountSelect}
+        showQuickAmounts={true}
+        onTokenSelect={() => setIsTokenSelectorOpen(true)}
+      />
+
+      <SwapInput
+        label={`To (${selectedTokens.to})`}
+        value={toAmount}
+        readOnly={true}
+        minimumReceived={fromAmount ? calculateMinimumReceived() : undefined}
+        onTokenSelect={() => setIsTokenSelectorOpen(true)}
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
       <PriceImpact priceImpact={String(priceImpact)} />
       
-      {route && <RouteVisualizer route={route} tokenMap={tokenMap} />}
+      {route && <RouteVisualizer route={route} tokenMap={{}} />}
+
+      <SwapFormActions
+        onSwap={handleSwapClick}
+        disabled={!fromAmount || !isWalletConnected}
+        gasFee={String(gasFee)}
+      />
 
       <SwapConfirmationDialog
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
+        onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        selectedTokens={selectedTokens}
-        slippage={slippage}
+        priceImpact={Number(priceImpact)}
         minimumReceived={calculateMinimumReceived()}
-        gasFee={gasFee}
-        onConfirm={handleConfirmSwap}
+        isHighImpact={Number(priceImpact) >= 5}
       />
+
+      <TokenSelector
+        isOpen={isTokenSelectorOpen}
+        onClose={() => setIsTokenSelectorOpen(false)}
+        onSelect={handleTokenSelect}
+        currentToken={selectedTokens.from}
+      />
+
+      <TransactionHistory />
     </div>
   );
 };
