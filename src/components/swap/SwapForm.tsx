@@ -76,7 +76,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    setSelectedTokens((prev: SelectedTokens) => ({
+    setSelectedTokens((prev) => ({
       ...prev,
       from: tokenSymbol,
     }));
