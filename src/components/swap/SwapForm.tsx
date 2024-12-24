@@ -11,7 +11,7 @@ import { SwapErrorDisplay } from "./SwapErrorDisplay";
 import { SwapInputSection } from "./SwapInputSection";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { useSwapErrors, SwapErrorType } from "@/hooks/swap/useSwapErrors";
+import { useSwapErrors, SwapErrorTypes } from "@/hooks/swap/useSwapErrors";
 import type { TokenInfo } from "@/hooks/swap/useTokenList";
 import { COMMON_TOKENS, TokenSymbol } from "@/constants/tokens";
 
@@ -55,7 +55,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       setIsConfirmationOpen(false);
     } catch (err) {
       setError({
-        type: SwapErrorType.UNKNOWN,
+        type: SwapErrorTypes.UNKNOWN,
         message: err instanceof Error ? err.message : 'An unknown error occurred',
       });
     }
@@ -65,7 +65,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     const tokenSymbol = token.symbol as TokenSymbol;
     if (!(tokenSymbol in COMMON_TOKENS)) {
       setError({
-        type: SwapErrorType.VALIDATION,
+        type: SwapErrorTypes.VALIDATION,
         message: `Invalid token symbol: ${token.symbol}`,
       });
       return;
@@ -96,7 +96,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         calculateMinimumReceived={calculateMinimumReceived}
       />
 
-      <SlippageControl value={slippage} onChange={setSlippage} />
+      <SlippageControl value={slippage.toString()} onChange={(value) => setSlippage(parseFloat(value))} />
       <PriceImpact priceImpact={priceImpact.toString()} />
       
       {route && <RouteVisualizer route={route} tokenMap={COMMON_TOKENS} />}

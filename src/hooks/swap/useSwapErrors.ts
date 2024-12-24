@@ -1,23 +1,26 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-export const SwapErrorType = {
+// Define error types as a const object
+export const SwapErrorTypes = {
   INSUFFICIENT_BALANCE: 'INSUFFICIENT_BALANCE',
   SLIPPAGE_EXCEEDED: 'SLIPPAGE_EXCEEDED',
   PRICE_IMPACT_HIGH: 'PRICE_IMPACT_HIGH',
   NETWORK_ERROR: 'NETWORK_ERROR',
   API_ERROR: 'API_ERROR',
   VALIDATION: 'VALIDATION',
+  SIMULATION_FAILED: 'SIMULATION_FAILED',
   UNKNOWN: 'UNKNOWN'
 } as const;
 
-export type SwapErrorType = (typeof SwapErrorType)[keyof typeof SwapErrorType];
+// Create type from the object values
+export type SwapErrorType = typeof SwapErrorTypes[keyof typeof SwapErrorTypes];
 
 export interface SwapError {
   type: SwapErrorType;
   message: string;
   details?: any;
-  timestamp: number;
+  timestamp?: number;
 }
 
 interface SwapErrorState {
@@ -27,19 +30,21 @@ interface SwapErrorState {
 
 export const getErrorTitle = (type: SwapErrorType): string => {
   switch (type) {
-    case SwapErrorType.INSUFFICIENT_BALANCE:
+    case SwapErrorTypes.INSUFFICIENT_BALANCE:
       return 'Insufficient Balance';
-    case SwapErrorType.SLIPPAGE_EXCEEDED:
+    case SwapErrorTypes.SLIPPAGE_EXCEEDED:
       return 'Slippage Exceeded';
-    case SwapErrorType.PRICE_IMPACT_HIGH:
+    case SwapErrorTypes.PRICE_IMPACT_HIGH:
       return 'High Price Impact';
-    case SwapErrorType.NETWORK_ERROR:
+    case SwapErrorTypes.NETWORK_ERROR:
       return 'Network Error';
-    case SwapErrorType.API_ERROR:
+    case SwapErrorTypes.API_ERROR:
       return 'Service Error';
-    case SwapErrorType.VALIDATION:
+    case SwapErrorTypes.VALIDATION:
       return 'Validation Error';
-    case SwapErrorType.UNKNOWN:
+    case SwapErrorTypes.SIMULATION_FAILED:
+      return 'Simulation Failed';
+    case SwapErrorTypes.UNKNOWN:
       return 'Error';
   }
 };
@@ -82,5 +87,6 @@ export const useSwapErrors = () => {
     errorHistory: state.history,
     setError,
     clearError,
+    getErrorTitle,
   };
 };
