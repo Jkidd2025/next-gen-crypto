@@ -12,18 +12,26 @@ export interface SwapMetrics {
   error?: string;
 }
 
+export interface ConnectionMetrics {
+  endpoint: string;
+  latency: number;
+  success: boolean;
+  timestamp: Date;
+  errorMessage?: string;
+}
+
 export const checkRPCHealth = async (connection: Connection): Promise<boolean> => {
   const config = await configService.getConfig();
   const start = Date.now();
   
   try {
-    await connection.getSlot();
+    await connection.getRecentBlockhash();
     const latency = Date.now() - start;
     
     await supabase.from('rpc_health_metrics').insert([{
       endpoint: connection.rpcEndpoint,
       latency,
-      status: 'healthy',
+      status: latency < config.monitoring_thresholds.latency_ms ? 'healthy' : 'degraded',
       timestamp: new Date().toISOString()
     }]);
     
@@ -50,5 +58,15 @@ export const logSwapMetrics = async (metrics: SwapMetrics): Promise<void> => {
     duration: metrics.duration,
     error: metrics.error,
     timestamp: new Date().toISOString()
+  }]);
+};
+
+export const logConnectionMetrics = async (metrics: ConnectionMetrics): Promise<void> => {
+  await supabase.from('rpc_connection_logs').insert([{
+    endpoint: metrics.endpoint,
+    latency: metrics.latency,
+    success: metrics.success,
+    error_message: metrics.errorMessage,
+    created_at: metrics.timestamp.toISOString()
   }]);
 };
