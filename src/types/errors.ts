@@ -1,3 +1,12 @@
+export enum ErrorType {
+  NETWORK = 'NETWORK',
+  API = 'API',
+  VALIDATION = 'VALIDATION',
+  TRANSACTION = 'TRANSACTION',
+  WALLET = 'WALLET',
+  UNKNOWN = 'UNKNOWN'
+}
+
 export enum SwapErrorTypes {
   INSUFFICIENT_BALANCE = 'INSUFFICIENT_BALANCE',
   SLIPPAGE_EXCEEDED = 'SLIPPAGE_EXCEEDED',
@@ -12,17 +21,27 @@ export enum SwapErrorTypes {
   UNKNOWN = 'UNKNOWN'
 }
 
-export class SwapError extends Error {
-  type: SwapErrorTypes;
+export class BaseError extends Error {
+  type: ErrorType;
+  code: string;
   details?: any;
   timestamp: number;
+  recoverable: boolean;
 
-  constructor(type: SwapErrorTypes, message: string, details?: any) {
+  constructor(type: ErrorType, message: string, code: string, recoverable = false, details?: any) {
     super(message);
     this.type = type;
+    this.code = code;
     this.details = details;
     this.timestamp = Date.now();
-    this.name = type;
+    this.recoverable = recoverable;
+    this.name = this.constructor.name;
+  }
+}
+
+export class SwapError extends BaseError {
+  constructor(type: SwapErrorTypes, message: string, details?: any) {
+    super(ErrorType.TRANSACTION, message, type, type !== SwapErrorTypes.UNKNOWN, details);
   }
 }
 
