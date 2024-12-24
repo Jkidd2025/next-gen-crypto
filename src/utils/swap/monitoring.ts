@@ -1,7 +1,7 @@
-import { supabase } from "@/integrations/supabase/client";
 import { Connection } from '@solana/web3.js';
+import { supabase } from '@/integrations/supabase/client';
 
-interface SwapMetrics {
+export interface SwapMetrics {
   success: boolean;
   fromToken: string;
   toToken: string;
@@ -11,9 +11,10 @@ interface SwapMetrics {
   error?: string;
 }
 
-export const monitorRPCHealth = async (connection: Connection): Promise<boolean> => {
+export const checkRPCHealth = async (connection: Connection): Promise<boolean> => {
+  const start = Date.now();
+  
   try {
-    const start = Date.now();
     await connection.getSlot();
     const latency = Date.now() - start;
     

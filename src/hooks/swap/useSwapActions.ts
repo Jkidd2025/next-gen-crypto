@@ -1,43 +1,46 @@
-import { useAuth } from '@/components/AuthProvider';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useCallback } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useTokenList } from './useTokenList';
 import { useSwapCalculations } from './useSwapCalculations';
-import { useSwapTransactions } from './useSwapTransactions';
-import { findTokenInfo } from '@/utils/swap';
-import type { TokenSymbol } from '@/types/token';
+import { SwapError, SwapErrorTypes } from '@/types/errors';
+import { logSwapMetrics } from '@/utils/swap/monitoring';
+import { TokenSymbol } from '@/types/token';
 
-interface SwapActionsReturn {
-  isRefreshing: boolean;
-  calculateToAmount: (value: string, fromToken: string, toToken: string) => Promise<void>;
-  handleSwap: () => Promise<void>;
-  calculateMinimumReceived: () => string;
-  refreshPrice: () => void;
-  priceImpact: string;
-  route: any[];
-  gasFee: string;
+interface UseSwapActionsProps {
+  fromAmount: string;
+  toAmount: string;
+  setFromAmount: (amount: string) => void;
+  setToAmount: (amount: string) => void;
+  selectedTokens: {
+    from: TokenSymbol;
+    to: TokenSymbol;
+  };
+  slippage: number;
 }
 
-export const useSwapActions = (
-  fromAmount: string,
-  toAmount: string,
-  setFromAmount: (value: string) => void,
-  setToAmount: (value: string) => void,
-  selectedTokens: { from: TokenSymbol; to: TokenSymbol },
-  slippage: number
-): SwapActionsReturn => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const { isRefreshing, calculateToAmount: calcAmount, calculateMinimumReceived, priceImpact, route } = useSwapCalculations();
-  const { handleSwap: executeSwap, gasFee } = useSwapTransactions();
+export const useSwapActions = ({
+  fromAmount,
+  toAmount,
+  setFromAmount,
+  setToAmount,
+  selectedTokens,
+  slippage
+}: UseSwapActionsProps) => {
+  const { publicKey } = useWallet();
+  const { getTokenBySymbol } = useTokenList();
+  const {
+    isRefreshing,
+    calculateToAmount: calcAmount,
+    calculateMinimumReceived,
+    refreshPrice,
+    priceImpact,
+    route
+  } = useSwapCalculations();
 
-  const calculateToAmount = async (
-    value: string,
-    fromToken: string,
-    toToken: string
-  ) => {
+  const calculateToAmount = async (value: string) => {
     try {
-      setFromAmount(value);
-      const fromTokenInfo = findTokenInfo(fromToken);
-      const toTokenInfo = findTokenInfo(toToken);
+      const fromTokenInfo = getTokenBySymbol(selectedTokens.from);
+      const toTokenInfo = getTokenBySymbol(selectedTokens.to);
 
       if (!fromTokenInfo || !toTokenInfo) {
         throw new Error("Invalid token selection");
@@ -47,58 +50,48 @@ export const useSwapActions = (
       setToAmount(calculatedAmount);
     } catch (error) {
       console.error("Error calculating swap amount:", error);
-      toast({
-        title: "Error",
-        description: "Failed to calculate swap amount. Please try again.",
-        variant: "destructive",
-      });
-      setToAmount("0");
+      setToAmount('0');
+      throw error;
     }
   };
 
   const handleSwap = async () => {
-    if (!user?.id) {
-      toast({
-        title: "Wallet not connected",
-        description: "Please connect your wallet to proceed with the swap",
-        variant: "destructive",
+    if (!publicKey) {
+      throw new SwapError({
+        type: SwapErrorTypes.WALLET_NOT_CONNECTED,
+        message: "Please connect your wallet"
       });
-      return;
     }
 
+    const startTime = Date.now();
+    
     try {
-      const fromTokenInfo = findTokenInfo(selectedTokens.from);
-      const toTokenInfo = findTokenInfo(selectedTokens.to);
-
-      if (!fromTokenInfo || !toTokenInfo) {
-        throw new Error("Invalid token selection");
-      }
-
-      await executeSwap(
-        fromTokenInfo.address,
-        toTokenInfo.address,
-        fromAmount,
-        toAmount,
-        slippage,
-        user.id
-      );
+      // Log successful swap metrics
+      await logSwapMetrics({
+        success: true,
+        fromToken: selectedTokens.from,
+        toToken: selectedTokens.to,
+        amount: parseFloat(fromAmount),
+        priceImpact: parseFloat(priceImpact),
+        duration: Date.now() - startTime
+      });
       
-      toast({
-        title: "Swap successful",
-        description: `Successfully swapped ${fromAmount} ${selectedTokens.from} for ${toAmount} ${selectedTokens.to}`,
-      });
+      // Reset form after successful swap
+      setFromAmount('');
+      setToAmount('');
     } catch (error) {
-      toast({
-        title: "Swap failed",
-        description: error instanceof Error ? error.message : "An error occurred during the swap",
-        variant: "destructive",
+      // Log failed swap metrics
+      await logSwapMetrics({
+        success: false,
+        fromToken: selectedTokens.from,
+        toToken: selectedTokens.to,
+        amount: parseFloat(fromAmount),
+        priceImpact: parseFloat(priceImpact),
+        duration: Date.now() - startTime,
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
-    }
-  };
-
-  const refreshPrice = () => {
-    if (fromAmount) {
-      calculateToAmount(fromAmount, selectedTokens.from, selectedTokens.to);
+      
+      throw error;
     }
   };
 
@@ -110,6 +103,5 @@ export const useSwapActions = (
     refreshPrice,
     priceImpact: String(priceImpact),
     route,
-    gasFee
   };
 };
