@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { COMMON_TOKENS } from '@/constants/tokens';
-import { createSwapError, SwapErrorTypes } from '@/types/errors';
+import { SwapError, SwapErrorTypes } from '@/types/errors';
 
 // Minimum amounts in USD value
 const MIN_SWAP_AMOUNT_USD = 0.1;
@@ -28,14 +28,14 @@ export const validateSwapAmount = async (
   const usdValue = amount * tokenPrice;
   
   if (usdValue < MIN_SWAP_AMOUNT_USD) {
-    throw createSwapError(
+    throw new SwapError(
       SwapErrorTypes.VALIDATION,
       `Minimum swap amount is $${MIN_SWAP_AMOUNT_USD}`
     );
   }
   
   if (usdValue > MAX_SWAP_AMOUNT_USD) {
-    throw createSwapError(
+    throw new SwapError(
       SwapErrorTypes.VALIDATION,
       `Maximum swap amount is $${MAX_SWAP_AMOUNT_USD}`
     );
@@ -44,7 +44,7 @@ export const validateSwapAmount = async (
 
 export const validateSlippage = (slippage: number): void => {
   if (slippage <= 0 || slippage > MAX_SLIPPAGE) {
-    throw createSwapError(
+    throw new SwapError(
       SwapErrorTypes.VALIDATION,
       `Slippage must be between 0 and ${MAX_SLIPPAGE}%`
     );
@@ -53,7 +53,7 @@ export const validateSlippage = (slippage: number): void => {
 
 export const validatePriceImpact = (priceImpact: number): void => {
   if (priceImpact >= PRICE_IMPACT_CRITICAL) {
-    throw createSwapError(
+    throw new SwapError(
       SwapErrorTypes.PRICE_IMPACT_HIGH,
       `Price impact is too high (${priceImpact.toFixed(2)}%)`
     );

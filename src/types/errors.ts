@@ -15,17 +15,26 @@ export class SwapError extends Error {
   type: SwapErrorTypes;
   details?: any;
   timestamp: number;
-  name: string;
 
-  constructor(type: SwapErrorTypes, message: string, name: string, details?: any) {
+  constructor(type: SwapErrorTypes, message: string, details?: any) {
     super(message);
     this.type = type;
     this.details = details;
     this.timestamp = Date.now();
-    this.name = name;
+    this.name = type;
   }
 }
 
-export const createSwapError = (type: SwapErrorTypes, message: string, name: string, details?: any): SwapError => {
-  return new SwapError(type, message, name, details);
+export const createSwapError = (type: SwapErrorTypes, message: string, details?: any): SwapError => {
+  return new SwapError(type, message, details);
+};
+
+export const handleSwapError = (error: unknown): SwapError => {
+  if (error instanceof SwapError) {
+    return error;
+  }
+  return new SwapError(
+    SwapErrorTypes.UNKNOWN,
+    error instanceof Error ? error.message : 'An unknown error occurred'
+  );
 };

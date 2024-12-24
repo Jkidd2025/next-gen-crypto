@@ -1,30 +1,25 @@
-export type TokenSymbol = 'SOL' | 'USDC' | 'USDT';
+export type TokenSymbol = string;
 
-export interface Token {
+export interface TokenInfo {
   symbol: TokenSymbol;
-  address: string;
-  decimals: number;
   name: string;
+  decimals: number;
+  address: string;
   logoURI?: string;
 }
 
-export interface TokenPair {
-  from: Token;
-  to: Token;
-}
-
-export interface AmmInfo {
-  label: string;
-}
-
 export interface MarketInfo {
-  amm: AmmInfo;
+  amm: {
+    label: string;
+  };
   inputMint: string;
   outputMint: string;
 }
 
-export interface Route {
-  marketInfos: MarketInfo[];
+export interface QuoteResponse {
+  data: {
+    outAmount: string;
+    priceImpactPct: number;
+    marketInfos: MarketInfo[];
+  };
 }
-
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];

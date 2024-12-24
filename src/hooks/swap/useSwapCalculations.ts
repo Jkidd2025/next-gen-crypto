@@ -5,7 +5,7 @@ import { getQuote } from '@/utils/swap/jupiterApi';
 import { useQuoteCache } from './useQuoteCache';
 import { useRateLimit } from './useRateLimit';
 import { useQuoteValidation } from './useQuoteValidation';
-import type { MarketInfo } from '@/types/token';
+import type { MarketInfo, QuoteResponse } from '@/types/token';
 
 export const useSwapCalculations = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -14,6 +14,7 @@ export const useSwapCalculations = () => {
   const { getCacheKey, getQuoteFromCache, setQuoteInCache } = useQuoteCache();
   const { checkRateLimit } = useRateLimit();
   const { validateQuoteResponse } = useQuoteValidation();
+  const gasFee = "0.000005"; // Estimated gas fee in SOL
 
   const fetchQuote = async (
     inputMint: string,
@@ -24,16 +25,14 @@ export const useSwapCalculations = () => {
     if (!amount || amount <= 0) {
       throw new SwapError(
         SwapErrorTypes.INVALID_AMOUNT,
-        'Amount must be greater than 0',
-        'INVALID_AMOUNT'
+        'Amount must be greater than 0'
       );
     }
 
     if (!inputMint || !outputMint) {
       throw new SwapError(
         SwapErrorTypes.VALIDATION,
-        'Invalid input or output token',
-        'VALIDATION'
+        'Invalid input or output token'
       );
     }
 
@@ -57,17 +56,9 @@ export const useSwapCalculations = () => {
       if (error instanceof SwapError) {
         throw error;
       }
-      if (error instanceof TypeError) {
-        throw new SwapError(
-          SwapErrorTypes.NETWORK_ERROR,
-          'Network connection error',
-          'NETWORK_ERROR'
-        );
-      }
       throw new SwapError(
         SwapErrorTypes.UNKNOWN,
-        error.message || 'An unknown error occurred',
-        'UNKNOWN'
+        error instanceof Error ? error.message : 'An unknown error occurred'
       );
     }
   };
@@ -84,8 +75,7 @@ export const useSwapCalculations = () => {
       if (isNaN(amount)) {
         throw new SwapError(
           SwapErrorTypes.INVALID_AMOUNT,
-          'Invalid amount format',
-          'INVALID_AMOUNT'
+          'Invalid amount format'
         );
       }
 
@@ -97,11 +87,6 @@ export const useSwapCalculations = () => {
       return (parseFloat(quote.data.outAmount) / 1e9).toString();
     } catch (error) {
       console.error('Error calculating amount:', error);
-      toast({
-        title: error instanceof SwapError ? error.type : 'Error',
-        description: error.message,
-        variant: "destructive",
-      });
       throw error;
     } finally {
       setIsRefreshing(false);
@@ -134,11 +119,6 @@ export const useSwapCalculations = () => {
       );
     } catch (error) {
       console.error('Error refreshing price:', error);
-      toast({
-        title: error instanceof SwapError ? error.type : 'Error',
-        description: error.message,
-        variant: "destructive",
-      });
       throw error;
     } finally {
       setIsRefreshing(false);
@@ -152,5 +132,6 @@ export const useSwapCalculations = () => {
     refreshPrice,
     priceImpact: getPriceImpact(),
     route: getRoute(),
+    gasFee
   };
 };
