@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { AlertTriangle } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
@@ -9,8 +11,8 @@ import { RouteVisualizer } from "./RouteVisualizer";
 import { SwapFormHeader } from "./SwapFormHeader";
 import { SwapFormActions } from "./SwapFormActions";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import type { TokenInfo } from "@/hooks/swap/useTokenList";
-import { useTokenPrices } from "@/hooks/swap/useTokenPrices";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -18,6 +20,7 @@ interface SwapFormProps {
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const isOnline = useNetworkStatus();
   
   const {
     fromAmount,
@@ -39,8 +42,6 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     route,
   } = useSwapForm();
 
-  const { data: tokenPrices } = useTokenPrices([selectedTokens.from, selectedTokens.to]);
-
   const handleSwapClick = () => {
     setIsConfirmationOpen(true);
   };
@@ -60,13 +61,17 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
   return (
     <div className="space-y-6">
-      <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
-
-      {tokenPrices && tokenPrices[selectedTokens.from] && (
-        <div className="text-sm text-muted-foreground">
-          Price: ${tokenPrices[selectedTokens.from].price.toFixed(2)}
-        </div>
+      {!isOnline && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Network Error</AlertTitle>
+          <AlertDescription>
+            You are currently offline. Some features may not work properly.
+          </AlertDescription>
+        </Alert>
       )}
+
+      <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
       <SwapInput
         label={`From (${selectedTokens.from})`}
@@ -87,14 +92,14 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={String(priceImpact)} />
+      <PriceImpact priceImpact={priceImpact} />
       
       {route && <RouteVisualizer route={route} tokenMap={{}} />}
 
       <SwapFormActions
         onSwap={handleSwapClick}
         disabled={!fromAmount || !isWalletConnected}
-        gasFee={String(gasFee)}
+        gasFee={gasFee}
       />
 
       <SwapConfirmationDialog
