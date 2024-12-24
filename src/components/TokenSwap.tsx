@@ -8,10 +8,11 @@ import { ROICalculator } from "./swap/ROICalculator";
 import { LiquidityPoolStats } from "./swap/LiquidityPoolStats";
 import { useToast } from "@/hooks/use-toast";
 import { getConnection } from "@/utils/wallet/connection";
-import { useWalletConnection } from "@/hooks/useWalletConnection";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { Loader2 } from "lucide-react";
 
 export const TokenSwap = () => {
-  const { connected } = useWalletConnection();
+  const { connected, connecting } = useWallet();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,11 +42,22 @@ export const TokenSwap = () => {
         <div className="grid gap-6 md:gap-8">
           <div className="max-w-xl mx-auto w-full">
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6 border border-primary/10">
-              {!connected ? (
+              {connecting ? (
+                <div className="flex items-center justify-center p-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    Connecting wallet...
+                  </span>
+                </div>
+              ) : !connected ? (
                 <WalletConnect onConnect={() => {}} />
               ) : (
                 <SwapForm isWalletConnected={connected} />
               )}
+            </div>
+            
+            {/* BuyWithCard moved outside the wallet connection conditional */}
+            <div className="mt-4">
               <BuyWithCard />
             </div>
           </div>
