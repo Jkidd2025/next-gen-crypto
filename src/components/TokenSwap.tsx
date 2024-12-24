@@ -1,36 +1,92 @@
 import { SwapForm } from "./swap/SwapForm";
 import { WalletConnect } from "./swap/WalletConnect";
 import { BuyWithCard } from "./swap/BuyWithCard";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PriceChart } from "./swap/PriceChart";
 import { MarketStats } from "./swap/MarketStats";
 import { ROICalculator } from "./swap/ROICalculator";
 import { LiquidityPoolStats } from "./swap/LiquidityPoolStats";
 import { useToast } from "@/hooks/use-toast";
-import { getConnection } from "@/utils/wallet/connection";
+import { Connection } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
+import { Button } from "./ui/button";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { AlertTriangle } from "lucide-react";
+import { ConnectionProvider } from "@/utils/solana/ConnectionProvider";
 
 export const TokenSwap = () => {
   const { connected, connecting } = useWallet();
   const { toast } = useToast();
+  const [connection, setConnection] = useState<Connection | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initConnection = async () => {
+    const initializeConnection = async () => {
       try {
-        await getConnection();
-      } catch (error) {
-        console.error("Failed to initialize connection:", error);
+        setIsLoading(true);
+        setError(null);
+        const conn = await ConnectionProvider.getReliableConnection();
+        setConnection(conn);
+        toast({
+          title: "Connected",
+          description: "Successfully connected to Solana network",
+        });
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to connect to Solana';
+        setError(errorMessage);
+        console.error('Connection error:', err);
         toast({
           title: "Connection Error",
-          description: "Failed to connect to the network. Please try again later.",
+          description: errorMessage,
           variant: "destructive"
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    initConnection();
+    initializeConnection();
   }, [toast]);
+
+  const handleRetryConnection = async () => {
+    await initializeConnection();
+  };
+
+  if (isLoading || connecting) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-muted-foreground">
+            {connecting ? "Connecting wallet..." : "Connecting to Solana network..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Connection Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+        <div className="mt-4 flex justify-center">
+          <Button
+            onClick={handleRetryConnection}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Retry Connection
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="w-full py-6 md:py-10">
@@ -42,21 +98,13 @@ export const TokenSwap = () => {
         <div className="grid gap-6 md:gap-8">
           <div className="max-w-xl mx-auto w-full">
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6 border border-primary/10">
-              {connecting ? (
-                <div className="flex items-center justify-center p-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    Connecting wallet...
-                  </span>
-                </div>
-              ) : !connected ? (
-                <WalletConnect onConnect={() => {}} />
+              {!connected ? (
+                <WalletConnect />
               ) : (
                 <SwapForm isWalletConnected={connected} />
               )}
             </div>
             
-            {/* BuyWithCard moved outside the wallet connection conditional */}
             <div className="mt-4">
               <BuyWithCard />
             </div>
