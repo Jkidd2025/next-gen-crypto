@@ -10,6 +10,7 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 import { useToast } from "@/hooks/use-toast";
+import { getConnection } from "@/utils/wallet/connection";
 
 export const TokenSwap = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -17,36 +18,23 @@ export const TokenSwap = () => {
   const wallets = [new PhantomWalletAdapter()];
   const { toast } = useToast();
 
-  // Handle wallet disconnection
+  // Initialize connection with fallback endpoints
   useEffect(() => {
-    const handleDisconnect = () => {
-      console.log("Wallet disconnected");
-      setIsWalletConnected(false);
-      localStorage.removeItem('walletConnected');
-      toast({
-        title: "Wallet Disconnected",
-        description: "Your wallet has been disconnected.",
-      });
-    };
-
-    if (window.solana) {
-      window.solana.on('disconnect', handleDisconnect);
-    }
-
-    return () => {
-      if (window.solana) {
-        window.solana.off('disconnect', handleDisconnect);
+    const initConnection = async () => {
+      try {
+        await getConnection();
+      } catch (error) {
+        console.error("Failed to initialize connection:", error);
+        toast({
+          title: "Connection Error",
+          description: "Failed to connect to the network. Please try again later.",
+          variant: "destructive"
+        });
       }
     };
-  }, [toast]);
 
-  // Check for persisted connection on mount
-  useEffect(() => {
-    const persistedConnection = localStorage.getItem('walletConnected');
-    if (persistedConnection === 'true' && window.solana?.isConnected) {
-      setIsWalletConnected(true);
-    }
-  }, []);
+    initConnection();
+  }, [toast]);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
