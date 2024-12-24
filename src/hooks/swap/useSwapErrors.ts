@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-// Define error types as a const object
 export const SwapErrorTypes = {
   INSUFFICIENT_BALANCE: 'INSUFFICIENT_BALANCE',
   SLIPPAGE_EXCEEDED: 'SLIPPAGE_EXCEEDED',
@@ -13,7 +12,6 @@ export const SwapErrorTypes = {
   UNKNOWN: 'UNKNOWN'
 } as const;
 
-// Create type from the object values
 export type SwapErrorType = typeof SwapErrorTypes[keyof typeof SwapErrorTypes];
 
 export interface SwapError {
@@ -87,6 +85,5 @@ export const useSwapErrors = () => {
     errorHistory: state.history,
     setError,
     clearError,
-    getErrorTitle,
   };
 };
