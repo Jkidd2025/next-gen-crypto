@@ -2,24 +2,68 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wallet, Coins, LineChart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useState, useEffect } from "react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useQuery } from "@tanstack/react-query";
 
 interface WalletSectionProps {
   isWalletConnected: boolean;
   connectWallet: () => Promise<void>;
-  walletStats: {
-    balance: number;
-    solPrice: number;
-  };
   isLoadingCounts: boolean;
 }
 
 export const WalletSection = ({
   isWalletConnected,
   connectWallet,
-  walletStats,
   isLoadingCounts
 }: WalletSectionProps) => {
-  const usdBalance = walletStats.balance * walletStats.solPrice;
+  const { connection } = useConnection();
+  const { publicKey } = useWallet();
+  const [balance, setBalance] = useState<number>(0);
+
+  // Fetch SOL price
+  const { data: solPrice } = useQuery({
+    queryKey: ['sol-price'],
+    queryFn: async () => {
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+      const data = await response.json();
+      return data.solana.usd;
+    },
+    enabled: isWalletConnected,
+  });
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (publicKey && connection) {
+        try {
+          const balance = await connection.getBalance(publicKey);
+          setBalance(balance / LAMPORTS_PER_SOL);
+        } catch (error) {
+          console.error('Error fetching balance:', error);
+          setBalance(0);
+        }
+      }
+    };
+
+    fetchBalance();
+    // Set up balance change listener
+    if (publicKey) {
+      const subscriptionId = connection.onAccountChange(
+        publicKey,
+        (updatedAccountInfo) => {
+          setBalance(updatedAccountInfo.lamports / LAMPORTS_PER_SOL);
+        }
+      );
+
+      return () => {
+        connection.removeAccountChangeListener(subscriptionId);
+      };
+    }
+  }, [publicKey, connection]);
+
+  const usdBalance = (balance * (solPrice || 0));
+  const portfolioValue = usdBalance + 1000; // Add other token values here
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -31,7 +75,7 @@ export const WalletSection = ({
         <CardContent>
           <div className="text-2xl font-bold">
             {isWalletConnected ? (
-              `$${usdBalance.toLocaleString()}`
+              `$${usdBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
             ) : (
               <Button 
                 onClick={connectWallet}
@@ -55,7 +99,7 @@ export const WalletSection = ({
         <CardContent>
           <div className="text-2xl font-bold">
             {isWalletConnected ? (
-              `${walletStats.balance.toLocaleString()} SOL`
+              `${balance.toLocaleString(undefined, { maximumFractionDigits: 4 })} SOL`
             ) : (
               <div className="text-gray-500">Connect wallet to view balance</div>
             )}
@@ -73,7 +117,7 @@ export const WalletSection = ({
             <Skeleton className="h-8 w-full" />
           ) : (
             <div className="text-2xl font-bold">
-              ${(usdBalance + 1000).toLocaleString()}
+              ${portfolioValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </div>
           )}
         </CardContent>

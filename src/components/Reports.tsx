@@ -5,18 +5,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { WalletSection } from "./reports/WalletSection";
 import { TransactionStats } from "./reports/TransactionStats";
 import { RecentTransactions } from "./reports/RecentTransactions";
-
-interface WalletStats {
-  balance: number;
-  solPrice: number;
-}
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export const Reports = () => {
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
-  const [walletStats, setWalletStats] = useState<WalletStats>({
-    balance: 0,
-    solPrice: 0
-  });
+  const { connected, connect } = useWallet();
   const { toast } = useToast();
 
   const { data: transactionCounts, isLoading: isLoadingCounts } = useQuery({
@@ -112,7 +104,7 @@ export const Reports = () => {
 
   const connectWallet = async () => {
     try {
-      setIsWalletConnected(true);
+      await connect();
       toast({
         title: "Wallet connected",
         description: "Your wallet has been successfully connected."
@@ -130,9 +122,8 @@ export const Reports = () => {
   return (
     <div className="space-y-6 p-6">
       <WalletSection
-        isWalletConnected={isWalletConnected}
+        isWalletConnected={connected}
         connectWallet={connectWallet}
-        walletStats={walletStats}
         isLoadingCounts={isLoadingCounts}
       />
       <TransactionStats
