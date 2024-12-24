@@ -1,70 +1,73 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { SwapErrorTypes, SwapError } from '@/types/errors';
 
-export enum SwapErrorType {
-  INSUFFICIENT_BALANCE = 'INSUFFICIENT_BALANCE',
-  SLIPPAGE_EXCEEDED = 'SLIPPAGE_EXCEEDED',
-  PRICE_IMPACT_HIGH = 'PRICE_IMPACT_HIGH',
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  API_ERROR = 'API_ERROR',
-  VALIDATION = 'VALIDATION',
-  SIMULATION_FAILED = 'SIMULATION_FAILED',
-  UNKNOWN = 'UNKNOWN'
+interface SwapErrorState {
+  error: SwapError | null;
+  history: SwapError[];
 }
 
-export interface SwapError {
-  type: SwapErrorType;
-  message: string;
-  details?: any;
-  timestamp?: number;
-}
-
-export const getErrorTitle = (type: SwapErrorType): string => {
+export const getErrorTitle = (type: keyof typeof SwapErrorTypes): string => {
   switch (type) {
-    case SwapErrorType.INSUFFICIENT_BALANCE:
+    case 'INSUFFICIENT_BALANCE':
       return 'Insufficient Balance';
-    case SwapErrorType.SLIPPAGE_EXCEEDED:
+    case 'SLIPPAGE_EXCEEDED':
       return 'Slippage Exceeded';
-    case SwapErrorType.PRICE_IMPACT_HIGH:
+    case 'PRICE_IMPACT_HIGH':
       return 'High Price Impact';
-    case SwapErrorType.NETWORK_ERROR:
+    case 'NETWORK_ERROR':
       return 'Network Error';
-    case SwapErrorType.API_ERROR:
+    case 'API_ERROR':
       return 'Service Error';
-    case SwapErrorType.VALIDATION:
+    case 'VALIDATION':
       return 'Validation Error';
-    case SwapErrorType.SIMULATION_FAILED:
+    case 'SIMULATION_FAILED':
       return 'Simulation Failed';
-    case SwapErrorType.UNKNOWN:
+    case 'UNKNOWN':
       return 'Error';
   }
 };
 
 export const useSwapErrors = () => {
-  const [error, setErrorState] = useState<SwapError | null>(null);
+  const [state, setState] = useState<SwapErrorState>({
+    error: null,
+    history: [],
+  });
+  
   const { toast } = useToast();
 
-  const setError = useCallback((newError: SwapError) => {
-    const errorWithTimestamp = {
-      ...newError,
+  const setError = useCallback((error: Omit<SwapError, 'timestamp'>) => {
+    const newError: SwapError = {
+      ...error,
       timestamp: Date.now(),
     };
-    setErrorState(errorWithTimestamp);
+
+    setState(prev => ({
+      error: newError,
+      history: [...prev.history, newError].slice(-10),
+    }));
 
     toast({
-      title: getErrorTitle(newError.type),
-      description: newError.message,
+      title: getErrorTitle(error.type),
+      description: error.message,
       variant: 'destructive',
     });
   }, [toast]);
 
   const clearError = useCallback(() => {
-    setErrorState(null);
+    setState(prev => ({
+      ...prev,
+      error: null,
+    }));
   }, []);
 
   return {
-    error,
+    error: state.error,
+    errorHistory: state.history,
     setError,
     clearError,
+    getErrorTitle,
   };
 };
+
+export type { SwapError };

@@ -9,7 +9,7 @@ export const SwapErrorTypes = {
   UNKNOWN: 'UNKNOWN'
 } as const;
 
-export type SwapErrorType = typeof SwapErrorTypes[keyof typeof SwapErrorTypes];
+export type SwapErrorType = keyof typeof SwapErrorTypes;
 
 export interface SwapError {
   type: SwapErrorType;
