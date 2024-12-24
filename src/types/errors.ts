@@ -7,82 +7,23 @@ export enum SwapErrorTypes {
   VALIDATION = 'VALIDATION',
   SIMULATION_FAILED = 'SIMULATION_FAILED',
   INVALID_AMOUNT = 'INVALID_AMOUNT',
+  WALLET_NOT_CONNECTED = 'WALLET_NOT_CONNECTED',
   UNKNOWN = 'UNKNOWN'
 }
 
-export interface SwapError {
+export class SwapError extends Error {
   type: SwapErrorTypes;
-  message: string;
   details?: any;
-  timestamp?: number;
+  timestamp: number;
+
+  constructor(type: SwapErrorTypes, message: string, details?: any) {
+    super(message);
+    this.type = type;
+    this.details = details;
+    this.timestamp = Date.now();
+  }
 }
 
 export const createSwapError = (type: SwapErrorTypes, message: string, details?: any): SwapError => {
-  return {
-    type,
-    message,
-    details,
-    timestamp: Date.now()
-  };
-};
-
-export const handleSwapError = (error: unknown): SwapError => {
-  if (typeof error === 'string') {
-    switch (error.toLowerCase()) {
-      case 'insufficient_balance':
-        return createSwapError(
-          SwapErrorTypes.INSUFFICIENT_BALANCE,
-          'Insufficient balance for swap'
-        );
-      case 'slippage_exceeded':
-        return createSwapError(
-          SwapErrorTypes.SLIPPAGE_EXCEEDED,
-          'Slippage tolerance exceeded'
-        );
-      case 'price_impact_high':
-        return createSwapError(
-          SwapErrorTypes.PRICE_IMPACT_HIGH,
-          'Price impact is too high'
-        );
-      case 'simulation_failed':
-        return createSwapError(
-          SwapErrorTypes.SIMULATION_FAILED,
-          'Transaction simulation failed'
-        );
-      default:
-        return createSwapError(
-          SwapErrorTypes.UNKNOWN,
-          'An unknown error occurred',
-          { originalError: error }
-        );
-    }
-  }
-
-  if (error instanceof Error) {
-    if (error.message.includes('balance')) {
-      return createSwapError(
-        SwapErrorTypes.INSUFFICIENT_BALANCE,
-        'Insufficient balance for swap',
-        { originalError: error }
-      );
-    }
-    if (error.message.includes('slippage')) {
-      return createSwapError(
-        SwapErrorTypes.SLIPPAGE_EXCEEDED,
-        'Slippage tolerance exceeded',
-        { originalError: error }
-      );
-    }
-    return createSwapError(
-      SwapErrorTypes.UNKNOWN,
-      error.message,
-      { originalError: error }
-    );
-  }
-
-  return createSwapError(
-    SwapErrorTypes.UNKNOWN,
-    'An unexpected error occurred',
-    { originalError: error }
-  );
+  return new SwapError(type, message, details);
 };

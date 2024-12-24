@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useTokenList } from './useTokenList';
+import { useState } from 'react';
+import { useTokenUtils } from './useTokenUtils';
 import { useSwapActions } from './useSwapActions';
 import { TokenSymbol } from '@/types/token';
 
@@ -16,7 +16,7 @@ export const useSwapForm = () => {
     to: 'USDC'
   });
 
-  const { getTokenBySymbol } = useTokenList();
+  const { getTokenBySymbol } = useTokenUtils();
 
   const {
     isRefreshing,
@@ -25,7 +25,8 @@ export const useSwapForm = () => {
     calculateMinimumReceived,
     refreshPrice,
     priceImpact,
-    route
+    route,
+    gasFee
   } = useSwapActions({
     fromAmount,
     toAmount,
@@ -35,30 +36,14 @@ export const useSwapForm = () => {
     slippage
   });
 
-  const calculateSwapAmount = async (value: string) => {
-    try {
-      const fromTokenInfo = getTokenBySymbol(selectedTokens.from);
-      const toTokenInfo = getTokenBySymbol(selectedTokens.to);
-
-      if (!fromTokenInfo || !toTokenInfo) {
-        throw new Error("Invalid token selection");
-      }
-
-      const calculatedAmount = await calculateToAmount(value);
-      setToAmount(calculatedAmount);
-    } catch (error) {
-      console.error("Error calculating swap amount:", error);
-      setToAmount('0');
-      throw error;
-    }
-  };
-
-  const handleQuickAmountSelect = useCallback((percentage: number) => {
-    const mockBalance = 100; // This should come from actual wallet balance
+  const handleQuickAmountSelect = (percentage: number) => {
+    const mockBalance = 100;
     const amount = (mockBalance * percentage) / 100;
-    setFromAmount(amount.toString());
-    return amount.toString();
-  }, []);
+    const amountString = amount.toString();
+    setFromAmount(amountString);
+    calculateToAmount(amountString);
+    return amountString;
+  };
 
   return {
     fromAmount,
@@ -69,7 +54,7 @@ export const useSwapForm = () => {
     isTokenSelectorOpen,
     setIsTokenSelectorOpen,
     setSelectedTokens,
-    calculateToAmount: calculateSwapAmount,
+    calculateToAmount,
     handleSwap,
     calculateMinimumReceived,
     refreshPrice,
@@ -77,5 +62,6 @@ export const useSwapForm = () => {
     setSlippage,
     priceImpact,
     route,
+    gasFee
   };
 };

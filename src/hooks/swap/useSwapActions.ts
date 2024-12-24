@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useTokenList } from './useTokenList';
+import { useTokenUtils } from './useTokenUtils';
 import { useSwapCalculations } from './useSwapCalculations';
 import { SwapError, SwapErrorTypes } from '@/types/errors';
 import { logSwapMetrics } from '@/utils/swap/monitoring';
@@ -27,14 +27,15 @@ export const useSwapActions = ({
   slippage
 }: UseSwapActionsProps) => {
   const { publicKey } = useWallet();
-  const { getTokenBySymbol } = useTokenList();
+  const { getTokenBySymbol } = useTokenUtils();
   const {
     isRefreshing,
     calculateToAmount: calcAmount,
     calculateMinimumReceived,
     refreshPrice,
     priceImpact,
-    route
+    route,
+    gasFee
   } = useSwapCalculations();
 
   const calculateToAmount = async (value: string) => {
@@ -43,10 +44,10 @@ export const useSwapActions = ({
       const toTokenInfo = getTokenBySymbol(selectedTokens.to);
 
       if (!fromTokenInfo || !toTokenInfo) {
-        throw new Error("Invalid token selection");
+        throw new SwapError(SwapErrorTypes.VALIDATION, "Invalid token selection");
       }
 
-      const calculatedAmount = await calcAmount(value, fromTokenInfo.address, toTokenInfo.address);
+      const calculatedAmount = await calcAmount(value);
       setToAmount(calculatedAmount);
     } catch (error) {
       console.error("Error calculating swap amount:", error);
@@ -57,16 +58,12 @@ export const useSwapActions = ({
 
   const handleSwap = async () => {
     if (!publicKey) {
-      throw new SwapError({
-        type: SwapErrorTypes.WALLET_NOT_CONNECTED,
-        message: "Please connect your wallet"
-      });
+      throw new SwapError(SwapErrorTypes.WALLET_NOT_CONNECTED, "Please connect your wallet");
     }
 
     const startTime = Date.now();
     
     try {
-      // Log successful swap metrics
       await logSwapMetrics({
         success: true,
         fromToken: selectedTokens.from,
@@ -76,11 +73,9 @@ export const useSwapActions = ({
         duration: Date.now() - startTime
       });
       
-      // Reset form after successful swap
       setFromAmount('');
       setToAmount('');
     } catch (error) {
-      // Log failed swap metrics
       await logSwapMetrics({
         success: false,
         fromToken: selectedTokens.from,
@@ -103,5 +98,6 @@ export const useSwapActions = ({
     refreshPrice,
     priceImpact: String(priceImpact),
     route,
+    gasFee
   };
 };
