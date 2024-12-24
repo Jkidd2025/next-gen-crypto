@@ -1,17 +1,14 @@
-import { useState } from "react";
-import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
+import { useState, useMemo } from "react";
+import { SwapFormHeader } from "./SwapFormHeader";
+import { SwapInputsSection } from "./SwapInputsSection";
 import { SlippageControl } from "./SlippageControl";
 import { PriceImpact } from "./PriceImpact";
-import { TransactionHistory } from "./TransactionHistory";
-import { TokenSelector } from "./TokenSelector";
 import { RouteVisualizer } from "./RouteVisualizer";
-import { SwapFormHeader } from "./SwapFormHeader";
-import { SwapFormActions } from "./SwapFormActions";
-import { SwapInputsSection } from "./SwapInputsSection";
-import { useSwapForm } from "@/hooks/swap/useSwapForm";
+import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { useTokenList } from "@/hooks/swap/useTokenList";
+import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useTokenPrices } from "@/hooks/swap/useTokenPrices";
-import { useMemo } from "react";
+import { Token } from "@/types/web3";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -24,11 +21,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     fromAmount,
     toAmount,
     slippage,
+    selectedTokens,
     isRefreshing,
     gasFee,
-    selectedTokens,
-    isTokenSelectorOpen,
-    setIsTokenSelectorOpen,
     setSelectedTokens,
     calculateToAmount,
     handleSwap,
@@ -44,15 +39,11 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
   const tokenMap = useMemo(() => {
     if (!tokenList) return {};
-    return tokenList.reduce((acc, token) => {
-      acc[token.address] = token;
+    return tokenList.reduce((acc: Record<string, Token>, token: Token) => {
+      acc[token.symbol] = token;
       return acc;
-    }, {} as Record<string, typeof tokenList[0]>);
+    }, {});
   }, [tokenList]);
-
-  const handleSwapClick = () => {
-    setIsConfirmationOpen(true);
-  };
 
   const handleConfirmSwap = async () => {
     await handleSwap();
@@ -60,7 +51,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-md mx-auto p-4 space-y-4 bg-card rounded-lg shadow-lg">
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
       <div className="flex justify-between items-center mb-4">
@@ -77,56 +68,32 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       </div>
 
       <SwapInputsSection
-        fromToken={selectedTokens.from}
-        toToken={selectedTokens.to}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        isWalletConnected={isWalletConnected}
-        onFromAmountChange={(value) => calculateToAmount(value, selectedTokens.from, selectedTokens.to)}
+        selectedTokens={selectedTokens}
+        onTokenSelect={setSelectedTokens}
+        onAmountChange={calculateToAmount}
         onQuickAmountSelect={handleQuickAmountSelect}
-        onTokenSelect={() => setIsTokenSelectorOpen(true)}
-        calculateMinimumReceived={calculateMinimumReceived}
+        tokenList={tokenList}
+        isWalletConnected={isWalletConnected}
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={priceImpact.toString()} />
+      <PriceImpact priceImpact={String(priceImpact)} />
       
       {route && <RouteVisualizer route={route} tokenMap={tokenMap} />}
-
-      <SwapFormActions
-        onSwap={handleSwapClick}
-        disabled={!fromAmount || !isWalletConnected}
-        gasFee={gasFee}
-      />
 
       <SwapConfirmationDialog
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
-        onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={typeof priceImpact === 'number' ? priceImpact : 0}
+        selectedTokens={selectedTokens}
+        slippage={slippage}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={typeof priceImpact === 'number' ? priceImpact >= 5 : false}
+        gasFee={gasFee}
+        onConfirm={handleConfirmSwap}
       />
-
-      <TokenSelector
-        isOpen={isTokenSelectorOpen}
-        onClose={() => setIsTokenSelectorOpen(false)}
-        onSelect={(token) => {
-          setSelectedTokens((prev) => ({
-            ...prev,
-            from: token.symbol,
-          }));
-          setIsTokenSelectorOpen(false);
-        }}
-        currentToken={selectedTokens.from}
-      />
-
-      <div className="mt-8">
-        <h3 className="text-lg font-medium mb-4">Transaction History</h3>
-        <TransactionHistory />
-      </div>
     </div>
   );
 };

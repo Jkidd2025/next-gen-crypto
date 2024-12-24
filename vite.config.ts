@@ -17,6 +17,14 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+    },
+  },
+  optimizeDeps: {
+    include: ['@solana/web3.js', '@solana/wallet-adapter-react-ui'],
+  },
   build: {
     sourcemap: true,
     commonjsOptions: {
