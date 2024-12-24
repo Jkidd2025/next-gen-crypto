@@ -69,7 +69,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={priceImpact} />
+      <PriceImpact priceImpact={Number(priceImpact)} />
       
       {route && <RouteVisualizer route={route} tokenMap={{}} />}
 
@@ -85,9 +85,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={priceImpact}
+        priceImpact={Number(priceImpact)}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={priceImpact >= 5}
+        isHighImpact={Number(priceImpact) >= 5}
       />
 
       <TokenSelector
