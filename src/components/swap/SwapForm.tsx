@@ -56,6 +56,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     setIsConfirmationOpen(false);
   };
 
+  // Convert priceImpact to number once and reuse
   const numericPriceImpact = Number(priceImpact);
 
   return (
