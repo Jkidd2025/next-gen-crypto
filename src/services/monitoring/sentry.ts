@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/browser";
+import { BrowserTracing } from "@sentry/tracing";
 
 export const initSentry = () => {
   if (process.env.NODE_ENV === 'production') {
