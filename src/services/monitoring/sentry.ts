@@ -7,7 +7,7 @@ export const initializeSentry = () => {
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
       integrations: [
-        new BrowserTracing() as unknown as Integration,
+        new BrowserTracing() as Integration,
       ],
       tracesSampleRate: 1.0,
       environment: import.meta.env.MODE,
@@ -15,7 +15,7 @@ export const initializeSentry = () => {
   }
 };
 
-export const logError = (error: Error, context?: Record<string, any>) => {
+export const captureException = (error: Error, context?: Record<string, any>) => {
   console.error('Error:', error, 'Context:', context);
   
   if (import.meta.env.VITE_SENTRY_DSN) {
@@ -24,3 +24,5 @@ export const logError = (error: Error, context?: Record<string, any>) => {
     });
   }
 };
+
+export const logError = captureException;
