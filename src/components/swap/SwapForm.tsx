@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AlertTriangle, WifiOff, Wifi, WifiLow } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
@@ -12,6 +13,7 @@ import { SwapFormHeader } from "./SwapFormHeader";
 import { SwapFormActions } from "./SwapFormActions";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { useLoadingState } from "@/hooks/useLoadingState";
 import type { TokenInfo } from "@/hooks/swap/useTokenList";
 
 interface SwapFormProps {
@@ -21,6 +23,14 @@ interface SwapFormProps {
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const { isOnline, connectionQuality } = useNetworkStatus();
+  const { 
+    isLoading, 
+    progress, 
+    stage, 
+    startLoading, 
+    updateProgress, 
+    finishLoading 
+  } = useLoadingState('Initializing');
   
   const {
     fromAmount,
@@ -47,8 +57,16 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   };
 
   const handleConfirmSwap = async () => {
-    await handleSwap();
-    setIsConfirmationOpen(false);
+    try {
+      startLoading('Preparing swap');
+      updateProgress(25, 'Confirming transaction');
+      await handleSwap();
+      updateProgress(75, 'Processing swap');
+      finishLoading();
+      setIsConfirmationOpen(false);
+    } catch (error) {
+      console.error('Swap failed:', error);
+    }
   };
 
   const handleTokenSelect = (token: TokenInfo) => {
@@ -95,6 +113,16 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         </Alert>
       )}
 
+      {isLoading && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>{stage}</span>
+            <span>{progress}%</span>
+          </div>
+          <Progress value={progress} className="w-full" />
+        </div>
+      )}
+
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
       <SwapInput
@@ -122,7 +150,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
       <SwapFormActions
         onSwap={handleSwapClick}
-        disabled={!fromAmount || !isWalletConnected}
+        disabled={!fromAmount || !isWalletConnected || isLoading}
         gasFee={gasFee}
       />
 
