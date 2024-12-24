@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, WifiOff, Wifi, WifiLow } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
@@ -20,7 +20,7 @@ interface SwapFormProps {
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const isOnline = useNetworkStatus();
+  const { isOnline, connectionQuality } = useNetworkStatus();
   
   const {
     fromAmount,
@@ -59,14 +59,38 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     setIsTokenSelectorOpen(false);
   };
 
+  const getConnectionIcon = () => {
+    switch (connectionQuality) {
+      case 'good':
+        return <Wifi className="h-4 w-4" />;
+      case 'fair':
+      case 'poor':
+        return <WifiLow className="h-4 w-4" />;
+      case 'offline':
+        return <WifiOff className="h-4 w-4" />;
+      default:
+        return <WifiOff className="h-4 w-4" />;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {!isOnline && (
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          {getConnectionIcon()}
           <AlertTitle>Network Error</AlertTitle>
           <AlertDescription>
             You are currently offline. Some features may not work properly.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {isOnline && connectionQuality !== 'good' && (
+        <Alert variant="warning">
+          {getConnectionIcon()}
+          <AlertTitle>Slow Connection</AlertTitle>
+          <AlertDescription>
+            Your connection is {connectionQuality}. This may affect transaction speed.
           </AlertDescription>
         </Alert>
       )}
