@@ -28,7 +28,7 @@ type SelectedTokens = {
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const { isOnline } = useNetworkStatus();
-  const { error, setError, clearError, getErrorTitle } = useSwapErrors();
+  const { error, setError, clearError } = useSwapErrors();
   
   const {
     fromAmount,
@@ -87,11 +87,10 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
   // Convert price impact to number for comparison
   const priceImpactNumber = Number(priceImpact);
-  const isHighImpact = priceImpactNumber >= 5;
 
   return (
     <div className="space-y-6">
-      <SwapErrorDisplay error={error} getErrorTitle={getErrorTitle} />
+      <SwapErrorDisplay isOnline={isOnline} error={error} />
       
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
@@ -114,12 +113,12 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl 
-        value={slippage} 
-        onChange={setSlippage} 
+        value={slippage.toString()} 
+        onChange={(value) => setSlippage(parseFloat(value))} 
       />
       
       <PriceImpact 
-        priceImpact={priceImpactNumber} 
+        priceImpact={priceImpactNumber.toString()} 
       />
       
       {route && <RouteVisualizer route={route} tokenMap={COMMON_TOKENS} />}
@@ -138,7 +137,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         toAmount={toAmount}
         priceImpact={priceImpactNumber}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={isHighImpact}
+        isHighImpact={priceImpactNumber >= 5}
       />
 
       <TokenSelector

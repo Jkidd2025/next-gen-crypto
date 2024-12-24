@@ -8,6 +8,27 @@ interface SwapErrorDisplayProps {
 }
 
 export const SwapErrorDisplay = ({ isOnline, error }: SwapErrorDisplayProps) => {
+  const getErrorTitle = (type: SwapError['type']): string => {
+    switch (type) {
+      case 'INSUFFICIENT_BALANCE':
+        return 'Insufficient Balance';
+      case 'SLIPPAGE_EXCEEDED':
+        return 'Slippage Exceeded';
+      case 'PRICE_IMPACT_HIGH':
+        return 'High Price Impact';
+      case 'NETWORK_ERROR':
+        return 'Network Error';
+      case 'API_ERROR':
+        return 'Service Error';
+      case 'VALIDATION':
+        return 'Validation Error';
+      case 'SIMULATION_FAILED':
+        return 'Simulation Failed';
+      case 'UNKNOWN':
+        return 'Error';
+    }
+  };
+
   return (
     <>
       {!isOnline && (
@@ -23,16 +44,7 @@ export const SwapErrorDisplay = ({ isOnline, error }: SwapErrorDisplayProps) => 
       {error && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>
-            {error.type === 'INSUFFICIENT_BALANCE' && 'Insufficient Balance'}
-            {error.type === 'SLIPPAGE_EXCEEDED' && 'Slippage Exceeded'}
-            {error.type === 'PRICE_IMPACT_HIGH' && 'High Price Impact'}
-            {error.type === 'NETWORK_ERROR' && 'Network Error'}
-            {error.type === 'API_ERROR' && 'Service Error'}
-            {error.type === 'VALIDATION' && 'Validation Error'}
-            {error.type === 'SIMULATION_FAILED' && 'Simulation Failed'}
-            {error.type === 'UNKNOWN' && 'Error'}
-          </AlertTitle>
+          <AlertTitle>{getErrorTitle(error.type)}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       )}
