@@ -1,9 +1,13 @@
 import { toast } from '@/hooks/use-toast';
 import { ErrorType, ErrorDetails, SwapErrorCode, SwapError } from './types';
+import { captureException } from '../monitoring/sentry';
+import { logError } from '../logging/logger';
+import { trackEvent } from '../analytics/posthog';
+import { sendAlert } from '../alerting/alerts';
 
 class ErrorHandler {
   private errors: ErrorDetails[] = [];
-  private maxErrors = 50; // Keep last 50 errors
+  private maxErrors = 50;
 
   handleError(error: ErrorDetails) {
     // Add error to history
@@ -12,16 +16,44 @@ class ErrorHandler {
       timestamp: error.timestamp || Date.now()
     });
 
-    // Trim error history if needed
+    // Trim error history
     if (this.errors.length > this.maxErrors) {
       this.errors = this.errors.slice(-this.maxErrors);
     }
 
-    // Log error
-    console.error('Error:', {
-      ...error,
-      timestamp: new Date(error.timestamp).toISOString()
+    // Log error to monitoring services
+    captureException(new Error(error.message), {
+      type: error.type,
+      code: error.code,
+      details: error.details
     });
+
+    // Log error to logging system
+    logError(new Error(error.message), {
+      type: error.type,
+      code: error.code,
+      details: error.details
+    });
+
+    // Track error event in analytics
+    trackEvent('error_occurred', {
+      type: error.type,
+      code: error.code,
+      message: error.message
+    });
+
+    // Send alert if error is critical
+    if (!error.recoverable) {
+      sendAlert({
+        type: 'error',
+        message: error.message,
+        metadata: {
+          type: error.type,
+          code: error.code,
+          details: error.details
+        }
+      });
+    }
 
     // Show user notification
     toast({
