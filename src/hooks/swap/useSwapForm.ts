@@ -3,7 +3,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useSwapCalculations } from './useSwapCalculations';
 import { useSwapTransactions } from './useSwapTransactions';
 import { useSwapState } from './useSwapState';
-import { findTokenInfo, calculateMockBalance } from '@/utils/swap';
+import { findTokenInfo } from '@/utils/swap';
+import type { TokenSymbol } from '@/types/token';
+
+interface SelectedTokens {
+  from: TokenSymbol;
+  to: TokenSymbol;
+}
 
 export const useSwapForm = () => {
   const {
@@ -25,7 +31,8 @@ export const useSwapForm = () => {
   const { handleSwap: executeSwap, gasFee } = useSwapTransactions();
 
   const handleQuickAmountSelect = (percentage: number) => {
-    const amount = calculateMockBalance(percentage);
+    const mockBalance = 100; // Example mock balance
+    const amount = (mockBalance * percentage) / 100;
     setFromAmount(amount.toString());
     return amount.toString();
   };
@@ -123,7 +130,7 @@ export const useSwapForm = () => {
     refreshPrice,
     handleQuickAmountSelect,
     setSlippage,
-    priceImpact: String(priceImpact), // Fix the type error by converting to string
+    priceImpact: String(priceImpact),
     route,
   };
 };

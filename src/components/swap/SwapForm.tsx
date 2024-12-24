@@ -14,7 +14,8 @@ import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { useSwapErrors } from "@/hooks/swap/useSwapErrors";
 import { SwapErrorTypes } from "@/types/errors";
 import type { TokenInfo } from "@/hooks/swap/useTokenList";
-import { COMMON_TOKENS, TokenSymbol } from "@/constants/tokens";
+import type { TokenSymbol } from "@/types/token";
+import { COMMON_TOKENS } from "@/constants/tokens";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -50,7 +51,6 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     route,
   } = useSwapForm();
 
-  // Memoize price impact calculations
   const { priceImpactNumber, isHighImpact } = useMemo(() => {
     const number = parseFloat(priceImpact);
     return {
@@ -87,14 +87,13 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    setSelectedTokens((prev: SelectedTokens) => ({
+    setSelectedTokens((prev: SelectedTokens): SelectedTokens => ({
       ...prev,
       from: tokenSymbol,
     }));
     setIsTokenSelectorOpen(false);
   }, [setError, setSelectedTokens, setIsTokenSelectorOpen]);
 
-  // Memoize minimum received calculation
   const minimumReceived = useMemo(() => {
     if (!fromAmount) return "0";
     return calculateMinimumReceived();
@@ -120,7 +119,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         label={`To (${selectedTokens.to})`}
         value={toAmount}
         readOnly={true}
-        minimumReceived={minimumReceived}
+        minimumReceived={calculateMinimumReceived()}
         onTokenSelect={() => setIsTokenSelectorOpen(true)}
       />
 
@@ -130,13 +129,13 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
       
       <PriceImpact 
-        priceImpact={priceImpactNumber.toString()} 
+        priceImpact={priceImpact} 
       />
       
-      {route && <RouteVisualizer route={route} tokenMap={COMMON_TOKENS} />}
+      {route && <RouteVisualizer route={{ marketInfos: route }} tokenMap={COMMON_TOKENS} />}
 
       <SwapFormActions
-        onSwap={handleSwapClick}
+        onSwap={handleSwap}
         disabled={!fromAmount || !isWalletConnected}
         gasFee={gasFee}
       />
@@ -144,12 +143,12 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       <SwapConfirmationDialog
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
-        onConfirm={handleConfirmSwap}
+        onConfirm={handleSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={priceImpactNumber}
-        minimumReceived={minimumReceived || "0"}
-        isHighImpact={isHighImpact}
+        priceImpact={parseFloat(priceImpact)}
+        minimumReceived={calculateMinimumReceived()}
+        isHighImpact={parseFloat(priceImpact) >= 5}
       />
 
       <TokenSelector

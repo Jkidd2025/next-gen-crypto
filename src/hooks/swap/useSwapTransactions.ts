@@ -1,18 +1,29 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Transaction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
-import { getConnection } from '@/utils/swap/connection';
-import { checkBalance } from '@/utils/swap/balanceChecker';
-import { getQuote, getSwapTransaction } from '@/utils/swap/jupiterApi';
-import { useSwapErrors } from './useSwapErrors';
-import type { SwapErrorTypes } from '@/types/errors';
+import { SwapErrorTypes } from '@/types/errors';
+import { COMMON_TOKENS } from '@/constants/tokens';
+import type { MarketInfo } from '@/types/token';
+
+const JUPITER_API_V6 = 'https://quote-api.jup.ag/v6';
+
+interface QuoteResponse {
+  data: {
+    outAmount: string;
+    priceImpactPct: number;
+    marketInfos: MarketInfo[];
+  };
+}
+
+interface SwapResponse {
+  swapTransaction: string;
+}
 
 export const useSwapTransactions = () => {
   const { connection: primaryConnection } = useConnection();
   const { publicKey, signTransaction } = useWallet();
   const { toast } = useToast();
-  const { setError } = useSwapErrors();
 
   const simulateTransaction = async (connection: Connection, transaction: Transaction) => {
     const simulation = await connection.simulateTransaction(transaction);
@@ -31,33 +42,11 @@ export const useSwapTransactions = () => {
   ): Promise<string> => {
     try {
       if (!publicKey || !signTransaction) {
-        setError({ type: SwapErrorTypes.VALIDATION, message: 'Wallet not connected' });
         throw new Error('Wallet not connected');
       }
 
       if (slippage < 0.1 || slippage > 50) {
-        setError({ type: SwapErrorTypes.VALIDATION, message: 'Invalid slippage value' });
         throw new Error('Invalid slippage value');
-      }
-
-      const connection = await getConnection(primaryConnection).catch(error => {
-        setError({ type: SwapErrorTypes.NETWORK_ERROR, message: error.message });
-        throw error;
-      });
-
-      const hasBalance = await checkBalance(
-        connection,
-        publicKey,
-        fromToken,
-        parseFloat(fromAmount)
-      ).catch(error => {
-        setError({ type: SwapErrorTypes.INSUFFICIENT_BALANCE, message: error.message });
-        throw error;
-      });
-
-      if (!hasBalance) {
-        setError({ type: SwapErrorTypes.INSUFFICIENT_BALANCE, message: 'Insufficient balance for swap' });
-        throw new Error('Insufficient balance');
       }
 
       const quote = await getQuote(
@@ -65,40 +54,26 @@ export const useSwapTransactions = () => {
         toToken,
         parseFloat(fromAmount),
         Math.floor(slippage * 100)
-      ).catch(error => {
-        setError({ type: SwapErrorTypes.API_ERROR, message: error.message });
-        throw error;
-      });
+      );
 
       if (quote.data.priceImpactPct >= 5) {
-        setError({ type: SwapErrorTypes.PRICE_IMPACT_HIGH, message: 'Price impact too high' });
         throw new Error('Price impact too high');
       }
 
-      const swapResult = await getSwapTransaction(quote, publicKey).catch(error => {
-        setError({ type: SwapErrorTypes.API_ERROR, message: error.message });
-        throw error;
-      });
-
+      const swapResult = await getSwapTransaction(quote, publicKey);
       const swapTransaction = Transaction.from(Buffer.from(swapResult.swapTransaction, 'base64'));
 
-      await simulateTransaction(connection, swapTransaction).catch(error => {
-        setError({ type: SwapErrorTypes.SIMULATION_FAILED, message: error.message });
-        throw error;
-      });
-
+      await simulateTransaction(primaryConnection, swapTransaction);
+      
       const signedTransaction = await signTransaction(swapTransaction);
-      const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-
+      const signature = await primaryConnection.sendRawTransaction(signedTransaction.serialize());
+      
       const confirmation = await Promise.race([
-        connection.confirmTransaction(signature),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Transaction timeout')), 60000)
-        )
+        primaryConnection.confirmTransaction(signature),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction timeout')), 60000))
       ]) as { value?: { err: any } };
 
       if (confirmation?.value?.err) {
-        setError({ type: SwapErrorTypes.UNKNOWN, message: 'Transaction failed' });
         throw new Error('Transaction failed');
       }
 
@@ -114,11 +89,6 @@ export const useSwapTransactions = () => {
         swap_route: quote.data.marketInfos
       });
 
-      toast({
-        title: 'Swap successful',
-        description: `Successfully swapped ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
-      });
-
       return signature;
     } catch (error) {
       console.error('Swap failed:', error);
@@ -128,5 +98,48 @@ export const useSwapTransactions = () => {
 
   return {
     handleSwap,
+    gasFee: "0.000005" // Estimated gas fee in SOL
   };
 };
+
+async function getQuote(
+  inputMint: string,
+  outputMint: string,
+  amount: number,
+  slippageBps: number
+): Promise<QuoteResponse> {
+  const params = new URLSearchParams({
+    inputMint,
+    outputMint,
+    amount: (amount * 1e9).toString(),
+    slippageBps: slippageBps.toString(),
+  });
+
+  const response = await fetch(`${JUPITER_API_V6}/quote?${params}`);
+  if (!response.ok) {
+    throw new Error('Failed to get quote');
+  }
+  return response.json();
+}
+
+async function getSwapTransaction(
+  quoteResponse: QuoteResponse,
+  publicKey: PublicKey
+): Promise<SwapResponse> {
+  const response = await fetch(`${JUPITER_API_V6}/swap`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      quoteResponse,
+      userPublicKey: publicKey.toString(),
+    }),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to get swap transaction');
+  }
+  
+  return response.json();
+}
