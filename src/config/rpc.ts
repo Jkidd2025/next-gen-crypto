@@ -5,18 +5,18 @@ export const RPC_CONFIG = {
       weight: 1,
     },
     {
-      url: 'https://solana-api.projectserum.com',
+      url: import.meta.env.VITE_BACKUP_RPC_URL || 'https://solana-api.projectserum.com',
       weight: 2,
     },
     {
-      url: 'https://rpc.ankr.com/solana',
+      url: import.meta.env.VITE_FALLBACK_RPC_URL || 'https://rpc.ankr.com/solana',
       weight: 3,
     },
   ],
-  TIMEOUT: 30000, // 30 seconds
-  MAX_RETRIES: 3,
+  TIMEOUT: Number(import.meta.env.VITE_CONNECTION_TIMEOUT) || 30000,
+  MAX_RETRIES: Number(import.meta.env.VITE_MAX_RETRIES) || 3,
   RATE_LIMIT: {
-    MAX_REQUESTS: 100,
-    TIME_WINDOW: 60000, // 1 minute
+    MAX_REQUESTS: Number(import.meta.env.VITE_RATE_LIMIT_REQUESTS) || 100,
+    TIME_WINDOW: Number(import.meta.env.VITE_RATE_LIMIT_WINDOW) || 60000,
   },
 };

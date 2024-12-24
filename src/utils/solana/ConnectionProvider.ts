@@ -1,13 +1,13 @@
-import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { Connection } from '@solana/web3.js';
 import { RPC_CONFIG } from '@/config/rpc';
 import { supabase } from "@/integrations/supabase/client";
-import { useRateLimit } from '@/hooks/wallet/useRateLimit';
 import { logError } from '@/services/logging/logger';
 
 export class ConnectionProvider {
   private static instance: Connection;
   private static retryCount = 0;
   private static lastSuccessfulEndpoint: string | null = null;
+  private static connectionTimeout: number = Number(import.meta.env.VITE_CONNECTION_TIMEOUT) || 30000;
 
   static async getConnection(): Promise<Connection> {
     if (this.instance && this.lastSuccessfulEndpoint) {
@@ -21,24 +21,19 @@ export class ConnectionProvider {
 
     for (const endpoint of RPC_CONFIG.ENDPOINTS) {
       try {
-        console.log(`Attempting to connect to ${endpoint.url}`);
-        
         const connection = new Connection(endpoint.url, {
           commitment: 'confirmed',
-          confirmTransactionInitialTimeout: RPC_CONFIG.TIMEOUT,
+          confirmTransactionInitialTimeout: this.connectionTimeout,
         });
 
-        // Test the connection
         const startTime = Date.now();
         await connection.getRecentBlockhash('finalized');
         const latency = Date.now() - startTime;
 
-        // Log metrics to Supabase
         await this.logConnectionMetrics(endpoint.url, latency, true);
         
         this.instance = connection;
         this.lastSuccessfulEndpoint = endpoint.url;
-        console.log(`Connected to ${endpoint.url} with latency ${latency}ms`);
         return connection;
 
       } catch (error) {
@@ -70,17 +65,21 @@ export class ConnectionProvider {
         error_message: errorMessage,
       });
     } catch (error) {
-      console.error('Failed to log connection metrics:', error);
+      logError(error instanceof Error ? error : new Error('Failed to log metrics'), {
+        context: 'connection_metrics'
+      });
     }
   }
 
   static async getReliableConnection(): Promise<Connection> {
+    const maxRetries = Number(import.meta.env.VITE_MAX_RETRIES) || 3;
+    
     try {
       return await this.getConnection();
     } catch (error) {
-      if (this.retryCount < RPC_CONFIG.MAX_RETRIES) {
+      if (this.retryCount < maxRetries) {
         this.retryCount++;
-        console.log(`Retrying connection (${this.retryCount}/${RPC_CONFIG.MAX_RETRIES})...`);
+        console.log(`Retrying connection (${this.retryCount}/${maxRetries})...`);
         await new Promise(resolve => setTimeout(resolve, 1000 * this.retryCount));
         return this.getReliableConnection();
       }
@@ -90,7 +89,7 @@ export class ConnectionProvider {
         retries: this.retryCount,
       });
       
-      throw new Error(`Failed to establish connection after ${RPC_CONFIG.MAX_RETRIES} attempts`);
+      throw new Error(`Failed to establish connection after ${maxRetries} attempts`);
     }
   }
 }
