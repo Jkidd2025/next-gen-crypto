@@ -15,8 +15,10 @@ export enum SwapErrorTypes {
   API_ERROR = 'API_ERROR',
   VALIDATION = 'VALIDATION',
   SIMULATION_FAILED = 'SIMULATION_FAILED',
+  INVALID_AMOUNT = 'INVALID_AMOUNT',
   WALLET_NOT_CONNECTED = 'WALLET_NOT_CONNECTED',
   WALLET_NOT_SELECTED = 'WALLET_NOT_SELECTED',
+  CIRCUIT_BREAKER = 'CIRCUIT_BREAKER',
   UNKNOWN = 'UNKNOWN'
 }
 
@@ -52,6 +54,7 @@ function mapSwapErrorTypeToBaseErrorType(swapErrorType: SwapErrorTypes): ErrorTy
     case SwapErrorTypes.API_ERROR:
       return ErrorType.API;
     case SwapErrorTypes.VALIDATION:
+    case SwapErrorTypes.INVALID_AMOUNT:
       return ErrorType.VALIDATION;
     case SwapErrorTypes.WALLET_NOT_CONNECTED:
     case SwapErrorTypes.WALLET_NOT_SELECTED:
@@ -77,7 +80,6 @@ export const handleSwapError = (error: unknown): SwapError => {
     return error;
   }
   
-  // Handle WalletNotSelectedError specifically
   if (error instanceof Error && error.name === 'WalletNotSelectedError') {
     return new SwapError(
       SwapErrorTypes.WALLET_NOT_SELECTED,

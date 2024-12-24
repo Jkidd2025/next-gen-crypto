@@ -26,6 +26,12 @@ export const SwapErrorDisplay = ({ isOnline, error }: SwapErrorDisplayProps) => 
         return 'Simulation Failed';
       case SwapErrorTypes.WALLET_NOT_CONNECTED:
         return 'Wallet Not Connected';
+      case SwapErrorTypes.WALLET_NOT_SELECTED:
+        return 'Wallet Not Selected';
+      case SwapErrorTypes.INVALID_AMOUNT:
+        return 'Invalid Amount';
+      case SwapErrorTypes.CIRCUIT_BREAKER:
+        return 'Circuit Breaker Triggered';
       case SwapErrorTypes.UNKNOWN:
         return 'Error';
     }
@@ -46,7 +52,7 @@ export const SwapErrorDisplay = ({ isOnline, error }: SwapErrorDisplayProps) => 
       {error && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>{getErrorTitle(error.type as SwapErrorTypes)}</AlertTitle>
+          <AlertTitle>{getErrorTitle(error.code as SwapErrorTypes)}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       )}
