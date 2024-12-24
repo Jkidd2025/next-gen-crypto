@@ -1,6 +1,11 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { SwapErrorType, SwapError, SwapErrorTypes } from '@/types/errors';
+import { SwapErrorTypes, SwapErrorType, SwapError } from '@/types/errors';
+
+interface SwapErrorState {
+  error: SwapError | null;
+  history: SwapError[];
+}
 
 export const getErrorTitle = (type: SwapErrorType): string => {
   switch (type) {
@@ -24,31 +29,44 @@ export const getErrorTitle = (type: SwapErrorType): string => {
 };
 
 export const useSwapErrors = () => {
-  const [error, setErrorState] = useState<SwapError | null>(null);
+  const [state, setState] = useState<SwapErrorState>({
+    error: null,
+    history: [],
+  });
+  
   const { toast } = useToast();
 
-  const setError = useCallback((newError: SwapError) => {
-    const errorWithTimestamp = {
-      ...newError,
+  const setError = useCallback((error: Omit<SwapError, 'timestamp'>) => {
+    const newError: SwapError = {
+      ...error,
       timestamp: Date.now(),
     };
-    setErrorState(errorWithTimestamp);
+
+    setState(prev => ({
+      error: newError,
+      history: [...prev.history, newError].slice(-10),
+    }));
 
     toast({
-      title: getErrorTitle(newError.type),
-      description: newError.message,
+      title: getErrorTitle(error.type),
+      description: error.message,
       variant: 'destructive',
     });
   }, [toast]);
 
   const clearError = useCallback(() => {
-    setErrorState(null);
+    setState(prev => ({
+      ...prev,
+      error: null,
+    }));
   }, []);
 
   return {
-    error,
+    error: state.error,
+    errorHistory: state.history,
     setError,
     clearError,
+    getErrorTitle,
   };
 };
 
