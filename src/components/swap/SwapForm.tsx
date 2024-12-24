@@ -96,7 +96,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
   // Memoize minimum received calculation
   const minimumReceived = useMemo(() => {
-    if (!fromAmount) return undefined;
+    if (!fromAmount) return "0";
     return calculateMinimumReceived();
   }, [fromAmount, calculateMinimumReceived]);
 
