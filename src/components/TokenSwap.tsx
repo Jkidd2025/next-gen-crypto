@@ -1,7 +1,7 @@
 import { SwapForm } from "./swap/SwapForm";
 import { WalletConnect } from "./swap/WalletConnect";
 import { BuyWithCard } from "./swap/BuyWithCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PriceChart } from "./swap/PriceChart";
 import { MarketStats } from "./swap/MarketStats";
 import { ROICalculator } from "./swap/ROICalculator";
@@ -9,11 +9,44 @@ import { LiquidityPoolStats } from "./swap/LiquidityPoolStats";
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
+import { useToast } from "@/hooks/use-toast";
 
 export const TokenSwap = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const endpoint = clusterApiUrl('mainnet-beta');
   const wallets = [new PhantomWalletAdapter()];
+  const { toast } = useToast();
+
+  // Handle wallet disconnection
+  useEffect(() => {
+    const handleDisconnect = () => {
+      console.log("Wallet disconnected");
+      setIsWalletConnected(false);
+      localStorage.removeItem('walletConnected');
+      toast({
+        title: "Wallet Disconnected",
+        description: "Your wallet has been disconnected.",
+      });
+    };
+
+    if (window.solana) {
+      window.solana.on('disconnect', handleDisconnect);
+    }
+
+    return () => {
+      if (window.solana) {
+        window.solana.off('disconnect', handleDisconnect);
+      }
+    };
+  }, [toast]);
+
+  // Check for persisted connection on mount
+  useEffect(() => {
+    const persistedConnection = localStorage.getItem('walletConnected');
+    if (persistedConnection === 'true' && window.solana?.isConnected) {
+      setIsWalletConnected(true);
+    }
+  }, []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>

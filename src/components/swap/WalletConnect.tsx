@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRateLimit } from "@/hooks/swap/useRateLimit";
+
+const WALLET_TIMEOUT = 30000; // 30 seconds timeout
 
 interface WalletConnectProps {
   onConnect: (isConnected: boolean) => void;
@@ -10,6 +13,23 @@ interface WalletConnectProps {
 export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { checkRateLimit } = useRateLimit();
+  
+  // Check for persisted connection
+  useEffect(() => {
+    const checkPersistedConnection = async () => {
+      try {
+        if (window?.solana?.isConnected) {
+          console.log("Found persisted wallet connection");
+          onConnect(true);
+        }
+      } catch (error) {
+        console.error("Error checking persisted connection:", error);
+      }
+    };
+    
+    checkPersistedConnection();
+  }, [onConnect]);
 
   const checkForPhantom = (): boolean => {
     if (typeof window === 'undefined') return false;
@@ -32,15 +52,28 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
     console.log("Connect wallet button clicked");
     
     try {
+      // Check rate limiting
+      await checkRateLimit();
+
       if (!checkForPhantom()) {
         setIsLoading(false);
         return;
       }
 
-      console.log("Requesting Phantom wallet connection...");
-      const response = await window.solana.connect();
+      // Set up connection timeout
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Connection timeout")), WALLET_TIMEOUT);
+      });
+
+      // Attempt connection with timeout
+      const connectionPromise = window.solana.connect();
+      const response = await Promise.race([connectionPromise, timeoutPromise]);
+      
       const publicKey = response.publicKey.toString();
       console.log("Connected wallet public key:", publicKey);
+      
+      // Store connection state
+      localStorage.setItem('walletConnected', 'true');
       
       onConnect(true);
       toast({
@@ -49,9 +82,19 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
       });
     } catch (error) {
       console.error("Wallet connection error:", error);
+      
+      let errorMessage = "Failed to connect wallet. Please try again.";
+      if (error instanceof Error) {
+        if (error.message === "Connection timeout") {
+          errorMessage = "Connection timed out. Please try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Connection Failed",
-        description: error instanceof Error ? error.message : "Failed to connect wallet. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
       onConnect(false);
