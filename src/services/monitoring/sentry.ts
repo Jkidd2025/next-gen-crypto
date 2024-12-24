@@ -1,41 +1,21 @@
-import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/tracing";
-import { BaseError } from "@/types/errors";
+import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/tracing';
 import type { Integration } from '@sentry/types';
 
-export const initSentry = () => {
+export const initializeSentry = () => {
   if (process.env.NODE_ENV === 'production') {
     Sentry.init({
-      dsn: process.env.VITE_SENTRY_DSN,
+      dsn: "your-sentry-dsn",
       integrations: [
-        new BrowserTracing() as Integration
+        new BrowserTracing() as unknown as Integration,
       ],
       tracesSampleRate: 1.0,
-      beforeSend(event) {
-        if (process.env.NODE_ENV !== 'production') {
-          return null;
-        }
-        return event;
-      },
     });
   }
 };
 
 export const captureException = (error: Error, context?: Record<string, any>) => {
-  if (error instanceof BaseError) {
-    Sentry.captureException(error, {
-      tags: {
-        type: error.type,
-        code: error.code,
-        recoverable: String(error.recoverable)
-      },
-      extra: {
-        ...error.details,
-        ...context,
-        timestamp: error.timestamp
-      }
-    });
-  } else {
+  if (process.env.NODE_ENV === 'production') {
     Sentry.captureException(error, {
       extra: context
     });
