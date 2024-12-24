@@ -1,6 +1,6 @@
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { SwapError } from "@/types/errors";
+import { SwapError, SwapErrorTypes } from "@/types/errors";
 
 interface SwapErrorDisplayProps {
   isOnline: boolean;
@@ -8,23 +8,23 @@ interface SwapErrorDisplayProps {
 }
 
 export const SwapErrorDisplay = ({ isOnline, error }: SwapErrorDisplayProps) => {
-  const getErrorTitle = (type: SwapError['type']): string => {
+  const getErrorTitle = (type: SwapErrorTypes): string => {
     switch (type) {
-      case 'INSUFFICIENT_BALANCE':
+      case SwapErrorTypes.INSUFFICIENT_BALANCE:
         return 'Insufficient Balance';
-      case 'SLIPPAGE_EXCEEDED':
+      case SwapErrorTypes.SLIPPAGE_EXCEEDED:
         return 'Slippage Exceeded';
-      case 'PRICE_IMPACT_HIGH':
+      case SwapErrorTypes.PRICE_IMPACT_HIGH:
         return 'High Price Impact';
-      case 'NETWORK_ERROR':
+      case SwapErrorTypes.NETWORK_ERROR:
         return 'Network Error';
-      case 'API_ERROR':
+      case SwapErrorTypes.API_ERROR:
         return 'Service Error';
-      case 'VALIDATION':
+      case SwapErrorTypes.VALIDATION:
         return 'Validation Error';
-      case 'SIMULATION_FAILED':
+      case SwapErrorTypes.SIMULATION_FAILED:
         return 'Simulation Failed';
-      case 'UNKNOWN':
+      case SwapErrorTypes.UNKNOWN:
         return 'Error';
     }
   };

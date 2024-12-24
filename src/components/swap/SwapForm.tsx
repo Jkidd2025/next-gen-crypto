@@ -86,12 +86,12 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    setSelectedTokens((prev: SelectedTokens) => ({
-      ...prev,
+    setSelectedTokens({
+      ...selectedTokens,
       from: tokenSymbol,
-    }));
+    });
     setIsTokenSelectorOpen(false);
-  }, [setError, setSelectedTokens, setIsTokenSelectorOpen]);
+  }, [setError, setSelectedTokens, setIsTokenSelectorOpen, selectedTokens]);
 
   const minimumReceived = useMemo(() => {
     if (!fromAmount) return "0";
