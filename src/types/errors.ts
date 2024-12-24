@@ -15,15 +15,17 @@ export class SwapError extends Error {
   type: SwapErrorTypes;
   details?: any;
   timestamp: number;
+  name: string;
 
-  constructor(type: SwapErrorTypes, message: string, details?: any) {
+  constructor(type: SwapErrorTypes, message: string, name: string, details?: any) {
     super(message);
     this.type = type;
     this.details = details;
     this.timestamp = Date.now();
+    this.name = name;
   }
 }
 
-export const createSwapError = (type: SwapErrorTypes, message: string, details?: any): SwapError => {
-  return new SwapError(type, message, details);
+export const createSwapError = (type: SwapErrorTypes, message: string, name: string, details?: any): SwapError => {
+  return new SwapError(type, message, name, details);
 };
