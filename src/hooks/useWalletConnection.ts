@@ -1,13 +1,42 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export const useWalletConnection = () => {
   const { connected, connecting, connect, disconnect, publicKey } = useWallet();
   const [isConnecting, setIsConnecting] = useState(false);
   const { toast } = useToast();
 
-  const connectWallet = async () => {
+  // Cleanup function to handle connection timeout
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    if (isConnecting) {
+      timeoutId = setTimeout(() => {
+        setIsConnecting(false);
+        toast({
+          title: "Connection Timeout",
+          description: "The wallet connection attempt timed out. Please try again.",
+          variant: "destructive"
+        });
+      }, 30000); // 30 second timeout
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isConnecting, toast]);
+
+  // Reset connecting state when connection status changes
+  useEffect(() => {
+    if (connected) {
+      setIsConnecting(false);
+    }
+  }, [connected]);
+
+  const connectWallet = useCallback(async () => {
     if (connected || isConnecting) return;
 
     setIsConnecting(true);
@@ -24,12 +53,10 @@ export const useWalletConnection = () => {
         description: "Failed to connect wallet. Please try again.",
         variant: "destructive"
       });
-    } finally {
-      setIsConnecting(false);
     }
-  };
+  }, [connect, connected, isConnecting, toast]);
 
-  const handleDisconnect = async () => {
+  const handleDisconnect = useCallback(async () => {
     try {
       await disconnect();
       toast({
@@ -44,7 +71,7 @@ export const useWalletConnection = () => {
         variant: "destructive"
       });
     }
-  };
+  }, [disconnect, toast]);
 
   return {
     connected,
