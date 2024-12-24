@@ -50,7 +50,7 @@ export const useSwapActions = ({
         );
       }
 
-      const calculatedAmount = await calcAmount(value, fromTokenInfo.mint_address, toTokenInfo.mint_address);
+      const calculatedAmount = await calcAmount(value, fromTokenInfo.address, toTokenInfo.address);
       setToAmount(calculatedAmount);
     } catch (error) {
       console.error("Error calculating swap amount:", error);

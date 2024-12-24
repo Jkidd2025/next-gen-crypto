@@ -7,6 +7,7 @@ export interface TokenInfo {
   name: string;
   decimals: number;
   address: string;
+  mint_address?: string;
   logoURI?: string;
 }
 
