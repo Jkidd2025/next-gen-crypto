@@ -113,8 +113,8 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl 
-        value={slippage.toString()} 
-        onChange={(value) => setSlippage(parseFloat(value))} 
+        value={typeof slippage === 'number' ? slippage.toString() : slippage} 
+        onChange={(value) => setSlippage(Number(value))} 
       />
       
       <PriceImpact 
