@@ -15,7 +15,7 @@ interface SwapHookReturn {
   isTokenSelectorOpen: boolean;
   setIsTokenSelectorOpen: (isOpen: boolean) => void;
   setSelectedTokens: (tokens: { from: TokenSymbol; to: TokenSymbol }) => void;
-  calculateToAmount: (value: string, fromToken: string, toToken: string) => Promise<void>;
+  calculateToAmount: (value: string) => Promise<void>;
   handleSwap: () => Promise<void>;
   calculateMinimumReceived: () => string;
   refreshPrice: () => void;
@@ -49,14 +49,14 @@ export const useSwap = (): SwapHookReturn => {
     priceImpact,
     route,
     gasFee
-  } = useSwapActions(
+  } = useSwapActions({
     fromAmount,
     toAmount,
     setFromAmount,
     setToAmount,
     selectedTokens,
     slippage
-  );
+  });
 
   return {
     fromAmount,

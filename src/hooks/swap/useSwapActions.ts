@@ -44,7 +44,10 @@ export const useSwapActions = ({
       const toTokenInfo = getTokenBySymbol(selectedTokens.to);
 
       if (!fromTokenInfo || !toTokenInfo) {
-        throw new SwapError(SwapErrorTypes.VALIDATION, "Invalid token selection");
+        throw new SwapError(
+          SwapErrorTypes.VALIDATION,
+          "Invalid token selection"
+        );
       }
 
       const calculatedAmount = await calcAmount(value);
@@ -58,7 +61,10 @@ export const useSwapActions = ({
 
   const handleSwap = async () => {
     if (!publicKey) {
-      throw new SwapError(SwapErrorTypes.WALLET_NOT_CONNECTED, "Please connect your wallet");
+      throw new SwapError(
+        SwapErrorTypes.WALLET_NOT_CONNECTED,
+        "Please connect your wallet"
+      );
     }
 
     const startTime = Date.now();

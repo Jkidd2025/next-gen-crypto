@@ -1,5 +1,7 @@
 export type TokenSymbol = string;
 
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
 export interface TokenInfo {
   symbol: TokenSymbol;
   name: string;

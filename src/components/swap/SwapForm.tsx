@@ -12,18 +12,13 @@ import { SwapErrorDisplay } from "./SwapErrorDisplay";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { useSwapErrors } from "@/hooks/swap/useSwapErrors";
-import { SwapErrorTypes } from "@/types/errors";
-import type { TokenInfo } from "@/hooks/swap/useTokenList";
+import { SwapError, SwapErrorTypes } from "@/types/errors";
+import type { TokenInfo } from "@/types/token";
 import type { TokenSymbol } from "@/types/token";
 import { COMMON_TOKENS } from "@/constants/tokens";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
-}
-
-interface SelectedTokens {
-  from: TokenSymbol;
-  to: TokenSymbol;
 }
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
@@ -69,20 +64,22 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       await handleSwap();
       setIsConfirmationOpen(false);
     } catch (err) {
-      setError({
-        type: SwapErrorTypes.UNKNOWN,
-        message: err instanceof Error ? err.message : 'An unknown error occurred',
-      });
+      const error = new SwapError(
+        SwapErrorTypes.UNKNOWN,
+        err instanceof Error ? err.message : 'An unknown error occurred'
+      );
+      setError(error);
     }
   }, [handleSwap, setError]);
 
   const handleTokenSelect = useCallback((token: TokenInfo) => {
     const tokenSymbol = token.symbol as TokenSymbol;
     if (!(tokenSymbol in COMMON_TOKENS)) {
-      setError({
-        type: SwapErrorTypes.VALIDATION,
-        message: `Invalid token symbol: ${token.symbol}`,
-      });
+      const error = new SwapError(
+        SwapErrorTypes.VALIDATION,
+        `Invalid token symbol: ${token.symbol}`
+      );
+      setError(error);
       return;
     }
 
@@ -107,7 +104,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       <SwapInput
         label={`From (${selectedTokens.from})`}
         value={fromAmount}
-        onChange={(value) => calculateToAmount(value, selectedTokens.from, selectedTokens.to)}
+        onChange={(value) => calculateToAmount(value)}
         isWalletConnected={isWalletConnected}
         onQuickAmountSelect={handleQuickAmountSelect}
         showQuickAmounts={true}
