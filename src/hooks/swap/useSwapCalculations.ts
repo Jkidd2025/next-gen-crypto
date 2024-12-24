@@ -3,8 +3,23 @@ import { useWallet } from '@solana/wallet-adapter-react';
 
 const JUPITER_API_V6 = 'https://quote-api.jup.ag/v6';
 
+interface QuoteResponse {
+  data: {
+    outAmount: string;
+    priceImpactPct: number;
+    marketInfos: {
+      amm: {
+        label: string;
+      };
+      inputMint: string;
+      outputMint: string;
+    }[];
+  };
+}
+
 export const useSwapCalculations = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentQuote, setCurrentQuote] = useState<QuoteResponse | null>(null);
   const { publicKey } = useWallet();
 
   const getQuote = async (
@@ -12,7 +27,7 @@ export const useSwapCalculations = () => {
     outputMint: string,
     amount: number,
     slippageBps: number = 100
-  ) => {
+  ): Promise<QuoteResponse> => {
     const params = new URLSearchParams({
       inputMint,
       outputMint,
@@ -36,6 +51,7 @@ export const useSwapCalculations = () => {
       setIsRefreshing(true);
       
       if (!inputAmount || parseFloat(inputAmount) === 0) {
+        setCurrentQuote(null);
         return "0";
       }
 
@@ -46,6 +62,8 @@ export const useSwapCalculations = () => {
         100 // 1% default slippage
       );
 
+      setCurrentQuote(quote);
+
       if (!quote.data) {
         return "0";
       }
@@ -55,6 +73,7 @@ export const useSwapCalculations = () => {
       return outputAmount;
     } catch (error) {
       console.error('Error calculating amount:', error);
+      setCurrentQuote(null);
       return "0";
     } finally {
       setIsRefreshing(false);
@@ -71,5 +90,7 @@ export const useSwapCalculations = () => {
     isRefreshing,
     calculateToAmount,
     calculateMinimumReceived,
+    priceImpact: currentQuote?.data?.priceImpactPct || 0,
+    route: currentQuote?.data,
   };
 };

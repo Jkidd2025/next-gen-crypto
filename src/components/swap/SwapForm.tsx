@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
-import { PriceImpactWarning } from "./PriceImpactWarning";
+import { PriceImpact } from "./PriceImpact";
 import { TransactionHistory } from "./TransactionHistory";
 import { TokenSelector } from "./TokenSelector";
 import { SwapRoute } from "./SwapRoute";
+import { RouteVisualizer } from "./RouteVisualizer";
 import { RefreshCw } from "lucide-react";
 import { useSwap } from "@/hooks/useSwap";
 import { useToast } from "@/hooks/use-toast";
+import { useTokenList } from "@/hooks/swap/useTokenList";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -23,6 +25,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     to: "MEME",
   });
 
+  const { data: tokenList, isLoading: isTokenListLoading } = useTokenList();
   const { toast } = useToast();
 
   const {
@@ -37,7 +40,18 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     refreshPrice,
     handleQuickAmountSelect,
     setSlippage,
+    priceImpact,
+    route,
   } = useSwap();
+
+  // Create a token map for easy lookup
+  const tokenMap = useMemo(() => {
+    if (!tokenList) return {};
+    return tokenList.reduce((acc, token) => {
+      acc[token.address] = token;
+      return acc;
+    }, {} as Record<string, typeof tokenList[0]>);
+  }, [tokenList]);
 
   const handleSwapClick = () => {
     if (!isWalletConnected) {
@@ -105,11 +119,11 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
       <SlippageControl value={slippage} onChange={setSlippage} />
 
-      <SwapRoute
-        fromToken={selectedTokens.from}
-        toToken={selectedTokens.to}
-        route={[]}
-      />
+      {/* Add price impact warning */}
+      <PriceImpact priceImpact={priceImpact} />
+      
+      {/* Add route visualization */}
+      {route && tokenMap && <RouteVisualizer route={route} tokenMap={tokenMap} />}
 
       <div className="text-sm text-muted-foreground">
         Estimated Gas Fee: {gasFee} SOL
@@ -129,9 +143,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={0}
+        priceImpact={priceImpact}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={false}
+        isHighImpact={priceImpact >= 5}
       />
 
       <TokenSelector
