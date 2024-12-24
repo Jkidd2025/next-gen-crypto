@@ -86,7 +86,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       )}
 
       {isOnline && connectionQuality !== 'good' && (
-        <Alert variant="warning">
+        <Alert variant="default">
           {getConnectionIcon()}
           <AlertTitle>Slow Connection</AlertTitle>
           <AlertDescription>
