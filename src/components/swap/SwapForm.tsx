@@ -10,11 +10,30 @@ import { SwapFormActions } from "./SwapFormActions";
 import { SwapInputsSection } from "./SwapInputsSection";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useTokenList } from "@/hooks/swap/useTokenList";
+import { useTokenPrices } from "@/hooks/swap/useTokenPrices";
 import { useMemo } from "react";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
 }
+
+const TokenPrice = ({ symbol }: { symbol: string }) => {
+  const { data: tokenPrices } = useTokenPrices([symbol]);
+  const price = tokenPrices?.[symbol]?.price;
+  const priceChange = tokenPrices?.[symbol]?.priceChange24h;
+
+  if (!price) return null;
+
+  return (
+    <div className="text-sm text-muted-foreground">
+      ${price.toFixed(2)}
+      <span className={priceChange >= 0 ? "text-green-500" : "text-red-500"}>
+        {priceChange > 0 ? "+" : ""}
+        {priceChange?.toFixed(2)}%
+      </span>
+    </div>
+  );
+};
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
@@ -60,6 +79,11 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   return (
     <div className="space-y-6">
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
+
+      <div className="flex justify-between items-center mb-4">
+        <TokenPrice symbol={selectedTokens.from} />
+        <TokenPrice symbol={selectedTokens.to} />
+      </div>
 
       <SwapInputsSection
         fromToken={selectedTokens.from}
