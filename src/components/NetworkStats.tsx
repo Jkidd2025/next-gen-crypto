@@ -1,25 +1,28 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { measureEndpointPerformance } from "@/utils/monitoring/performanceMetrics";
 
 export const NetworkStats = () => {
   const { data: stats, isError } = useQuery({
     queryKey: ['network-stats'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('analytics')
-        .select('*')
-        .order('recorded_at', { ascending: false })
-        .limit(1);
-      
-      if (error) throw error;
-      // Return first item or default values if no data
-      return data?.[0] || {
-        total_holders: 0,
-        market_value: 0,
-        transaction_count: 0,
-        transaction_volume: 0
-      };
+      return measureEndpointPerformance('network-stats', async () => {
+        const { data, error } = await supabase
+          .from('analytics')
+          .select('*')
+          .order('recorded_at', { ascending: false })
+          .limit(1);
+        
+        if (error) throw error;
+        // Return first item or default values if no data
+        return data?.[0] || {
+          total_holders: 0,
+          market_value: 0,
+          transaction_count: 0,
+          transaction_volume: 0
+        };
+      });
     },
   });
 

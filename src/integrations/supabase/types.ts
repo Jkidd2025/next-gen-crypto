@@ -200,6 +200,36 @@ export type Database = {
           },
         ]
       }
+      performance_metrics: {
+        Row: {
+          endpoint: string
+          error_message: string | null
+          error_type: string | null
+          id: string
+          latency: number
+          success: boolean
+          timestamp: string
+        }
+        Insert: {
+          endpoint: string
+          error_message?: string | null
+          error_type?: string | null
+          id?: string
+          latency: number
+          success: boolean
+          timestamp?: string
+        }
+        Update: {
+          endpoint?: string
+          error_message?: string | null
+          error_type?: string | null
+          id?: string
+          latency?: number
+          success?: boolean
+          timestamp?: string
+        }
+        Relationships: []
+      }
       poll_options: {
         Row: {
           created_at: string
