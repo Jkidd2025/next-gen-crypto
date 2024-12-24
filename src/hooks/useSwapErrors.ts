@@ -1,56 +1,44 @@
 import { useToast } from "@/hooks/use-toast";
-import { SwapError, SwapErrorCode } from "@/services/error/types";
+import { SwapErrorType, SwapError } from "@/hooks/swap/useSwapErrors";
+
+export enum SwapErrorType {
+  INSUFFICIENT_BALANCE = "INSUFFICIENT_BALANCE",
+  SLIPPAGE_TOO_HIGH = "SLIPPAGE_TOO_HIGH",
+  PRICE_IMPACT_TOO_HIGH = "PRICE_IMPACT_TOO_HIGH",
+  NETWORK_ERROR = "NETWORK_ERROR",
+  SIMULATION_FAILED = "SIMULATION_FAILED",
+  UNKNOWN = "UNKNOWN",
+}
 
 export const useSwapErrors = () => {
   const { toast } = useToast();
 
-  const getErrorMessage = (code: SwapErrorCode): string => {
-    switch (code) {
-      case SwapErrorCode.INSUFFICIENT_BALANCE:
-        return "Insufficient balance for this swap";
-      case SwapErrorCode.SLIPPAGE_EXCEEDED:
-        return "Slippage tolerance exceeded";
-      case SwapErrorCode.PRICE_IMPACT_HIGH:
-        return "Price impact is too high";
-      case SwapErrorCode.NETWORK_ERROR:
-        return "Network error occurred. Please try again";
-      case SwapErrorCode.API_ERROR:
-        return "Service temporarily unavailable";
-      case SwapErrorCode.UNKNOWN:
-      default:
-        return "An unexpected error occurred";
-    }
-  };
-
   const handleSwapError = (error: SwapError) => {
-    console.error("Swap error:", error);
+    const errorMessages = {
+      [SwapErrorType.INSUFFICIENT_BALANCE]: "Insufficient balance for this swap",
+      [SwapErrorType.SLIPPAGE_TOO_HIGH]: "Slippage exceeds your settings",
+      [SwapErrorType.PRICE_IMPACT_TOO_HIGH]: "Price impact is too high",
+      [SwapErrorType.NETWORK_ERROR]: "Network error occurred",
+      [SwapErrorType.SIMULATION_FAILED]: "Transaction simulation failed",
+      [SwapErrorType.UNKNOWN]: "An unknown error occurred",
+    };
 
-    const message = error.message || getErrorMessage(error.code);
-    
+    const swapError: SwapError = {
+      code: error.type,
+      message: errorMessages[error.type],
+      details: error.details,
+      timestamp: Date.now(),
+      recoverable: error.type !== SwapErrorType.SIMULATION_FAILED
+    };
+
     toast({
       variant: "destructive",
-      title: "Swap Failed",
-      description: message,
+      title: errorMessages[error.type],
+      description: error.details || "Please try again or contact support if the issue persists.",
     });
 
-    // Return the error for potential further handling
-    return error;
+    return swapError;
   };
 
-  const createSwapError = (
-    code: SwapErrorCode,
-    message?: string,
-    details?: any
-  ): SwapError => {
-    return {
-      code,
-      message: message || getErrorMessage(code),
-      details,
-    };
-  };
-
-  return {
-    handleSwapError,
-    createSwapError,
-  };
+  return { handleSwapError };
 };

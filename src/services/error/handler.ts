@@ -2,50 +2,53 @@ import { toast } from '@/hooks/use-toast';
 import { ErrorType, ErrorDetails, SwapErrorCode, SwapError } from './types';
 
 class ErrorHandler {
-  private errors: (ErrorDetails | SwapError)[] = [];
+  private errors: ErrorDetails[] = [];
+  private maxErrors = 50; // Keep last 50 errors
 
-  handleError(error: ErrorDetails | SwapError) {
-    if ('code' in error && Object.values(SwapErrorCode).includes(error.code as SwapErrorCode)) {
-      // Handle swap-specific errors
-      this.handleSwapError(error as SwapError);
-    } else {
-      // Handle general errors
-      this.handleGeneralError(error as ErrorDetails);
+  handleError(error: ErrorDetails) {
+    // Add error to history
+    this.errors.push({
+      ...error,
+      timestamp: error.timestamp || Date.now()
+    });
+
+    // Trim error history if needed
+    if (this.errors.length > this.maxErrors) {
+      this.errors = this.errors.slice(-this.maxErrors);
     }
-  }
 
-  private handleSwapError(error: SwapError) {
-    console.error('Swap Error:', {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      timestamp: new Date(error.timestamp).toISOString(),
-    });
-
-    toast({
-      title: 'Swap Error',
-      description: error.message,
-      variant: error.recoverable ? 'default' : 'destructive',
-    });
-  }
-
-  private handleGeneralError(error: ErrorDetails) {
-    this.errors.push(error);
-
+    // Log error
     console.error('Error:', {
       ...error,
-      timestamp: new Date(error.timestamp).toISOString(),
+      timestamp: new Date(error.timestamp).toISOString()
     });
 
+    // Show user notification
     toast({
       title: this.getErrorTitle(error.type),
       description: error.message,
       variant: error.recoverable ? 'default' : 'destructive',
     });
 
+    // Attempt recovery if possible
     if (error.recoverable) {
       this.attemptRecovery(error);
     }
+
+    return error;
+  }
+
+  handleSwapError(error: SwapError) {
+    const errorDetails: ErrorDetails = {
+      type: ErrorType.TRANSACTION,
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      timestamp: error.timestamp || Date.now(),
+      recoverable: error.recoverable
+    };
+
+    return this.handleError(errorDetails);
   }
 
   private getErrorTitle(type: ErrorType): string {
@@ -68,20 +71,40 @@ class ErrorHandler {
   private async attemptRecovery(error: ErrorDetails) {
     switch (error.type) {
       case ErrorType.NETWORK:
-        // Implement network recovery logic
+        await this.handleNetworkRecovery(error);
         break;
       case ErrorType.API:
-        // Implement API recovery logic
+        await this.handleAPIRecovery(error);
         break;
       case ErrorType.TRANSACTION:
-        // Implement transaction recovery logic
+        await this.handleTransactionRecovery(error);
         break;
-      // Add more recovery strategies
+      default:
+        console.warn('No recovery strategy for error type:', error.type);
     }
   }
 
-  getRecentErrors(): (ErrorDetails | SwapError)[] {
-    return this.errors.slice(-10);
+  private async handleNetworkRecovery(error: ErrorDetails) {
+    // Implement network recovery strategy
+    console.log('Attempting network recovery:', error);
+  }
+
+  private async handleAPIRecovery(error: ErrorDetails) {
+    // Implement API recovery strategy
+    console.log('Attempting API recovery:', error);
+  }
+
+  private async handleTransactionRecovery(error: ErrorDetails) {
+    // Implement transaction recovery strategy
+    console.log('Attempting transaction recovery:', error);
+  }
+
+  getRecentErrors(): ErrorDetails[] {
+    return [...this.errors].reverse();
+  }
+
+  clearErrors() {
+    this.errors = [];
   }
 }
 
