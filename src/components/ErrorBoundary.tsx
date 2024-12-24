@@ -1,8 +1,9 @@
 import React from "react";
+import { logError } from '@/services/logging/logger';
 
 interface Props {
   children: React.ReactNode;
-  FallbackComponent?: React.ComponentType<{ error: Error }>;
+  FallbackComponent?: React.ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
 }
 
 interface State {
@@ -20,13 +21,23 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    logError(error, {
+      context: 'error_boundary',
+      componentStack: errorInfo.componentStack
+    });
   }
+
+  public resetErrorBoundary = () => {
+    this.setState({ hasError: false, error: undefined });
+  };
 
   public render() {
     if (this.state.hasError) {
       if (this.props.FallbackComponent) {
-        return <this.props.FallbackComponent error={this.state.error!} />;
+        return <this.props.FallbackComponent 
+          error={this.state.error!} 
+          resetErrorBoundary={this.resetErrorBoundary}
+        />;
       }
 
       return (
@@ -38,9 +49,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
             </p>
             <button
               className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
-              onClick={() => window.location.reload()}
+              onClick={this.resetErrorBoundary}
             >
-              Reload page
+              Try again
             </button>
           </div>
         </div>

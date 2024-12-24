@@ -369,6 +369,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rpc_connection_logs: {
+        Row: {
+          created_at: string
+          endpoint: string
+          error_message: string | null
+          id: string
+          latency: number | null
+          success: boolean
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          error_message?: string | null
+          id?: string
+          latency?: number | null
+          success: boolean
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          error_message?: string | null
+          id?: string
+          latency?: number | null
+          success?: boolean
+        }
+        Relationships: []
+      }
       rpc_health_metrics: {
         Row: {
           endpoint: string
