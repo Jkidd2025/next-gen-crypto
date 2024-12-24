@@ -1,25 +1,29 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { TokenSymbol } from '@/constants/tokens';
 
 export const useSwapState = () => {
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
   const [slippage, setSlippage] = useState(0.5);
-
-  const handleQuickAmountSelect = (percentage: number) => {
-    // Mock balance calculation
-    const mockBalance = 100;
-    const amount = (mockBalance * percentage) / 100;
-    setFromAmount(amount.toString());
-    return amount.toString();
-  };
+  const [isTokenSelectorOpen, setIsTokenSelectorOpen] = useState(false);
+  const [selectedTokens, setSelectedTokens] = useState<{
+    from: TokenSymbol;
+    to: TokenSymbol;
+  }>({
+    from: "SOL",
+    to: "USDC",
+  });
 
   return {
     fromAmount,
-    toAmount,
-    slippage,
     setFromAmount,
+    toAmount,
     setToAmount,
+    slippage,
     setSlippage,
-    handleQuickAmountSelect,
+    isTokenSelectorOpen,
+    setIsTokenSelectorOpen,
+    selectedTokens,
+    setSelectedTokens,
   };
 };

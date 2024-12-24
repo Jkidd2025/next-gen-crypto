@@ -1,18 +1,23 @@
-import { useState } from 'react';
-import { useSwapCalculations } from './useSwapCalculations';
-import { useSwapTransactions } from './useSwapTransactions';
 import { useAuth } from '@/components/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { useSwapCalculations } from './useSwapCalculations';
+import { useSwapTransactions } from './useSwapTransactions';
+import { useSwapState } from './useSwapState';
+import { findTokenInfo, calculateMockBalance } from '@/utils/swap';
 
 export const useSwapForm = () => {
-  const [fromAmount, setFromAmount] = useState("");
-  const [toAmount, setToAmount] = useState("");
-  const [slippage, setSlippage] = useState(0.5);
-  const [isTokenSelectorOpen, setIsTokenSelectorOpen] = useState(false);
-  const [selectedTokens, setSelectedTokens] = useState({
-    from: "SOL",
-    to: "MEME",
-  });
+  const {
+    fromAmount,
+    setFromAmount,
+    toAmount,
+    setToAmount,
+    slippage,
+    setSlippage,
+    isTokenSelectorOpen,
+    setIsTokenSelectorOpen,
+    selectedTokens,
+    setSelectedTokens,
+  } = useSwapState();
 
   const { user } = useAuth();
   const { toast } = useToast();
@@ -20,9 +25,7 @@ export const useSwapForm = () => {
   const { handleSwap: executeSwap, gasFee } = useSwapTransactions();
 
   const handleQuickAmountSelect = (percentage: number) => {
-    // Mock balance calculation - will be replaced with real balance
-    const mockBalance = 100;
-    const amount = (mockBalance * percentage) / 100;
+    const amount = calculateMockBalance(percentage);
     setFromAmount(amount.toString());
     return amount.toString();
   };
@@ -32,9 +35,30 @@ export const useSwapForm = () => {
     fromToken: string,
     toToken: string
   ) => {
-    setFromAmount(value);
-    const calculatedAmount = await calculateToAmount(value, fromToken, toToken);
-    setToAmount(calculatedAmount);
+    try {
+      setFromAmount(value);
+      const fromTokenInfo = findTokenInfo(fromToken);
+      const toTokenInfo = findTokenInfo(toToken);
+
+      if (!fromTokenInfo || !toTokenInfo) {
+        throw new Error("Invalid token selection");
+      }
+
+      const calculatedAmount = await calculateToAmount(
+        value,
+        fromTokenInfo.address,
+        toTokenInfo.address
+      );
+      setToAmount(calculatedAmount);
+    } catch (error) {
+      console.error("Error calculating swap amount:", error);
+      toast({
+        title: "Error",
+        description: "Failed to calculate swap amount. Please try again.",
+        variant: "destructive",
+      });
+      setToAmount("0");
+    }
   };
 
   const handleSwap = async () => {
@@ -48,14 +72,22 @@ export const useSwapForm = () => {
     }
 
     try {
+      const fromTokenInfo = findTokenInfo(selectedTokens.from);
+      const toTokenInfo = findTokenInfo(selectedTokens.to);
+
+      if (!fromTokenInfo || !toTokenInfo) {
+        throw new Error("Invalid token selection");
+      }
+
       await executeSwap(
-        selectedTokens.from,
-        selectedTokens.to,
+        fromTokenInfo.address,
+        toTokenInfo.address,
         fromAmount,
         toAmount,
         slippage,
         user.id
       );
+      
       toast({
         title: "Swap successful",
         description: `Successfully swapped ${fromAmount} ${selectedTokens.from} for ${toAmount} ${selectedTokens.to}`,
@@ -91,7 +123,7 @@ export const useSwapForm = () => {
     refreshPrice,
     handleQuickAmountSelect,
     setSlippage,
-    priceImpact,
+    priceImpact: String(priceImpact), // Fix the type error by converting to string
     route,
   };
 };
