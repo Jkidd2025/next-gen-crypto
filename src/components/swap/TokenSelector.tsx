@@ -7,85 +7,87 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-interface Token {
-  symbol: string;
-  name: string;
-  address: string;
-  logoURI?: string;
-}
+import { useTokenList, TokenInfo } from "@/hooks/swap/useTokenList";
+import { Loader2 } from "lucide-react";
 
 interface TokenSelectorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (token: Token) => void;
+  onSelect: (token: TokenInfo) => void;
+  currentToken?: string;
 }
 
-export const TokenSelector = ({ isOpen, onClose, onSelect }: TokenSelectorProps) => {
+export const TokenSelector = ({ isOpen, onClose, onSelect, currentToken }: TokenSelectorProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [tokens, setTokens] = useState<Token[]>([]);
-  const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
+  const { data: tokens, isLoading } = useTokenList();
+  const [filteredTokens, setFilteredTokens] = useState<TokenInfo[]>([]);
 
   useEffect(() => {
-    const loadTokens = async () => {
-      // Mock token list while Jupiter integration is removed
-      const mockTokens = [
-        { symbol: "SOL", name: "Solana", address: "sol", logoURI: "/sol-logo.png" },
-        { symbol: "MEME", name: "Memecoin", address: "meme", logoURI: "/meme-logo.png" },
-      ];
-      setTokens(mockTokens);
-    };
-
-    if (isOpen) {
-      loadTokens();
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
+    if (!tokens) return;
+    
     const filtered = tokens.filter(
       (token) =>
-        token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        token.name.toLowerCase().includes(searchQuery.toLowerCase())
+        (token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        token.symbol !== currentToken // Exclude current token from list
     );
     setFilteredTokens(filtered);
-  }, [searchQuery, tokens]);
+  }, [searchQuery, tokens, currentToken]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Select Token</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <Input
-            placeholder="Search tokens..."
+            placeholder="Search tokens by name or symbol..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
           />
-          <ScrollArea className="h-[300px]">
-            {filteredTokens.map((token) => (
-              <button
-                key={token.address}
-                className="w-full flex items-center p-3 hover:bg-accent rounded-lg transition-colors"
-                onClick={() => {
-                  onSelect(token);
-                  onClose();
-                }}
-              >
-                {token.logoURI && (
-                  <img
-                    src={token.logoURI}
-                    alt={token.name}
-                    className="w-8 h-8 mr-3 rounded-full"
-                  />
-                )}
-                <div className="text-left">
-                  <p className="font-medium">{token.symbol}</p>
-                  <p className="text-sm text-muted-foreground">{token.name}</p>
-                </div>
-              </button>
-            ))}
-          </ScrollArea>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <ScrollArea className="h-[300px] pr-4">
+              <div className="space-y-2">
+                {filteredTokens.map((token) => (
+                  <button
+                    key={token.address}
+                    className="w-full flex items-center p-3 hover:bg-accent rounded-lg transition-colors"
+                    onClick={() => {
+                      onSelect(token);
+                      onClose();
+                    }}
+                  >
+                    {token.logoURI && (
+                      <img
+                        src={token.logoURI}
+                        alt={token.name}
+                        className="w-8 h-8 mr-3 rounded-full"
+                        onError={(e) => {
+                          // Fallback for failed image loads
+                          (e.target as HTMLImageElement).src = "/placeholder.svg";
+                        }}
+                      />
+                    )}
+                    <div className="text-left flex-1">
+                      <p className="font-medium">{token.symbol}</p>
+                      <p className="text-sm text-muted-foreground">{token.name}</p>
+                    </div>
+                    {token.address && (
+                      <span className="text-xs text-muted-foreground truncate max-w-[100px]">
+                        {`${token.address.slice(0, 4)}...${token.address.slice(-4)}`}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
         </div>
       </DialogContent>
     </Dialog>
