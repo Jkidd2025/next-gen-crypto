@@ -1,6 +1,5 @@
 import { toast } from '@/hooks/use-toast';
 import { ErrorType, ErrorDetails, SwapErrorCode, SwapError } from './types';
-import { captureException } from '../monitoring/sentry';
 import { logError } from '../logging/logger';
 import { trackEvent } from '../analytics/posthog';
 import { sendAlert } from '../alerting/alerts';
@@ -20,13 +19,6 @@ class ErrorHandler {
     if (this.errors.length > this.maxErrors) {
       this.errors = this.errors.slice(-this.maxErrors);
     }
-
-    // Log error to monitoring services
-    captureException(new Error(error.message), {
-      type: error.type,
-      code: error.code,
-      details: error.details
-    });
 
     // Log error to logging system
     logError(new Error(error.message), {

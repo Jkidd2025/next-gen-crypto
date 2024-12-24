@@ -1,6 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
 import { logError } from '../logging/logger';
-import { captureException } from '../monitoring/sentry';
 
 export interface Alert {
   type: 'error' | 'warning' | 'info';
@@ -10,11 +9,6 @@ export interface Alert {
 
 export const sendAlert = async (alert: Alert) => {
   try {
-    // Log to our monitoring system
-    if (alert.type === 'error') {
-      captureException(new Error(alert.message), alert.metadata);
-    }
-
     // Log to our logging system
     logError(new Error(alert.message), alert.metadata);
 
@@ -32,7 +26,6 @@ export const sendAlert = async (alert: Alert) => {
 
   } catch (error) {
     console.error('Failed to send alert:', error);
-    captureException(error as Error);
   }
 };
 
@@ -70,6 +63,5 @@ export const checkSystemHealth = async () => {
 
   } catch (error) {
     console.error('Health check failed:', error);
-    captureException(error as Error);
   }
 };
