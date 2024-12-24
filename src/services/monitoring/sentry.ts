@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { BrowserTracing } from "@sentry/tracing";
 import { BaseError } from "@/types/errors";
 
 export const initSentry = () => {
@@ -6,7 +7,7 @@ export const initSentry = () => {
     Sentry.init({
       dsn: process.env.VITE_SENTRY_DSN,
       integrations: [
-        new Sentry.BrowserTracing() as Sentry.Integration
+        new BrowserTracing()
       ],
       tracesSampleRate: 1.0,
       beforeSend(event) {
