@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
@@ -10,6 +8,7 @@ import { TokenSelector } from "./TokenSelector";
 import { RouteVisualizer } from "./RouteVisualizer";
 import { SwapFormHeader } from "./SwapFormHeader";
 import { SwapFormActions } from "./SwapFormActions";
+import { SwapErrorDisplay } from "./SwapErrorDisplay";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { useSwapErrors } from "@/hooks/swap/useSwapErrors";
@@ -21,15 +20,10 @@ interface SwapFormProps {
   isWalletConnected: boolean;
 }
 
-interface SelectedTokens {
-  from: TokenSymbol;
-  to: TokenSymbol;
-}
-
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const { isOnline } = useNetworkStatus();
-  const { error, setError, clearError, getErrorTitle } = useSwapErrors();
+  const { error, setError, clearError } = useSwapErrors();
   
   const {
     fromAmount,
@@ -78,10 +72,10 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    setSelectedTokens((prev: SelectedTokens) => ({
-      ...prev,
+    setSelectedTokens({
+      ...selectedTokens,
       from: tokenSymbol,
-    }));
+    });
     setIsTokenSelectorOpen(false);
   };
 
@@ -91,24 +85,8 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
   return (
     <div className="space-y-6">
-      {!isOnline && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Network Error</AlertTitle>
-          <AlertDescription>
-            You are currently offline. Some features may not work properly.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {error && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>{getErrorTitle(error.type)}</AlertTitle>
-          <AlertDescription>{error.message}</AlertDescription>
-        </Alert>
-      )}
-
+      <SwapErrorDisplay error={error} isOnline={isOnline} />
+      
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
       <SwapInput
