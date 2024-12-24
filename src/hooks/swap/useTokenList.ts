@@ -26,6 +26,6 @@ export const useTokenList = () => {
       return data.filter((token: TokenInfo) => token.symbol && token.address);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 60 * 60 * 1000, // 1 hour (renamed from cacheTime in React Query v5)
   });
 };

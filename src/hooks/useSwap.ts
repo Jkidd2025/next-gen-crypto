@@ -4,9 +4,19 @@ import { useSwapState } from "./swap/useSwapState";
 import { useAuth } from "@/components/AuthProvider";
 import { useQuery } from "@tanstack/react-query";
 
+export interface SwapRoute {
+  marketInfos: {
+    amm: {
+      label: string;
+    };
+    inputMint: string;
+    outputMint: string;
+  }[];
+}
+
 export const useSwap = () => {
   const { user } = useAuth();
-  const { isRefreshing, calculateToAmount, calculateMinimumReceived } = useSwapCalculations();
+  const { isRefreshing, calculateToAmount, calculateMinimumReceived, priceImpact, route } = useSwapCalculations();
   const { handleSwap: executeSwap, gasFee } = useSwapTransactions();
   const {
     fromAmount,
@@ -70,5 +80,7 @@ export const useSwap = () => {
     refreshPrice,
     handleQuickAmountSelect,
     setSlippage,
+    priceImpact,
+    route,
   };
 };

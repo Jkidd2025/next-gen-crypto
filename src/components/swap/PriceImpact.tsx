@@ -10,7 +10,6 @@ export const PriceImpact = ({ priceImpact }: PriceImpactProps) => {
 
   const getAlertVariant = () => {
     if (priceImpact >= 5) return "destructive";
-    if (priceImpact >= 3) return "warning";
     return "default";
   };
 
