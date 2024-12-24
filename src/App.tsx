@@ -19,8 +19,8 @@ import { AuthProvider } from "./components/AuthProvider";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "./components/ui/sonner";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { SolanaWalletProvider } from "./providers/WalletProvider";
 
-// Loading component with visible feedback
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
     <div className="text-center">
@@ -64,41 +64,43 @@ function App() {
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <Router>
         <AuthProvider>
-          <Suspense fallback={<LoadingSpinner />}>
-            <div className="min-h-screen bg-background">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/signup-success" element={<SignupSuccess />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-                <Route
-                  path="/dashboard/*"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/swap"
-                  element={
-                    <ProtectedRoute>
-                      <TokenSwap />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/getting-started" element={<GettingStarted />} />
-                <Route path="/trading-basics" element={<TradingBasics />} />
-                <Route path="/wallet-management" element={<WalletManagement />} />
-                <Route path="/security-best-practices" element={<SecurityBestPractices />} />
-              </Routes>
-              <Toaster />
-              <SonnerToaster />
-            </div>
-          </Suspense>
+          <SolanaWalletProvider>
+            <Suspense fallback={<LoadingSpinner />}>
+              <div className="min-h-screen bg-background">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/signup-success" element={<SignupSuccess />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route
+                    path="/dashboard/*"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/swap"
+                    element={
+                      <ProtectedRoute>
+                        <TokenSwap />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/getting-started" element={<GettingStarted />} />
+                  <Route path="/trading-basics" element={<TradingBasics />} />
+                  <Route path="/wallet-management" element={<WalletManagement />} />
+                  <Route path="/security-best-practices" element={<SecurityBestPractices />} />
+                </Routes>
+                <Toaster />
+                <SonnerToaster />
+              </div>
+            </Suspense>
+          </SolanaWalletProvider>
         </AuthProvider>
       </Router>
     </ErrorBoundary>
