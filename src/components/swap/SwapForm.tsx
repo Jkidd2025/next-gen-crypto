@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AlertTriangle, WifiOff, Wifi, WifiLow } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
+import { LoadingIndicator } from "@/components/ui/LoadingIndicator";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
@@ -113,15 +113,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         </Alert>
       )}
 
-      {isLoading && (
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>{stage}</span>
-            <span>{progress}%</span>
-          </div>
-          <Progress value={progress} className="w-full" />
-        </div>
-      )}
+      {isLoading && <LoadingIndicator progress={progress} stage={stage} />}
 
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
