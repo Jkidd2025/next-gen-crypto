@@ -1,14 +1,21 @@
-import { Connection, ConnectionConfig } from '@solana/web3.js';
+import { Connection, ConnectionConfig, Commitment } from '@solana/web3.js';
 import { RPC_CONFIG, rateLimiter } from '@/config/rpc';
 import { logError } from '@/services/logging/logger';
 import { ConnectionPool } from './connection/ConnectionPool';
 import { HealthMonitor } from './connection/health';
 import { logConnectionMetrics } from './connection/metrics';
 
+interface ConnectionError extends Error {
+  code?: string;
+  statusCode?: number;
+}
+
 export class ConnectionProvider {
   private static instance: Connection | null = null;
   private static currentEndpointIndex = 0;
   private static retryCount = 0;
+  private static readonly DEFAULT_COMMITMENT: Commitment = 
+    (import.meta.env.VITE_COMMITMENT_LEVEL as Commitment) || 'confirmed';
 
   static async getConnection(): Promise<Connection> {
     await HealthMonitor.initializeHealthCheck();
@@ -20,10 +27,19 @@ export class ConnectionProvider {
   }
 
   private static async getHealthyConnection(): Promise<Connection | null> {
-    for (const [endpoint, pool] of ConnectionPool.getAllConnections().entries()) {
+    const connections = ConnectionPool.getAllConnections();
+    for (const [endpoint, pool] of connections.entries()) {
       if (pool.health) {
-        await logConnectionMetrics(endpoint, null, true);
-        return pool.connection;
+        try {
+          // Verify connection is still responsive
+          await pool.connection.getRecentBlockhash();
+          await logConnectionMetrics(endpoint, null, true);
+          return pool.connection;
+        } catch (error) {
+          console.warn(`Healthy connection check failed for ${endpoint}:`, error);
+          ConnectionPool.updateHealth(endpoint, false);
+          continue;
+        }
       }
     }
     return null;
@@ -41,8 +57,12 @@ export class ConnectionProvider {
 
       try {
         const connectionConfig: ConnectionConfig = {
-          commitment: 'confirmed',
+          commitment: this.DEFAULT_COMMITMENT,
           confirmTransactionInitialTimeout: RPC_CONFIG.CONNECTION.timeout,
+          disableRetryOnRateLimit: false,
+          httpHeaders: endpoint.apiKey ? {
+            'x-api-key': endpoint.apiKey
+          } : undefined
         };
 
         const connection = new Connection(
@@ -50,34 +70,49 @@ export class ConnectionProvider {
           connectionConfig
         );
 
+        // Test connection
         const startTime = Date.now();
-        await connection.getRecentBlockhash();
-        const latency = Date.now() - startTime;
+        const { blockhash } = await connection.getRecentBlockhash();
+        if (!blockhash) {
+          throw new Error('Invalid blockhash received');
+        }
 
+        const latency = Date.now() - startTime;
         await ConnectionPool.addConnection(endpoint.url, connection, latency);
         
         this.instance = connection;
         this.currentEndpointIndex = endpointIndex;
         this.retryCount = 0;
+
+        console.log(`Successfully connected to ${endpoint.url}`);
         return connection;
 
       } catch (error) {
-        console.warn(`Failed to connect to ${endpoint.url}:`, error);
+        const connError = error as ConnectionError;
+        console.warn(`Failed to connect to ${endpoint.url}:`, {
+          error: connError.message,
+          code: connError.code,
+          statusCode: connError.statusCode
+        });
+
         await logConnectionMetrics(
           endpoint.url, 
           null, 
           false, 
-          error instanceof Error ? error.message : 'Unknown error'
+          connError.message
         );
-        continue;
+
+        // Handle specific error cases
+        if (connError.code === 'ECONNREFUSED' || connError.statusCode === 429) {
+          continue; // Try next endpoint immediately
+        }
       }
     }
 
     if (this.retryCount < RPC_CONFIG.CONNECTION.maxRetries) {
       this.retryCount++;
-      await new Promise(resolve => 
-        setTimeout(resolve, RPC_CONFIG.CONNECTION.retryDelay * this.retryCount)
-      );
+      const delay = RPC_CONFIG.CONNECTION.retryDelay * Math.pow(2, this.retryCount - 1);
+      await new Promise(resolve => setTimeout(resolve, delay));
       return this.establishConnection();
     }
 
