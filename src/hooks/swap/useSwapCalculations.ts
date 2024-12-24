@@ -1,11 +1,14 @@
 import { useState, useCallback, useRef } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { TokenInfo } from './useTokenList';
+import { SwapErrorTypes, createSwapError } from '@/types/errors';
+import { useToast } from '@/hooks/use-toast';
 
 const JUPITER_API_V6 = 'https://quote-api.jup.ag/v6';
 const QUOTE_CACHE_DURATION = 10000; // 10 seconds
 const RATE_LIMIT_WINDOW = 1000; // 1 second
 const MAX_REQUESTS_PER_WINDOW = 10;
+const MAX_RETRIES = 3;
 
 interface MarketInfo {
   amm: {
@@ -35,6 +38,7 @@ export const useSwapCalculations = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentQuote, setCurrentQuote] = useState<QuoteResponse | null>(null);
   const { publicKey } = useWallet();
+  const { toast } = useToast();
 
   // Cache management
   const quoteCache = useRef<Map<string, CachedQuote>>(new Map());
@@ -73,107 +77,203 @@ export const useSwapCalculations = () => {
     return `${inputMint}-${outputMint}-${amount}-${slippageBps}`;
   };
 
+  const validateQuoteResponse = (quote: QuoteResponse) => {
+    if (!quote.data) {
+      throw createSwapError(
+        SwapErrorTypes.API_ERROR,
+        'Invalid quote response: missing data'
+      );
+    }
+    if (!quote.data.outAmount || quote.data.outAmount === '0') {
+      throw createSwapError(
+        SwapErrorTypes.API_ERROR,
+        'Invalid quote response: invalid output amount'
+      );
+    }
+    if (!quote.data.marketInfos || quote.data.marketInfos.length === 0) {
+      throw createSwapError(
+        SwapErrorTypes.API_ERROR,
+        'Invalid quote response: missing market info'
+      );
+    }
+  };
+
   const getQuote = async (
     inputMint: string,
     outputMint: string,
     amount: number,
     slippageBps: number = 100
   ): Promise<QuoteResponse> => {
-    await checkRateLimit();
-    
-    const cacheKey = getCacheKey(inputMint, outputMint, amount, slippageBps);
-    const cachedQuote = quoteCache.current.get(cacheKey);
-    
-    if (cachedQuote && Date.now() - cachedQuote.timestamp < QUOTE_CACHE_DURATION) {
-      return cachedQuote.quote;
+    if (!amount || amount <= 0) {
+      throw createSwapError(
+        SwapErrorTypes.INVALID_AMOUNT,
+        'Amount must be greater than 0'
+      );
     }
 
-    cleanCache();
+    if (!inputMint || !outputMint) {
+      throw createSwapError(
+        SwapErrorTypes.VALIDATION,
+        'Invalid input or output token'
+      );
+    }
 
-    const params = new URLSearchParams({
-      inputMint,
-      outputMint,
-      amount: (amount * 1e9).toString(), // Convert to lamports
-      slippageBps: slippageBps.toString(),
-    });
-
-    // Add retries with exponential backoff
-    for (let i = 0; i < 3; i++) {
-      try {
-        const response = await fetch(`${JUPITER_API_V6}/quote?${params}`);
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('Quote fetch failed:', errorData);
-          throw new Error('Failed to get quote');
-        }
-        
-        const data = (await response.json()) as QuoteResponse;
-        
-        // Cache the result
-        quoteCache.current.set(cacheKey, {
-          quote: data,
-          timestamp: Date.now(),
-          key: cacheKey,
-        });
-        
-        return data;
-      } catch (error) {
-        if (i === 2) throw error;
-        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
+    try {
+      await checkRateLimit();
+      
+      const cacheKey = getCacheKey(inputMint, outputMint, amount, slippageBps);
+      const cachedQuote = quoteCache.current.get(cacheKey);
+      
+      if (cachedQuote && Date.now() - cachedQuote.timestamp < QUOTE_CACHE_DURATION) {
+        return cachedQuote.quote;
       }
-    }
 
-    throw new Error('Failed to get quote after retries');
+      cleanCache();
+
+      const params = new URLSearchParams({
+        inputMint,
+        outputMint,
+        amount: (amount * 1e9).toString(),
+        slippageBps: slippageBps.toString(),
+      });
+
+      for (let i = 0; i < MAX_RETRIES; i++) {
+        try {
+          const response = await fetch(`${JUPITER_API_V6}/quote?${params}`);
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+            throw createSwapError(
+              SwapErrorTypes.API_ERROR,
+              `Quote API error: ${errorData.message}`
+            );
+          }
+
+          const quote: QuoteResponse = await response.json();
+          validateQuoteResponse(quote);
+
+          if (quote.data.priceImpactPct > 5) {
+            throw createSwapError(
+              SwapErrorTypes.PRICE_IMPACT_HIGH,
+              `Price impact is too high: ${quote.data.priceImpactPct.toFixed(2)}%`
+            );
+          }
+
+          quoteCache.current.set(cacheKey, {
+            quote,
+            timestamp: Date.now(),
+            key: cacheKey
+          });
+
+          setCurrentQuote(quote);
+          return quote;
+        } catch (error) {
+          if (i === MAX_RETRIES - 1) {
+            console.error('Quote fetch failed after retries:', error);
+            throw error;
+          }
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        }
+      }
+
+      throw createSwapError(
+        SwapErrorTypes.API_ERROR,
+        'Failed to get quote after maximum retries'
+      );
+    } catch (error) {
+      if (error.type && error.message) {
+        throw error; // Re-throw if it's already a SwapError
+      }
+      if (error instanceof TypeError) {
+        throw createSwapError(
+          SwapErrorTypes.NETWORK_ERROR,
+          'Network connection error'
+        );
+      }
+      throw createSwapError(
+        SwapErrorTypes.UNKNOWN,
+        error.message || 'An unknown error occurred'
+      );
+    }
   };
 
   const calculateToAmount = async (
-    inputAmount: string,
-    inputToken: string,
-    outputToken: string
+    fromAmount: string,
+    fromToken: string,
+    toToken: string
   ): Promise<string> => {
     try {
       setIsRefreshing(true);
+      const amount = parseFloat(fromAmount);
       
-      if (!inputAmount || parseFloat(inputAmount) === 0) {
-        setCurrentQuote(null);
-        return "0";
+      if (isNaN(amount)) {
+        throw createSwapError(
+          SwapErrorTypes.INVALID_AMOUNT,
+          'Invalid amount format'
+        );
       }
 
-      const quote = await getQuote(
-        inputToken,
-        outputToken,
-        parseFloat(inputAmount),
-        100
-      );
-
-      setCurrentQuote(quote);
-
-      if (!quote.data) {
-        return "0";
+      if (amount <= 0) {
+        return '0';
       }
 
-      // Convert from lamports back to SOL
-      return (Number(quote.data.outAmount) / 1e9).toString();
+      const quote = await getQuote(fromToken, toToken, amount);
+      return (parseFloat(quote.data.outAmount) / 1e9).toString();
     } catch (error) {
       console.error('Error calculating amount:', error);
-      setCurrentQuote(null);
-      return "0";
+      toast({
+        title: error.type || 'Error',
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
     } finally {
       setIsRefreshing(false);
     }
   };
 
-  const calculateMinimumReceived = useCallback((amount: string, slippage: number): string => {
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount)) return "0";
-    return (parsedAmount * (1 - slippage / 100)).toFixed(9);
-  }, []);
+  const calculateMinimumReceived = useCallback((): string => {
+    if (!currentQuote?.data?.outAmount) return '0';
+    const outAmount = parseFloat(currentQuote.data.outAmount) / 1e9;
+    return outAmount.toString();
+  }, [currentQuote]);
+
+  const getPriceImpact = useCallback((): string => {
+    if (!currentQuote?.data?.priceImpactPct) return '0';
+    return currentQuote.data.priceImpactPct.toString();
+  }, [currentQuote]);
+
+  const getRoute = useCallback((): MarketInfo[] => {
+    return currentQuote?.data?.marketInfos || [];
+  }, [currentQuote]);
+
+  const refreshPrice = useCallback(async () => {
+    if (!currentQuote) return;
+    setIsRefreshing(true);
+    try {
+      await getQuote(
+        currentQuote.data.marketInfos[0].inputMint,
+        currentQuote.data.marketInfos[0].outputMint,
+        parseFloat(currentQuote.data.outAmount) / 1e9
+      );
+    } catch (error) {
+      console.error('Error refreshing price:', error);
+      toast({
+        title: error.type || 'Error',
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [currentQuote, toast]);
 
   return {
     isRefreshing,
     calculateToAmount,
     calculateMinimumReceived,
-    priceImpact: currentQuote?.data?.priceImpactPct.toString() || "0",
-    route: currentQuote?.data?.marketInfos || [],
+    refreshPrice,
+    priceImpact: getPriceImpact(),
+    route: getRoute(),
   };
 };
