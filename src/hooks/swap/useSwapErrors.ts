@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-// Define error types as a const object
 export const SwapErrorType = {
   INSUFFICIENT_BALANCE: 'INSUFFICIENT_BALANCE',
   SLIPPAGE_EXCEEDED: 'SLIPPAGE_EXCEEDED',
@@ -12,21 +11,38 @@ export const SwapErrorType = {
   UNKNOWN: 'UNKNOWN'
 } as const;
 
-// Create a type from the object values
-export type SwapErrorType = typeof SwapErrorType[keyof typeof SwapErrorType];
+export type SwapErrorType = (typeof SwapErrorType)[keyof typeof SwapErrorType];
 
 export interface SwapError {
   type: SwapErrorType;
   message: string;
   details?: any;
   timestamp: number;
-  recoverable?: boolean;
 }
 
 interface SwapErrorState {
   error: SwapError | null;
   history: SwapError[];
 }
+
+export const getErrorTitle = (type: SwapErrorType): string => {
+  switch (type) {
+    case SwapErrorType.INSUFFICIENT_BALANCE:
+      return 'Insufficient Balance';
+    case SwapErrorType.SLIPPAGE_EXCEEDED:
+      return 'Slippage Exceeded';
+    case SwapErrorType.PRICE_IMPACT_HIGH:
+      return 'High Price Impact';
+    case SwapErrorType.NETWORK_ERROR:
+      return 'Network Error';
+    case SwapErrorType.API_ERROR:
+      return 'Service Error';
+    case SwapErrorType.VALIDATION:
+      return 'Validation Error';
+    case SwapErrorType.UNKNOWN:
+      return 'Error';
+  }
+};
 
 export const useSwapErrors = () => {
   const [state, setState] = useState<SwapErrorState>({
@@ -36,11 +52,10 @@ export const useSwapErrors = () => {
   
   const { toast } = useToast();
 
-  const setError = useCallback((error: Omit<SwapError, 'timestamp' | 'recoverable'>) => {
+  const setError = useCallback((error: Omit<SwapError, 'timestamp'>) => {
     const newError: SwapError = {
       ...error,
       timestamp: Date.now(),
-      recoverable: false,
     };
 
     setState(prev => ({
@@ -68,24 +83,4 @@ export const useSwapErrors = () => {
     setError,
     clearError,
   };
-};
-
-// Helper function to get error titles
-export const getErrorTitle = (type: SwapErrorType): string => {
-  switch (type) {
-    case SwapErrorType.INSUFFICIENT_BALANCE:
-      return 'Insufficient Balance';
-    case SwapErrorType.SLIPPAGE_EXCEEDED:
-      return 'Slippage Exceeded';
-    case SwapErrorType.PRICE_IMPACT_HIGH:
-      return 'High Price Impact';
-    case SwapErrorType.NETWORK_ERROR:
-      return 'Network Error';
-    case SwapErrorType.API_ERROR:
-      return 'Service Error';
-    case SwapErrorType.VALIDATION:
-      return 'Validation Error';
-    case SwapErrorType.UNKNOWN:
-      return 'Error';
-  }
 };
