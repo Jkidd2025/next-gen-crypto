@@ -6,10 +6,9 @@ export interface Alert {
   type: 'error' | 'warning' | 'info';
   message: string;
   metadata?: Record<string, any>;
-  timestamp: Date;
 }
 
-export const sendAlert = async (alert: Omit<Alert, 'timestamp'>) => {
+export const sendAlert = async (alert: Alert) => {
   try {
     // Log to our monitoring system
     if (alert.type === 'error') {
@@ -22,12 +21,12 @@ export const sendAlert = async (alert: Omit<Alert, 'timestamp'>) => {
     // Store in Supabase for historical tracking
     const { error } = await supabase
       .from('system_alerts')
-      .insert([{
+      .insert({
         type: alert.type,
         message: alert.message,
         metadata: alert.metadata,
         created_at: new Date().toISOString()
-      }]);
+      });
 
     if (error) throw error;
 

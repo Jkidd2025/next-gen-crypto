@@ -491,6 +491,36 @@ export type Database = {
           },
         ]
       }
+      system_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          resolved_at: string | null
+          resolved_by: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       token_counsel_members: {
         Row: {
           contact_email: string | null
