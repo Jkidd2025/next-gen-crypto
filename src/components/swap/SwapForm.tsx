@@ -17,28 +17,9 @@ interface SwapFormProps {
   isWalletConnected: boolean;
 }
 
-const TokenPrice = ({ symbol }: { symbol: string }) => {
-  const { data: tokenPrices } = useTokenPrices([symbol]);
-  const price = tokenPrices?.[symbol]?.price;
-  const priceChange = tokenPrices?.[symbol]?.priceChange24h;
-
-  if (!price) return null;
-
-  return (
-    <div className="text-sm text-muted-foreground">
-      ${price.toFixed(2)}
-      <span className={priceChange >= 0 ? "text-green-500" : "text-red-500"}>
-        {priceChange > 0 ? "+" : ""}
-        {priceChange?.toFixed(2)}%
-      </span>
-    </div>
-  );
-};
-
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const { data: tokenList } = useTokenList();
-  
   const {
     fromAmount,
     toAmount,
@@ -58,6 +39,8 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     priceImpact,
     route,
   } = useSwapForm();
+
+  const { data: tokenPrices } = useTokenPrices([selectedTokens.from, selectedTokens.to]);
 
   const tokenMap = useMemo(() => {
     if (!tokenList) return {};
@@ -81,8 +64,16 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
       <div className="flex justify-between items-center mb-4">
-        <TokenPrice symbol={selectedTokens.from} />
-        <TokenPrice symbol={selectedTokens.to} />
+        {tokenPrices && tokenPrices[selectedTokens.from] && (
+          <div className="text-sm text-muted-foreground">
+            ${tokenPrices[selectedTokens.from].price.toFixed(2)}
+          </div>
+        )}
+        {tokenPrices && tokenPrices[selectedTokens.to] && (
+          <div className="text-sm text-muted-foreground">
+            ${tokenPrices[selectedTokens.to].price.toFixed(2)}
+          </div>
+        )}
       </div>
 
       <SwapInputsSection
@@ -98,7 +89,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={priceImpact} />
+      <PriceImpact priceImpact={priceImpact.toString()} />
       
       {route && <RouteVisualizer route={route} tokenMap={tokenMap} />}
 
