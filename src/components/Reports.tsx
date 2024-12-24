@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, ArrowUpRight, ArrowDownRight, History } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownRight, History, LineChart, Coins } from "lucide-react";
 import { TransactionsTable } from "./analytics/TransactionsTable";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/use-toast";
 
 interface WalletStats {
   balance: number;
@@ -21,49 +25,94 @@ export const Reports = () => {
     balance: 0,
     solPrice: 0
   });
+  const { toast } = useToast();
 
-  // Mock transaction data for demonstration
-  const [transactionCounts] = useState<TransactionCounts>({
-    total: 156,
-    buys: 89,
-    sells: 67
+  const { data: transactionCounts, isLoading: isLoadingCounts } = useQuery({
+    queryKey: ['transaction-counts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('swap_transactions')
+        .select('type, count(*)')
+        .group_by('type');
+
+      if (error) {
+        toast({
+          title: "Error loading transaction counts",
+          description: error.message,
+          variant: "destructive"
+        });
+        return {
+          total: 0,
+          buys: 0,
+          sells: 0
+        };
+      }
+
+      const counts = {
+        total: 0,
+        buys: 0,
+        sells: 0
+      };
+
+      data?.forEach(item => {
+        counts.total += item.count;
+        if (item.type === 'buy') counts.buys = item.count;
+        if (item.type === 'sell') counts.sells = item.count;
+      });
+
+      return counts;
+    }
   });
 
-  const [recentTransactions] = useState([
-    {
-      hash: "0x1234...5678",
-      type: "Buy",
-      amount: 1.5,
-      timestamp: "2024-03-20 14:30"
-    },
-    {
-      hash: "0x8765...4321",
-      type: "Sell",
-      amount: 0.5,
-      timestamp: "2024-03-20 13:15"
-    },
-    {
-      hash: "0x9876...1234",
-      type: "Buy",
-      amount: 2.0,
-      timestamp: "2024-03-20 12:00"
+  const { data: recentTransactions, isLoading: isLoadingTransactions } = useQuery({
+    queryKey: ['recent-transactions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('swap_transactions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) {
+        toast({
+          title: "Error loading transactions",
+          description: error.message,
+          variant: "destructive"
+        });
+        return [];
+      }
+
+      return data.map(tx => ({
+        hash: tx.id,
+        type: tx.from_token.includes('SOL') ? 'Sell' : 'Buy',
+        amount: tx.from_amount,
+        timestamp: tx.created_at
+      }));
     }
-  ]);
+  });
 
   const connectWallet = async () => {
     try {
       setIsWalletConnected(true);
-      console.log("Wallet connected");
+      toast({
+        title: "Wallet connected",
+        description: "Your wallet has been successfully connected."
+      });
     } catch (error) {
       console.error("Failed to connect wallet:", error);
+      toast({
+        title: "Connection failed",
+        description: "Failed to connect wallet. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
   const usdBalance = walletStats.balance * walletStats.solPrice;
 
   return (
-    <div className="space-y-6">      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-6 p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Balance in USD</CardTitle>
@@ -91,7 +140,7 @@ export const Reports = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Balance in SOL</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <Coins className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -103,42 +152,77 @@ export const Reports = () => {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Portfolio Value</CardTitle>
+            <LineChart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingCounts ? (
+              <Skeleton className="h-8 w-full" />
+            ) : (
+              <div className="text-2xl font-bold">
+                ${(usdBalance + 1000).toLocaleString()}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* My Statistics Section */}
       <Card>
         <CardHeader>
-          <CardTitle>My Statistics</CardTitle>
+          <CardTitle>Transaction Statistics</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-4">
-              <History className="h-8 w-8 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Transactions</p>
-                <p className="text-2xl font-bold">{transactionCounts.total}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ArrowUpRight className="h-8 w-8 text-green-500" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Buy Transactions</p>
-                <p className="text-2xl font-bold">{transactionCounts.buys}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ArrowDownRight className="h-8 w-8 text-red-500" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Sell Transactions</p>
-                <p className="text-2xl font-bold">{transactionCounts.sells}</p>
-              </div>
-            </div>
+            {isLoadingCounts ? (
+              <>
+                <Skeleton className="h-24" />
+                <Skeleton className="h-24" />
+                <Skeleton className="h-24" />
+              </>
+            ) : (
+              <>
+                <div className="flex items-center space-x-4">
+                  <History className="h-8 w-8 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Transactions</p>
+                    <p className="text-2xl font-bold">{transactionCounts?.total || 0}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <ArrowUpRight className="h-8 w-8 text-green-500" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Buy Transactions</p>
+                    <p className="text-2xl font-bold">{transactionCounts?.buys || 0}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <ArrowDownRight className="h-8 w-8 text-red-500" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Sell Transactions</p>
+                    <p className="text-2xl font-bold">{transactionCounts?.sells || 0}</p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Latest Transactions Section */}
-      <TransactionsTable transactions={recentTransactions} />
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Transactions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoadingTransactions ? (
+            <Skeleton className="h-[200px]" />
+          ) : (
+            <TransactionsTable transactions={recentTransactions || []} />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
