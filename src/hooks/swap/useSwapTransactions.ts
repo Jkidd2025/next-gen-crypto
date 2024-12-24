@@ -1,37 +1,50 @@
-import { Jupiter } from '@jup-ag/core';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+const JUPITER_API_V6 = 'https://quote-api.jup.ag/v6';
 
 export const useSwapTransactions = () => {
   const { publicKey, signTransaction } = useWallet();
   const { toast } = useToast();
   const connection = new Connection('https://api.mainnet-beta.solana.com');
 
-  const setupJupiter = async () => {
-    if (!publicKey) throw new Error('Wallet not connected');
-    
-    return await Jupiter.load({
-      connection,
-      cluster: 'mainnet-beta',
-      user: publicKey
+  const getQuote = async (
+    inputMint: string,
+    outputMint: string,
+    amount: number,
+    slippageBps: number
+  ) => {
+    const params = new URLSearchParams({
+      inputMint,
+      outputMint,
+      amount: (amount * 1e9).toString(),
+      slippageBps: slippageBps.toString(),
     });
+
+    const response = await fetch(`${JUPITER_API_V6}/quote?${params}`);
+    if (!response.ok) {
+      throw new Error('Failed to get quote');
+    }
+    return await response.json();
   };
 
-  const getTokenDecimals = async (mintAddress: string): Promise<number> => {
-    try {
-      const { data: tokens } = await supabase
-        .from('tokens')
-        .select('decimals')
-        .eq('mint_address', mintAddress)
-        .single();
-      
-      return tokens?.decimals || 9; // Default to 9 (SOL) if not found
-    } catch (error) {
-      console.error('Error fetching token decimals:', error);
-      return 9; // Default to 9 (SOL) decimals
+  const getSwapTransaction = async (quoteResponse: any) => {
+    const response = await fetch(`${JUPITER_API_V6}/swap`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        quoteResponse,
+        userPublicKey: publicKey?.toString(),
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get swap transaction');
     }
+    return await response.json();
   };
 
   const handleSwap = async (
@@ -47,30 +60,34 @@ export const useSwapTransactions = () => {
         throw new Error('Wallet not connected');
       }
 
-      const jupiter = await setupJupiter();
-      const inputDecimals = await getTokenDecimals(fromToken);
-      
-      // Get routes
-      const routes = await jupiter.computeRoutes({
-        inputMint: new PublicKey(fromToken),
-        outputMint: new PublicKey(toToken),
-        amount: parseFloat(fromAmount) * Math.pow(10, inputDecimals),
-        slippageBps: Math.floor(slippage * 100),
-      });
+      // Get quote
+      const quote = await getQuote(
+        fromToken,
+        toToken,
+        parseFloat(fromAmount),
+        Math.floor(slippage * 100)
+      );
 
-      if (!routes.routesInfos.length) {
-        throw new Error('No routes found for swap');
+      if (!quote.data) {
+        throw new Error('No route found for swap');
       }
 
-      // Execute swap with best route
-      const { execute } = await jupiter.exchange({
-        routeInfo: routes.routesInfos[0],
-      });
-
-      const swapResult = await execute();
-
-      if ('error' in swapResult) {
-        throw new Error(swapResult.error);
+      // Get swap transaction
+      const swapResult = await getSwapTransaction(quote);
+      
+      // Deserialize and sign transaction
+      const swapTransaction = Transaction.from(
+        Buffer.from(swapResult.swapTransaction, 'base64')
+      );
+      
+      const signedTransaction = await signTransaction(swapTransaction);
+      const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+      
+      // Wait for confirmation
+      const confirmation = await connection.confirmTransaction(signature, 'confirmed');
+      
+      if (confirmation.value.err) {
+        throw new Error('Transaction failed');
       }
 
       // Store the transaction in Supabase
@@ -82,12 +99,8 @@ export const useSwapTransactions = () => {
         to_amount: parseFloat(toAmount),
         slippage: slippage,
         status: "completed",
-        gas_fee: 0, // Jupiter handles fees dynamically
-        swap_route: routes.routesInfos[0].marketInfos.map(m => ({
-          label: m.label,
-          inputMint: m.inputMint.toString(),
-          outputMint: m.outputMint.toString()
-        }))
+        gas_fee: 0,
+        swap_route: quote.data.routeMap
       });
 
       toast({
@@ -95,7 +108,7 @@ export const useSwapTransactions = () => {
         description: `Swapped ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
       });
 
-      return swapResult.txid;
+      return signature;
     } catch (error) {
       console.error('Error executing swap:', error);
       toast({
