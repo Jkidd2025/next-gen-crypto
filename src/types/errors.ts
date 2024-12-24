@@ -15,9 +15,8 @@ export enum SwapErrorTypes {
   API_ERROR = 'API_ERROR',
   VALIDATION = 'VALIDATION',
   SIMULATION_FAILED = 'SIMULATION_FAILED',
-  INVALID_AMOUNT = 'INVALID_AMOUNT',
   WALLET_NOT_CONNECTED = 'WALLET_NOT_CONNECTED',
-  CIRCUIT_BREAKER = 'CIRCUIT_BREAKER',
+  WALLET_NOT_SELECTED = 'WALLET_NOT_SELECTED',
   UNKNOWN = 'UNKNOWN'
 }
 
@@ -42,7 +41,7 @@ export class BaseError extends Error {
 export class SwapError extends BaseError {
   constructor(type: SwapErrorTypes, message: string, details?: any) {
     const errorType = mapSwapErrorTypeToBaseErrorType(type);
-    super(errorType, message, type, type !== SwapErrorTypes.UNKNOWN, details);
+    super(errorType, message, type, isRecoverableError(type), details);
   }
 }
 
@@ -55,10 +54,18 @@ function mapSwapErrorTypeToBaseErrorType(swapErrorType: SwapErrorTypes): ErrorTy
     case SwapErrorTypes.VALIDATION:
       return ErrorType.VALIDATION;
     case SwapErrorTypes.WALLET_NOT_CONNECTED:
+    case SwapErrorTypes.WALLET_NOT_SELECTED:
       return ErrorType.WALLET;
     default:
       return ErrorType.TRANSACTION;
   }
+}
+
+function isRecoverableError(type: SwapErrorTypes): boolean {
+  return ![
+    SwapErrorTypes.UNKNOWN,
+    SwapErrorTypes.SIMULATION_FAILED
+  ].includes(type);
 }
 
 export const createSwapError = (type: SwapErrorTypes, message: string, details?: any): SwapError => {
@@ -69,6 +76,16 @@ export const handleSwapError = (error: unknown): SwapError => {
   if (error instanceof SwapError) {
     return error;
   }
+  
+  // Handle WalletNotSelectedError specifically
+  if (error instanceof Error && error.name === 'WalletNotSelectedError') {
+    return new SwapError(
+      SwapErrorTypes.WALLET_NOT_SELECTED,
+      'Please select a wallet to continue',
+      { originalError: error }
+    );
+  }
+
   return new SwapError(
     SwapErrorTypes.UNKNOWN,
     error instanceof Error ? error.message : 'An unknown error occurred'

@@ -7,9 +7,17 @@ export const initializeSentry = () => {
     Sentry.init({
       dsn: "your-sentry-dsn",
       integrations: [
-        new BrowserTracing() as Integration,
+        new BrowserTracing() as unknown as Integration,
       ],
       tracesSampleRate: 1.0,
+    });
+  }
+};
+
+export const captureException = (error: Error, context?: Record<string, any>) => {
+  if (process.env.NODE_ENV === 'production') {
+    Sentry.captureException(error, {
+      extra: context
     });
   }
 };
