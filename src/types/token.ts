@@ -13,10 +13,12 @@ export interface TokenPair {
   to: Token;
 }
 
+export interface AmmInfo {
+  label: string;
+}
+
 export interface MarketInfo {
-  amm: {
-    label: string;
-  };
+  amm: AmmInfo;
   inputMint: string;
   outputMint: string;
 }
@@ -24,3 +26,5 @@ export interface MarketInfo {
 export interface Route {
   marketInfos: MarketInfo[];
 }
+
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];

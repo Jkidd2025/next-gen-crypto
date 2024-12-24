@@ -135,7 +135,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       {route && <RouteVisualizer route={{ marketInfos: route }} tokenMap={COMMON_TOKENS} />}
 
       <SwapFormActions
-        onSwap={handleSwap}
+        onSwap={handleSwapClick}
         disabled={!fromAmount || !isWalletConnected}
         gasFee={gasFee}
       />
@@ -143,7 +143,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       <SwapConfirmationDialog
         isOpen={isConfirmationOpen}
         onClose={() => setIsConfirmationOpen(false)}
-        onConfirm={handleSwap}
+        onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
         priceImpact={parseFloat(priceImpact)}

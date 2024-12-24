@@ -1,17 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
+import { MarketInfo, TokenSymbol } from "@/types/token";
 
 interface RouteVisualizerProps {
   route: {
-    marketInfos: {
-      amm: {
-        label: string;
-      };
-      inputMint: string;
-      outputMint: string;
-    }[];
+    marketInfos: MarketInfo[];
   };
-  tokenMap: Record<string, { symbol: string; logoURI?: string }>;
+  tokenMap: Record<string, { symbol: TokenSymbol; logoURI?: string }>;
 }
 
 export const RouteVisualizer = ({ route, tokenMap }: RouteVisualizerProps) => {

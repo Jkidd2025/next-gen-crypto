@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { SwapErrorTypes } from '@/types/errors';
 import { COMMON_TOKENS } from '@/constants/tokens';
-import type { MarketInfo } from '@/types/token';
+import type { MarketInfo, Json } from '@/types/token';
 
 const JUPITER_API_V6 = 'https://quote-api.jup.ag/v6';
 
@@ -77,6 +77,12 @@ export const useSwapTransactions = () => {
         throw new Error('Transaction failed');
       }
 
+      const swapRouteJson: Json = quote.data.marketInfos.map(info => ({
+        amm: { label: info.amm.label },
+        inputMint: info.inputMint,
+        outputMint: info.outputMint
+      }));
+
       await supabase.from("swap_transactions").insert({
         user_id: userId,
         from_token: fromToken,
@@ -86,7 +92,7 @@ export const useSwapTransactions = () => {
         slippage: slippage,
         status: "completed",
         gas_fee: 0,
-        swap_route: quote.data.marketInfos
+        swap_route: swapRouteJson
       });
 
       return signature;
