@@ -20,3 +20,10 @@ export const COMMON_TOKENS = {
 } as const;
 
 export type TokenSymbol = keyof typeof COMMON_TOKENS;
+
+export interface Token {
+  symbol: string;
+  address: string;
+  decimals: number;
+  name: string;
+}

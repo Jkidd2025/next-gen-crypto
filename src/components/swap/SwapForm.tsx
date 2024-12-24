@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { AlertTriangle, WifiOff, Wifi, WifiLow } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { LoadingIndicator } from "@/components/ui/LoadingIndicator";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
@@ -13,8 +12,8 @@ import { SwapFormHeader } from "./SwapFormHeader";
 import { SwapFormActions } from "./SwapFormActions";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { useLoadingState } from "@/hooks/useLoadingState";
 import type { TokenInfo } from "@/hooks/swap/useTokenList";
+import { COMMON_TOKENS, TokenSymbol } from "@/constants/tokens";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -22,15 +21,7 @@ interface SwapFormProps {
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const { isOnline, connectionQuality } = useNetworkStatus();
-  const { 
-    isLoading, 
-    progress, 
-    stage, 
-    startLoading, 
-    updateProgress, 
-    finishLoading 
-  } = useLoadingState('Initializing');
+  const { isOnline } = useNetworkStatus();
   
   const {
     fromAmount,
@@ -57,63 +48,35 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   };
 
   const handleConfirmSwap = async () => {
-    try {
-      startLoading('Preparing swap');
-      updateProgress(25, 'Confirming transaction');
-      await handleSwap();
-      updateProgress(75, 'Processing swap');
-      finishLoading();
-      setIsConfirmationOpen(false);
-    } catch (error) {
-      console.error('Swap failed:', error);
-    }
+    await handleSwap();
+    setIsConfirmationOpen(false);
   };
 
   const handleTokenSelect = (token: TokenInfo) => {
-    setSelectedTokens((prev) => ({
+    const tokenSymbol = token.symbol as TokenSymbol;
+    if (!(tokenSymbol in COMMON_TOKENS)) {
+      console.error("Invalid token symbol:", token.symbol);
+      return;
+    }
+
+    setSelectedTokens(prev => ({
       ...prev,
-      from: token.symbol,
+      from: tokenSymbol,
     }));
     setIsTokenSelectorOpen(false);
-  };
-
-  const getConnectionIcon = () => {
-    switch (connectionQuality) {
-      case 'good':
-        return <Wifi className="h-4 w-4" />;
-      case 'fair':
-      case 'poor':
-        return <WifiLow className="h-4 w-4" />;
-      case 'offline':
-        return <WifiOff className="h-4 w-4" />;
-      default:
-        return <WifiOff className="h-4 w-4" />;
-    }
   };
 
   return (
     <div className="space-y-6">
       {!isOnline && (
         <Alert variant="destructive">
-          {getConnectionIcon()}
+          <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Network Error</AlertTitle>
           <AlertDescription>
             You are currently offline. Some features may not work properly.
           </AlertDescription>
         </Alert>
       )}
-
-      {isOnline && connectionQuality !== 'good' && (
-        <Alert variant="default">
-          {getConnectionIcon()}
-          <AlertTitle>Slow Connection</AlertTitle>
-          <AlertDescription>
-            Your connection is {connectionQuality}. This may affect transaction speed.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {isLoading && <LoadingIndicator progress={progress} stage={stage} />}
 
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
@@ -138,12 +101,12 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       <SlippageControl value={slippage} onChange={setSlippage} />
       <PriceImpact priceImpact={String(priceImpact)} />
       
-      {route && <RouteVisualizer route={route} tokenMap={{}} />}
+      {route && <RouteVisualizer route={route} tokenMap={COMMON_TOKENS} />}
 
       <SwapFormActions
         onSwap={handleSwapClick}
-        disabled={!fromAmount || !isWalletConnected || isLoading}
-        gasFee={gasFee}
+        disabled={!fromAmount || !isWalletConnected}
+        gasFee={String(gasFee)}
       />
 
       <SwapConfirmationDialog

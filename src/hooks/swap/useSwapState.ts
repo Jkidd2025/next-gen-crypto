@@ -14,6 +14,13 @@ export const useSwapState = () => {
     to: "USDC",
   });
 
+  const handleQuickAmountSelect = (percentage: number) => {
+    const mockBalance = 100;
+    const amount = (mockBalance * percentage) / 100;
+    setFromAmount(amount.toString());
+    return amount.toString();
+  };
+
   return {
     fromAmount,
     setFromAmount,
@@ -25,5 +32,6 @@ export const useSwapState = () => {
     setIsTokenSelectorOpen,
     selectedTokens,
     setSelectedTokens,
+    handleQuickAmountSelect,
   };
 };
