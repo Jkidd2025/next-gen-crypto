@@ -19,6 +19,11 @@ interface SwapFormProps {
   isWalletConnected: boolean;
 }
 
+interface SelectedTokens {
+  from: TokenSymbol;
+  to: TokenSymbol;
+}
+
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const { isOnline } = useNetworkStatus();
@@ -59,10 +64,10 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    setSelectedTokens(prev => ({
-      ...prev,
+    setSelectedTokens({
+      ...selectedTokens,
       from: tokenSymbol,
-    }));
+    });
     setIsTokenSelectorOpen(false);
   };
 
