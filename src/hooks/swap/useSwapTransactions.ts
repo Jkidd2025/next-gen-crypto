@@ -3,22 +3,13 @@ import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { SwapErrorTypes } from '@/types/errors';
-import { COMMON_TOKENS } from '@/constants/tokens';
 import type { MarketInfo, Json } from '@/types/token';
+import { getConnection } from '@/utils/swap/connection';
+import { checkBalance } from '@/utils/swap/balanceChecker';
+import { getQuote, getSwapTransaction } from '@/utils/swap/jupiterApi';
 
-const JUPITER_API_V6 = 'https://quote-api.jup.ag/v6';
-
-interface QuoteResponse {
-  data: {
-    outAmount: string;
-    priceImpactPct: number;
-    marketInfos: MarketInfo[];
-  };
-}
-
-interface SwapResponse {
-  swapTransaction: string;
-}
+const MAX_RETRIES = 3;
+const TRANSACTION_TIMEOUT = 60000; // 60 seconds
 
 export const useSwapTransactions = () => {
   const { connection: primaryConnection } = useConnection();
@@ -49,6 +40,13 @@ export const useSwapTransactions = () => {
         throw new Error('Invalid slippage value');
       }
 
+      const connection = await getConnection(primaryConnection);
+      const hasBalance = await checkBalance(connection, publicKey, fromToken, parseFloat(fromAmount));
+      
+      if (!hasBalance) {
+        throw new Error('Insufficient balance for swap');
+      }
+
       const quote = await getQuote(
         fromToken,
         toToken,
@@ -63,14 +61,14 @@ export const useSwapTransactions = () => {
       const swapResult = await getSwapTransaction(quote, publicKey);
       const swapTransaction = Transaction.from(Buffer.from(swapResult.swapTransaction, 'base64'));
 
-      await simulateTransaction(primaryConnection, swapTransaction);
+      await simulateTransaction(connection, swapTransaction);
       
       const signedTransaction = await signTransaction(swapTransaction);
-      const signature = await primaryConnection.sendRawTransaction(signedTransaction.serialize());
+      const signature = await connection.sendRawTransaction(signedTransaction.serialize());
       
       const confirmation = await Promise.race([
-        primaryConnection.confirmTransaction(signature),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction timeout')), 60000))
+        connection.confirmTransaction(signature),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction timeout')), TRANSACTION_TIMEOUT))
       ]) as { value?: { err: any } };
 
       if (confirmation?.value?.err) {
@@ -83,6 +81,10 @@ export const useSwapTransactions = () => {
         outputMint: info.outputMint
       }));
 
+      const estimatedGasFee = await connection.getRecentBlockhash()
+        .then(({ feeCalculator }) => feeCalculator.lamportsPerSignature / 1e9)
+        .catch(() => 0.000005); // Fallback to default estimate
+
       await supabase.from("swap_transactions").insert({
         user_id: userId,
         from_token: fromToken,
@@ -91,8 +93,10 @@ export const useSwapTransactions = () => {
         to_amount: parseFloat(toAmount),
         slippage: slippage,
         status: "completed",
-        gas_fee: 0,
-        swap_route: swapRouteJson
+        gas_fee: estimatedGasFee,
+        swap_route: swapRouteJson,
+        signature: signature,
+        timestamp: new Date().toISOString()
       });
 
       return signature;
@@ -107,45 +111,3 @@ export const useSwapTransactions = () => {
     gasFee: "0.000005" // Estimated gas fee in SOL
   };
 };
-
-async function getQuote(
-  inputMint: string,
-  outputMint: string,
-  amount: number,
-  slippageBps: number
-): Promise<QuoteResponse> {
-  const params = new URLSearchParams({
-    inputMint,
-    outputMint,
-    amount: (amount * 1e9).toString(),
-    slippageBps: slippageBps.toString(),
-  });
-
-  const response = await fetch(`${JUPITER_API_V6}/quote?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to get quote');
-  }
-  return response.json();
-}
-
-async function getSwapTransaction(
-  quoteResponse: QuoteResponse,
-  publicKey: PublicKey
-): Promise<SwapResponse> {
-  const response = await fetch(`${JUPITER_API_V6}/swap`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      quoteResponse,
-      userPublicKey: publicKey.toString(),
-    }),
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to get swap transaction');
-  }
-  
-  return response.json();
-}
