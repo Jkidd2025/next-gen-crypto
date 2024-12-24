@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-const JUPITER_TOKEN_LIST_API = 'https://token.jup.ag/all';
+const JUPITER_TOKEN_LIST_API = 'https://token.jup.ag/strict';
 
 export interface TokenInfo {
   address: string;
@@ -9,9 +9,6 @@ export interface TokenInfo {
   name: string;
   symbol: string;
   logoURI?: string;
-  extensions?: {
-    coingeckoId?: string;
-  };
   tags?: string[];
 }
 

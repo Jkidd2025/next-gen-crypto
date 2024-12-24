@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
@@ -9,6 +9,7 @@ import { RouteVisualizer } from "./RouteVisualizer";
 import { SwapFormHeader } from "./SwapFormHeader";
 import { SwapFormActions } from "./SwapFormActions";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
+import { useTokenList } from "@/hooks/swap/useTokenList";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -16,6 +17,7 @@ interface SwapFormProps {
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const { data: tokenList } = useTokenList();
   
   const {
     fromAmount,
@@ -37,6 +39,14 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     route,
   } = useSwapForm();
 
+  const tokenMap = useMemo(() => {
+    if (!tokenList) return {};
+    return tokenList.reduce((acc, token) => {
+      acc[token.address] = token;
+      return acc;
+    }, {} as Record<string, typeof tokenList[0]>);
+  }, [tokenList]);
+
   const handleSwapClick = () => {
     setIsConfirmationOpen(true);
   };
@@ -45,6 +55,8 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     await handleSwap();
     setIsConfirmationOpen(false);
   };
+
+  const numericPriceImpact = Number(priceImpact);
 
   return (
     <div className="space-y-6">
@@ -69,9 +81,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={Number(priceImpact)} />
+      <PriceImpact priceImpact={numericPriceImpact} />
       
-      {route && <RouteVisualizer route={route} tokenMap={{}} />}
+      {route && <RouteVisualizer route={route} tokenMap={tokenMap} />}
 
       <SwapFormActions
         onSwap={handleSwapClick}
@@ -85,9 +97,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={Number(priceImpact)}
+        priceImpact={numericPriceImpact}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={Number(priceImpact) >= 5}
+        isHighImpact={numericPriceImpact >= 5}
       />
 
       <TokenSelector
