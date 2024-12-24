@@ -40,8 +40,11 @@ export class BaseError extends Error {
 }
 
 export class SwapError extends BaseError {
+  type: SwapErrorTypes;
+
   constructor(type: SwapErrorTypes, message: string, details?: any) {
     super(ErrorType.TRANSACTION, message, type, type !== SwapErrorTypes.UNKNOWN, details);
+    this.type = type;
   }
 }
 
