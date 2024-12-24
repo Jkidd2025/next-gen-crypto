@@ -1,41 +1,83 @@
-import { useToast } from "@/hooks/use-toast";
+import { useState, useCallback } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export enum SwapErrorType {
-  INSUFFICIENT_BALANCE = "INSUFFICIENT_BALANCE",
-  SLIPPAGE_TOO_HIGH = "SLIPPAGE_TOO_HIGH",
-  PRICE_IMPACT_TOO_HIGH = "PRICE_IMPACT_TOO_HIGH",
-  NETWORK_ERROR = "NETWORK_ERROR",
-  SIMULATION_FAILED = "SIMULATION_FAILED",
-  UNKNOWN = "UNKNOWN",
+  INSUFFICIENT_BALANCE = 'INSUFFICIENT_BALANCE',
+  SLIPPAGE_EXCEEDED = 'SLIPPAGE_EXCEEDED',
+  PRICE_IMPACT_HIGH = 'PRICE_IMPACT_HIGH',
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  API_ERROR = 'API_ERROR',
+  UNKNOWN = 'UNKNOWN'
 }
 
-interface SwapError {
+export interface SwapError {
   type: SwapErrorType;
   message: string;
-  details?: string;
+  details?: any;
+  timestamp: number;
+  recoverable?: boolean;
 }
 
+interface SwapErrorState {
+  error: SwapError | null;
+  history: SwapError[];
+}
+
+const getErrorTitle = (type: SwapErrorType): string => {
+  switch (type) {
+    case SwapErrorType.INSUFFICIENT_BALANCE:
+      return 'Insufficient Balance';
+    case SwapErrorType.SLIPPAGE_EXCEEDED:
+      return 'Slippage Exceeded';
+    case SwapErrorType.PRICE_IMPACT_HIGH:
+      return 'High Price Impact';
+    case SwapErrorType.NETWORK_ERROR:
+      return 'Network Error';
+    case SwapErrorType.API_ERROR:
+      return 'Service Error';
+    default:
+      return 'Error';
+  }
+};
+
 export const useSwapErrors = () => {
+  const [state, setState] = useState<SwapErrorState>({
+    error: null,
+    history: [],
+  });
+  
   const { toast } = useToast();
 
-  const handleSwapError = (error: SwapError) => {
-    const errorMessages = {
-      [SwapErrorType.INSUFFICIENT_BALANCE]: "Insufficient balance for this swap",
-      [SwapErrorType.SLIPPAGE_TOO_HIGH]: "Slippage exceeds your settings",
-      [SwapErrorType.PRICE_IMPACT_TOO_HIGH]: "Price impact is too high",
-      [SwapErrorType.NETWORK_ERROR]: "Network error occurred",
-      [SwapErrorType.SIMULATION_FAILED]: "Transaction simulation failed",
-      [SwapErrorType.UNKNOWN]: "An unknown error occurred",
+  const setError = useCallback((error: SwapError) => {
+    const errorWithTimestamp = {
+      ...error,
+      timestamp: error.timestamp || Date.now(),
+      recoverable: error.recoverable ?? false
     };
 
+    setState(prev => ({
+      error: errorWithTimestamp,
+      history: [...prev.history, errorWithTimestamp].slice(-10),
+    }));
+
     toast({
-      variant: "destructive",
-      title: errorMessages[error.type],
-      description: error.details || "Please try again or contact support if the issue persists.",
+      title: getErrorTitle(error.type),
+      description: error.message,
+      variant: error.recoverable ? 'default' : 'destructive',
     });
+  }, [toast]);
 
-    return error;
+  const clearError = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      error: null,
+    }));
+  }, []);
+
+  return {
+    error: state.error,
+    errorHistory: state.history,
+    setError,
+    clearError,
   };
-
-  return { handleSwapError };
 };
