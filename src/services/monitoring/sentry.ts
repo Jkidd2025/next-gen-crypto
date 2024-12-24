@@ -6,7 +6,7 @@ export const initSentry = () => {
     Sentry.init({
       dsn: "YOUR_SENTRY_DSN", // Replace with actual DSN
       integrations: [
-        new BrowserTracing(),
+        new BrowserTracing() as Sentry.Integration,
       ],
       tracesSampleRate: 1.0,
     });
