@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
@@ -50,12 +50,22 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     route,
   } = useSwapForm();
 
-  const handleSwapClick = () => {
+  // Memoize price impact calculations
+  const { priceImpactNumber, isHighImpact } = useMemo(() => {
+    const number = Number(priceImpact);
+    return {
+      priceImpactNumber: number,
+      isHighImpact: number >= 5
+    };
+  }, [priceImpact]);
+
+  // Memoize handlers
+  const handleSwapClick = useCallback(() => {
     clearError();
     setIsConfirmationOpen(true);
-  };
+  }, [clearError]);
 
-  const handleConfirmSwap = async () => {
+  const handleConfirmSwap = useCallback(async () => {
     try {
       await handleSwap();
       setIsConfirmationOpen(false);
@@ -65,9 +75,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         message: err instanceof Error ? err.message : 'An unknown error occurred',
       });
     }
-  };
+  }, [handleSwap, setError]);
 
-  const handleTokenSelect = (token: TokenInfo) => {
+  const handleTokenSelect = useCallback((token: TokenInfo) => {
     const tokenSymbol = token.symbol as TokenSymbol;
     if (!(tokenSymbol in COMMON_TOKENS)) {
       setError({
@@ -77,16 +87,18 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    const newSelectedTokens: SelectedTokens = {
-      ...selectedTokens,
+    setSelectedTokens(prev => ({
+      ...prev,
       from: tokenSymbol,
-    };
-    setSelectedTokens(newSelectedTokens);
+    }));
     setIsTokenSelectorOpen(false);
-  };
+  }, [setError, setSelectedTokens, setIsTokenSelectorOpen]);
 
-  // Convert price impact to number for comparison
-  const priceImpactNumber = Number(priceImpact);
+  // Memoize minimum received calculation
+  const minimumReceived = useMemo(() => {
+    if (!fromAmount) return undefined;
+    return calculateMinimumReceived();
+  }, [fromAmount, calculateMinimumReceived]);
 
   return (
     <div className="space-y-6">
@@ -108,7 +120,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         label={`To (${selectedTokens.to})`}
         value={toAmount}
         readOnly={true}
-        minimumReceived={fromAmount ? calculateMinimumReceived() : undefined}
+        minimumReceived={minimumReceived}
         onTokenSelect={() => setIsTokenSelectorOpen(true)}
       />
 
@@ -136,8 +148,8 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         fromAmount={fromAmount}
         toAmount={toAmount}
         priceImpact={priceImpactNumber}
-        minimumReceived={calculateMinimumReceived()}
-        isHighImpact={priceImpactNumber >= 5}
+        minimumReceived={minimumReceived}
+        isHighImpact={isHighImpact}
       />
 
       <TokenSelector
