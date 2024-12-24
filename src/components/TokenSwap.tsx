@@ -1,7 +1,7 @@
 import { SwapForm } from "./swap/SwapForm";
 import { WalletConnect } from "./swap/WalletConnect";
 import { BuyWithCard } from "./swap/BuyWithCard";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { PriceChart } from "./swap/PriceChart";
 import { MarketStats } from "./swap/MarketStats";
 import { ROICalculator } from "./swap/ROICalculator";
@@ -22,36 +22,45 @@ export const TokenSwap = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const initializeConnection = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const conn = await ConnectionProvider.getReliableConnection();
-        setConnection(conn);
-        toast({
-          title: "Connected",
-          description: "Successfully connected to Solana network",
-        });
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to connect to Solana';
-        setError(errorMessage);
-        console.error('Connection error:', err);
-        toast({
-          title: "Connection Error",
-          description: errorMessage,
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeConnection();
+  const initializeConnection = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const conn = await ConnectionProvider.getReliableConnection();
+      setConnection(conn);
+      toast({
+        title: "Connected",
+        description: "Successfully connected to Solana network",
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to connect to Solana';
+      setError(errorMessage);
+      console.error('Connection error:', err);
+      toast({
+        title: "Connection Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [toast]);
 
-  const handleRetryConnection = async () => {
-    await initializeConnection();
+  useEffect(() => {
+    initializeConnection();
+  }, [initializeConnection]);
+
+  const handleRetryConnection = () => {
+    initializeConnection();
+  };
+
+  const handleWalletConnect = (isConnected: boolean) => {
+    if (isConnected) {
+      toast({
+        title: "Wallet Connected",
+        description: "Your wallet has been successfully connected.",
+      });
+    }
   };
 
   if (isLoading || connecting) {
@@ -99,7 +108,7 @@ export const TokenSwap = () => {
           <div className="max-w-xl mx-auto w-full">
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg p-4 md:p-6 border border-primary/10">
               {!connected ? (
-                <WalletConnect />
+                <WalletConnect onConnect={handleWalletConnect} />
               ) : (
                 <SwapForm isWalletConnected={connected} />
               )}
