@@ -7,7 +7,7 @@ export const initSentry = () => {
     Sentry.init({
       dsn: process.env.VITE_SENTRY_DSN,
       integrations: [
-        new BrowserTracing()
+        new BrowserTracing() as unknown as Sentry.Integration
       ],
       tracesSampleRate: 1.0,
       beforeSend(event) {

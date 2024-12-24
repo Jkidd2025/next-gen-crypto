@@ -3,6 +3,7 @@ import { RPC_CONFIG, rateLimiter } from '@/config/rpc';
 import { logError } from '@/services/logging/logger';
 import { ConnectionPool } from './connection/ConnectionPool';
 import { HealthMonitor } from './connection/health';
+import { logConnectionMetrics } from './connection/metrics';
 
 export class ConnectionProvider {
   private static instance: Connection | null = null;
