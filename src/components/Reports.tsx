@@ -1,22 +1,14 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Wallet, ArrowUpRight, ArrowDownRight, History, LineChart, Coins } from "lucide-react";
-import { TransactionsTable } from "./analytics/TransactionsTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
+import { WalletSection } from "./reports/WalletSection";
+import { TransactionStats } from "./reports/TransactionStats";
+import { RecentTransactions } from "./reports/RecentTransactions";
 
 interface WalletStats {
   balance: number;
   solPrice: number;
-}
-
-interface TransactionCounts {
-  total: number;
-  buys: number;
-  sells: number;
 }
 
 export const Reports = () => {
@@ -30,10 +22,9 @@ export const Reports = () => {
   const { data: transactionCounts, isLoading: isLoadingCounts } = useQuery({
     queryKey: ['transaction-counts'],
     queryFn: async () => {
-      // First get total count
-      const { count: totalCount, error: totalError } = await supabase
+      const { data: totalData, error: totalError } = await supabase
         .from('swap_transactions')
-        .count();
+        .select('id');
 
       if (totalError) {
         toast({
@@ -48,10 +39,9 @@ export const Reports = () => {
         };
       }
 
-      // Get buy count
-      const { count: buyCount, error: buyError } = await supabase
+      const { data: buyData, error: buyError } = await supabase
         .from('swap_transactions')
-        .count()
+        .select('id')
         .eq('type', 'buy');
 
       if (buyError) {
@@ -61,16 +51,15 @@ export const Reports = () => {
           variant: "destructive"
         });
         return {
-          total: totalCount || 0,
+          total: totalData.length,
           buys: 0,
           sells: 0
         };
       }
 
-      // Get sell count
-      const { count: sellCount, error: sellError } = await supabase
+      const { data: sellData, error: sellError } = await supabase
         .from('swap_transactions')
-        .count()
+        .select('id')
         .eq('type', 'sell');
 
       if (sellError) {
@@ -80,16 +69,16 @@ export const Reports = () => {
           variant: "destructive"
         });
         return {
-          total: totalCount || 0,
-          buys: buyCount || 0,
+          total: totalData.length,
+          buys: buyData.length,
           sells: 0
         };
       }
 
       return {
-        total: totalCount || 0,
-        buys: buyCount || 0,
-        sells: sellCount || 0
+        total: totalData.length,
+        buys: buyData.length,
+        sells: sellData.length
       };
     }
   });
@@ -138,121 +127,22 @@ export const Reports = () => {
     }
   };
 
-  const usdBalance = walletStats.balance * walletStats.solPrice;
-
   return (
     <div className="space-y-6 p-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Balance in USD</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isWalletConnected ? (
-                `$${usdBalance.toLocaleString()}`
-              ) : (
-                <Button 
-                  onClick={connectWallet}
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                >
-                  <Wallet className="mr-2 h-4 w-4" />
-                  Connect Wallet
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Balance in SOL</CardTitle>
-            <Coins className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isWalletConnected ? (
-                `${walletStats.balance.toLocaleString()} SOL`
-              ) : (
-                <div className="text-gray-500">Connect wallet to view balance</div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Portfolio Value</CardTitle>
-            <LineChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoadingCounts ? (
-              <Skeleton className="h-8 w-full" />
-            ) : (
-              <div className="text-2xl font-bold">
-                ${(usdBalance + 1000).toLocaleString()}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Transaction Statistics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {isLoadingCounts ? (
-              <>
-                <Skeleton className="h-24" />
-                <Skeleton className="h-24" />
-                <Skeleton className="h-24" />
-              </>
-            ) : (
-              <>
-                <div className="flex items-center space-x-4">
-                  <History className="h-8 w-8 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Transactions</p>
-                    <p className="text-2xl font-bold">{transactionCounts?.total || 0}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <ArrowUpRight className="h-8 w-8 text-green-500" />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Buy Transactions</p>
-                    <p className="text-2xl font-bold">{transactionCounts?.buys || 0}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <ArrowDownRight className="h-8 w-8 text-red-500" />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Sell Transactions</p>
-                    <p className="text-2xl font-bold">{transactionCounts?.sells || 0}</p>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoadingTransactions ? (
-            <Skeleton className="h-[200px]" />
-          ) : (
-            <TransactionsTable transactions={recentTransactions || []} />
-          )}
-        </CardContent>
-      </Card>
+      <WalletSection
+        isWalletConnected={isWalletConnected}
+        connectWallet={connectWallet}
+        walletStats={walletStats}
+        isLoadingCounts={isLoadingCounts}
+      />
+      <TransactionStats
+        isLoadingCounts={isLoadingCounts}
+        transactionCounts={transactionCounts}
+      />
+      <RecentTransactions
+        isLoadingTransactions={isLoadingTransactions}
+        recentTransactions={recentTransactions}
+      />
     </div>
   );
 };
