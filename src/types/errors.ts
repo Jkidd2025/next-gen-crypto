@@ -40,11 +40,24 @@ export class BaseError extends Error {
 }
 
 export class SwapError extends BaseError {
-  declare type: SwapErrorTypes;
-
   constructor(type: SwapErrorTypes, message: string, details?: any) {
-    super(ErrorType.TRANSACTION, message, type, type !== SwapErrorTypes.UNKNOWN, details);
-    this.type = type;
+    const errorType = mapSwapErrorTypeToBaseErrorType(type);
+    super(errorType, message, type, type !== SwapErrorTypes.UNKNOWN, details);
+  }
+}
+
+function mapSwapErrorTypeToBaseErrorType(swapErrorType: SwapErrorTypes): ErrorType {
+  switch (swapErrorType) {
+    case SwapErrorTypes.NETWORK_ERROR:
+      return ErrorType.NETWORK;
+    case SwapErrorTypes.API_ERROR:
+      return ErrorType.API;
+    case SwapErrorTypes.VALIDATION:
+      return ErrorType.VALIDATION;
+    case SwapErrorTypes.WALLET_NOT_CONNECTED:
+      return ErrorType.WALLET;
+    default:
+      return ErrorType.TRANSACTION;
   }
 }
 

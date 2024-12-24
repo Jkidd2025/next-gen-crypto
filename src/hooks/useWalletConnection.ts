@@ -1,7 +1,7 @@
 import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useCallback } from "react";
-import { WalletNotSelectedError } from "@solana/wallet-adapter-base";
 
 export const useWalletConnection = () => {
   const { connected, connecting, connect, disconnect, publicKey } = useWallet();
@@ -19,10 +19,10 @@ export const useWalletConnection = () => {
         description: "Your wallet has been successfully connected.",
       });
     } catch (error) {
-      if (error instanceof WalletNotSelectedError) {
+      if (error instanceof WalletNotConnectedError) {
         toast({
-          title: "Wallet Not Selected",
-          description: "Please select a wallet to connect.",
+          title: "Wallet Not Connected",
+          description: "Please connect your wallet to continue.",
           variant: "destructive",
         });
       } else {

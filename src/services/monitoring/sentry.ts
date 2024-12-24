@@ -1,13 +1,12 @@
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
-import type { Integration } from '@sentry/types';
 
 export const initializeSentry = () => {
   if (process.env.NODE_ENV === 'production') {
     Sentry.init({
       dsn: "your-sentry-dsn",
       integrations: [
-        new BrowserTracing() as unknown as Integration,
+        new BrowserTracing(),
       ],
       tracesSampleRate: 1.0,
     });
