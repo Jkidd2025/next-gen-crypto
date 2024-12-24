@@ -7,10 +7,10 @@ interface WalletConnectProps {
 }
 
 export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
-  const { connected, connecting, connectWallet, disconnect } = useWalletConnection();
+  const { connected, connecting, connect, disconnect } = useWalletConnection();
 
   const handleConnect = async () => {
-    await connectWallet();
+    await connect();
     onConnect(true);
   };
 

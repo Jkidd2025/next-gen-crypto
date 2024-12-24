@@ -5,7 +5,7 @@ import { useWalletConnection } from "@/hooks/useWalletConnection";
 import { useTransactionData } from "@/hooks/useTransactionData";
 
 export const Reports = () => {
-  const { connected, connectWallet } = useWalletConnection();
+  const { connected, connect } = useWalletConnection();
   const {
     transactionCounts,
     isLoadingCounts,
@@ -17,7 +17,7 @@ export const Reports = () => {
     <div className="space-y-6 p-6">
       <WalletSection
         isWalletConnected={connected}
-        connectWallet={connectWallet}
+        connectWallet={connect}
         isLoadingCounts={isLoadingCounts}
       />
       <TransactionStats
