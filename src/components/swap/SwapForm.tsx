@@ -20,10 +20,15 @@ interface SwapFormProps {
   isWalletConnected: boolean;
 }
 
+type SelectedTokens = {
+  from: TokenSymbol;
+  to: TokenSymbol;
+};
+
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const { isOnline } = useNetworkStatus();
-  const { error, setError, clearError } = useSwapErrors();
+  const { error, setError, clearError, getErrorTitle } = useSwapErrors();
   
   const {
     fromAmount,
@@ -72,20 +77,21 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    setSelectedTokens({
+    const newSelectedTokens: SelectedTokens = {
       ...selectedTokens,
       from: tokenSymbol,
-    });
+    };
+    setSelectedTokens(newSelectedTokens);
     setIsTokenSelectorOpen(false);
   };
 
-  // Convert price impact to number for comparison and display
+  // Convert price impact to number for comparison
   const priceImpactNumber = Number(priceImpact);
   const isHighImpact = priceImpactNumber >= 5;
 
   return (
     <div className="space-y-6">
-      <SwapErrorDisplay error={error} isOnline={isOnline} />
+      <SwapErrorDisplay error={error} getErrorTitle={getErrorTitle} />
       
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
@@ -108,12 +114,12 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl 
-        value={slippage.toString()} 
-        onChange={(value) => setSlippage(parseFloat(value))} 
+        value={slippage} 
+        onChange={setSlippage} 
       />
       
       <PriceImpact 
-        priceImpact={priceImpactNumber.toString()} 
+        priceImpact={priceImpactNumber} 
       />
       
       {route && <RouteVisualizer route={route} tokenMap={COMMON_TOKENS} />}
