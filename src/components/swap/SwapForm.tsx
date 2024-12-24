@@ -69,7 +69,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={priceImpact} />
+      <PriceImpact priceImpact={priceImpact.toString()} />
       
       {route && <RouteVisualizer route={route} tokenMap={{}} />}
 
