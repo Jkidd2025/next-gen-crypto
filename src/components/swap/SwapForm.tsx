@@ -12,6 +12,7 @@ import { SwapFormHeader } from "./SwapFormHeader";
 import { SwapFormActions } from "./SwapFormActions";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { useSwapErrors, SwapErrorType } from "@/hooks/swap/useSwapErrors";
 import type { TokenInfo } from "@/hooks/swap/useTokenList";
 import { COMMON_TOKENS, TokenSymbol } from "@/constants/tokens";
 
@@ -27,6 +28,7 @@ interface SelectedTokens {
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const { isOnline } = useNetworkStatus();
+  const { error, setError, clearError } = useSwapErrors();
   
   const {
     fromAmount,
@@ -49,18 +51,29 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   } = useSwapForm();
 
   const handleSwapClick = () => {
+    clearError();
     setIsConfirmationOpen(true);
   };
 
   const handleConfirmSwap = async () => {
-    await handleSwap();
-    setIsConfirmationOpen(false);
+    try {
+      await handleSwap();
+      setIsConfirmationOpen(false);
+    } catch (err) {
+      setError({
+        type: SwapErrorType.UNKNOWN,
+        message: err instanceof Error ? err.message : 'An unknown error occurred',
+      });
+    }
   };
 
   const handleTokenSelect = (token: TokenInfo) => {
     const tokenSymbol = token.symbol as TokenSymbol;
     if (!(tokenSymbol in COMMON_TOKENS)) {
-      console.error("Invalid token symbol:", token.symbol);
+      setError({
+        type: SwapErrorType.VALIDATION,
+        message: `Invalid token symbol: ${token.symbol}`,
+      });
       return;
     }
 
@@ -80,6 +93,14 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
           <AlertDescription>
             You are currently offline. Some features may not work properly.
           </AlertDescription>
+        </Alert>
+      )}
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>{getErrorTitle(error.type)}</AlertTitle>
+          <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       )}
 

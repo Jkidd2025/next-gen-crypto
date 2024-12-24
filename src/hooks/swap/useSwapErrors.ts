@@ -7,6 +7,7 @@ export enum SwapErrorType {
   PRICE_IMPACT_HIGH = 'PRICE_IMPACT_HIGH',
   NETWORK_ERROR = 'NETWORK_ERROR',
   API_ERROR = 'API_ERROR',
+  VALIDATION = 'VALIDATION',
   UNKNOWN = 'UNKNOWN'
 }
 
@@ -35,6 +36,8 @@ const getErrorTitle = (type: SwapErrorType): string => {
       return 'Network Error';
     case SwapErrorType.API_ERROR:
       return 'Service Error';
+    case SwapErrorType.VALIDATION:
+      return 'Validation Error';
     default:
       return 'Error';
   }
@@ -48,11 +51,11 @@ export const useSwapErrors = () => {
   
   const { toast } = useToast();
 
-  const setError = useCallback((error: SwapError) => {
+  const setError = useCallback((error: Omit<SwapError, 'timestamp' | 'recoverable'>) => {
     const errorWithTimestamp = {
       ...error,
-      timestamp: error.timestamp || Date.now(),
-      recoverable: error.recoverable ?? false
+      timestamp: Date.now(),
+      recoverable: false
     };
 
     setState(prev => ({
@@ -63,7 +66,7 @@ export const useSwapErrors = () => {
     toast({
       title: getErrorTitle(error.type),
       description: error.message,
-      variant: error.recoverable ? 'default' : 'destructive',
+      variant: 'destructive',
     });
   }, [toast]);
 
