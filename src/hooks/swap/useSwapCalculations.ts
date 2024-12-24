@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Connection } from '@solana/web3.js';
 
 const JUPITER_API_V6 = 'https://quote-api.jup.ag/v6';
+const CONNECTION = new Connection('https://api.mainnet-beta.solana.com');
 
 interface QuoteResponse {
   data: {
@@ -28,18 +30,25 @@ export const useSwapCalculations = () => {
     amount: number,
     slippageBps: number = 100
   ): Promise<QuoteResponse> => {
+    console.log('Fetching quote for:', { inputMint, outputMint, amount, slippageBps });
+    
     const params = new URLSearchParams({
       inputMint,
       outputMint,
-      amount: (amount * 1e9).toString(),
+      amount: (amount * 1e9).toString(), // Convert to lamports
       slippageBps: slippageBps.toString(),
     });
 
     const response = await fetch(`${JUPITER_API_V6}/quote?${params}`);
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Quote fetch failed:', errorData);
       throw new Error('Failed to get quote');
     }
-    return await response.json();
+    
+    const data = await response.json();
+    console.log('Quote response:', data);
+    return data;
   };
 
   const calculateToAmount = async (
@@ -59,7 +68,7 @@ export const useSwapCalculations = () => {
         inputToken,
         outputToken,
         parseFloat(inputAmount),
-        100 // 1% default slippage
+        100
       );
 
       setCurrentQuote(quote);
@@ -68,9 +77,8 @@ export const useSwapCalculations = () => {
         return "0";
       }
 
-      // Convert output amount from lamports
-      const outputAmount = (Number(quote.data.outAmount) / 1e9).toString();
-      return outputAmount;
+      // Convert from lamports back to SOL
+      return (Number(quote.data.outAmount) / 1e9).toString();
     } catch (error) {
       console.error('Error calculating amount:', error);
       setCurrentQuote(null);

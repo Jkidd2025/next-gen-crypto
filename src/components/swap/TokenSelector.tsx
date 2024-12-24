@@ -19,7 +19,7 @@ interface TokenSelectorProps {
 
 export const TokenSelector = ({ isOpen, onClose, onSelect, currentToken }: TokenSelectorProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: tokens, isLoading } = useTokenList();
+  const { data: tokens, isLoading, error } = useTokenList();
   const [filteredTokens, setFilteredTokens] = useState<TokenInfo[]>([]);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export const TokenSelector = ({ isOpen, onClose, onSelect, currentToken }: Token
       (token) =>
         (token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
         token.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-        token.symbol !== currentToken // Exclude current token from list
+        token.symbol !== currentToken
     );
     setFilteredTokens(filtered);
   }, [searchQuery, tokens, currentToken]);
@@ -51,6 +51,10 @@ export const TokenSelector = ({ isOpen, onClose, onSelect, currentToken }: Token
             <div className="flex justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
+          ) : error ? (
+            <div className="text-center text-destructive py-8">
+              Failed to load tokens. Please try again.
+            </div>
           ) : (
             <ScrollArea className="h-[300px] pr-4">
               <div className="space-y-2">
@@ -69,7 +73,6 @@ export const TokenSelector = ({ isOpen, onClose, onSelect, currentToken }: Token
                         alt={token.name}
                         className="w-8 h-8 mr-3 rounded-full"
                         onError={(e) => {
-                          // Fallback for failed image loads
                           (e.target as HTMLImageElement).src = "/placeholder.svg";
                         }}
                       />
@@ -78,11 +81,9 @@ export const TokenSelector = ({ isOpen, onClose, onSelect, currentToken }: Token
                       <p className="font-medium">{token.symbol}</p>
                       <p className="text-sm text-muted-foreground">{token.name}</p>
                     </div>
-                    {token.address && (
-                      <span className="text-xs text-muted-foreground truncate max-w-[100px]">
-                        {`${token.address.slice(0, 4)}...${token.address.slice(-4)}`}
-                      </span>
-                    )}
+                    <span className="text-xs text-muted-foreground truncate max-w-[100px]">
+                      {`${token.address.slice(0, 4)}...${token.address.slice(-4)}`}
+                    </span>
                   </button>
                 ))}
               </div>
