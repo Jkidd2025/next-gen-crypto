@@ -1,8 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
-import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
 import { PriceImpact } from "./PriceImpact";
 import { TransactionHistory } from "./TransactionHistory";
@@ -10,6 +7,8 @@ import { TokenSelector } from "./TokenSelector";
 import { RouteVisualizer } from "./RouteVisualizer";
 import { SwapFormHeader } from "./SwapFormHeader";
 import { SwapFormActions } from "./SwapFormActions";
+import { SwapErrorDisplay } from "./SwapErrorDisplay";
+import { SwapInputSection } from "./SwapInputSection";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { useSwapErrors, SwapErrorType } from "@/hooks/swap/useSwapErrors";
@@ -18,11 +17,6 @@ import { COMMON_TOKENS, TokenSymbol } from "@/constants/tokens";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
-}
-
-interface SelectedTokens {
-  from: TokenSymbol;
-  to: TokenSymbol;
 }
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
@@ -86,53 +80,31 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
   return (
     <div className="space-y-6">
-      {!isOnline && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Network Error</AlertTitle>
-          <AlertDescription>
-            You are currently offline. Some features may not work properly.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {error && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>{getErrorTitle(error.type)}</AlertTitle>
-          <AlertDescription>{error.message}</AlertDescription>
-        </Alert>
-      )}
-
+      <SwapErrorDisplay isOnline={isOnline} error={error} />
+      
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
-      <SwapInput
-        label={`From (${selectedTokens.from})`}
-        value={fromAmount}
-        onChange={(value) => calculateToAmount(value, selectedTokens.from, selectedTokens.to)}
+      <SwapInputSection
+        fromToken={selectedTokens.from}
+        toToken={selectedTokens.to}
+        fromAmount={fromAmount}
+        toAmount={toAmount}
         isWalletConnected={isWalletConnected}
+        onFromAmountChange={(value) => calculateToAmount(value, selectedTokens.from, selectedTokens.to)}
         onQuickAmountSelect={handleQuickAmountSelect}
-        showQuickAmounts={true}
         onTokenSelect={() => setIsTokenSelectorOpen(true)}
-      />
-
-      <SwapInput
-        label={`To (${selectedTokens.to})`}
-        value={toAmount}
-        readOnly={true}
-        minimumReceived={fromAmount ? calculateMinimumReceived() : undefined}
-        onTokenSelect={() => setIsTokenSelectorOpen(true)}
+        calculateMinimumReceived={calculateMinimumReceived}
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={String(priceImpact)} />
+      <PriceImpact priceImpact={priceImpact.toString()} />
       
       {route && <RouteVisualizer route={route} tokenMap={COMMON_TOKENS} />}
 
       <SwapFormActions
         onSwap={handleSwapClick}
         disabled={!fromAmount || !isWalletConnected}
-        gasFee={String(gasFee)}
+        gasFee={gasFee}
       />
 
       <SwapConfirmationDialog

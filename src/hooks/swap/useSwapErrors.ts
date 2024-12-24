@@ -24,25 +24,6 @@ interface SwapErrorState {
   history: SwapError[];
 }
 
-const getErrorTitle = (type: SwapErrorType): string => {
-  switch (type) {
-    case SwapErrorType.INSUFFICIENT_BALANCE:
-      return 'Insufficient Balance';
-    case SwapErrorType.SLIPPAGE_EXCEEDED:
-      return 'Slippage Exceeded';
-    case SwapErrorType.PRICE_IMPACT_HIGH:
-      return 'High Price Impact';
-    case SwapErrorType.NETWORK_ERROR:
-      return 'Network Error';
-    case SwapErrorType.API_ERROR:
-      return 'Service Error';
-    case SwapErrorType.VALIDATION:
-      return 'Validation Error';
-    default:
-      return 'Error';
-  }
-};
-
 export const useSwapErrors = () => {
   const [state, setState] = useState<SwapErrorState>({
     error: null,
@@ -64,7 +45,7 @@ export const useSwapErrors = () => {
     }));
 
     toast({
-      title: getErrorTitle(error.type),
+      title: error.type,
       description: error.message,
       variant: 'destructive',
     });
