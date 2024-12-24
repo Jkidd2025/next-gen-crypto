@@ -1,9 +1,8 @@
 import { toast } from '@/hooks/use-toast';
-import { ErrorType, ErrorDetails } from './types';
-import { SwapErrorCode, SwapError } from './types';
+import { ErrorType, ErrorDetails, SwapErrorCode, SwapError } from './types';
 
 class ErrorHandler {
-  private errors: ErrorDetails[] = [];
+  private errors: (ErrorDetails | SwapError)[] = [];
 
   handleError(error: ErrorDetails | SwapError) {
     if ('code' in error && Object.values(SwapErrorCode).includes(error.code as SwapErrorCode)) {
@@ -20,13 +19,13 @@ class ErrorHandler {
       code: error.code,
       message: error.message,
       details: error.details,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(error.timestamp).toISOString(),
     });
 
     toast({
       title: 'Swap Error',
       description: error.message,
-      variant: 'destructive',
+      variant: error.recoverable ? 'default' : 'destructive',
     });
   }
 
@@ -81,7 +80,7 @@ class ErrorHandler {
     }
   }
 
-  getRecentErrors(): ErrorDetails[] {
+  getRecentErrors(): (ErrorDetails | SwapError)[] {
     return this.errors.slice(-10);
   }
 }
