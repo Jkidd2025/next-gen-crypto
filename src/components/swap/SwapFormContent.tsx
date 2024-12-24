@@ -11,7 +11,7 @@ import { SwapErrorDisplay } from "./SwapErrorDisplay";
 import { SwapInputSection } from "./SwapInputSection";
 import { TokenInfo } from "@/hooks/swap/useTokenList";
 import { TokenSymbol, COMMON_TOKENS } from "@/constants/tokens";
-import { SwapError, SwapErrorType } from "@/hooks/swap/useSwapErrors";
+import { SwapError } from "@/types/errors";
 
 interface SwapFormContentProps {
   fromAmount: string;
@@ -89,7 +89,7 @@ export const SwapFormContent = ({
         isWalletConnected={isWalletConnected}
         onFromAmountChange={onFromAmountChange}
         onQuickAmountSelect={onQuickAmountSelect}
-        onTokenSelect={onTokenSelect}
+        onTokenSelect={() => setIsConfirmationOpen(true)}
         calculateMinimumReceived={calculateMinimumReceived}
       />
 

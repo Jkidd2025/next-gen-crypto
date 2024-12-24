@@ -1,6 +1,6 @@
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { useSwapErrors } from "@/hooks/swap/useSwapErrors";
+import { useSwapErrors } from "@/hooks/useSwapErrors";
 import { SwapFormContent } from "./SwapFormContent";
 import type { TokenInfo } from "@/hooks/swap/useTokenList";
 import { TokenSymbol } from "@/constants/tokens";
