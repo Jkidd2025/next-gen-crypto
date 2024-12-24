@@ -5,7 +5,30 @@ import { useToast } from '@/hooks/use-toast';
 import { useSwapState } from './swap/useSwapState';
 import { findTokenInfo } from '@/utils/swap';
 
-export const useSwap = () => {
+interface SwapHookReturn {
+  fromAmount: string;
+  toAmount: string;
+  slippage: number;
+  isRefreshing: boolean;
+  gasFee: string;
+  selectedTokens: {
+    from: string;
+    to: string;
+  };
+  isTokenSelectorOpen: boolean;
+  setIsTokenSelectorOpen: (isOpen: boolean) => void;
+  setSelectedTokens: (tokens: { from: string; to: string }) => void;
+  calculateToAmount: (value: string, fromToken: string, toToken: string) => Promise<void>;
+  handleSwap: () => Promise<void>;
+  calculateMinimumReceived: () => string;
+  refreshPrice: () => void;
+  handleQuickAmountSelect: (percentage: number) => string;
+  setSlippage: (value: number) => void;
+  priceImpact: string;
+  route: any[];
+}
+
+export const useSwap = (): SwapHookReturn => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { isRefreshing, calculateToAmount, calculateMinimumReceived, priceImpact, route } = useSwapCalculations();
@@ -117,7 +140,7 @@ export const useSwap = () => {
     refreshPrice,
     handleQuickAmountSelect,
     setSlippage,
-    priceImpact: String(priceImpact), // Fix the type error by converting to string
+    priceImpact: String(priceImpact),
     route,
   };
 };
