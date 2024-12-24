@@ -59,7 +59,6 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     };
   }, [priceImpact]);
 
-  // Memoize handlers
   const handleSwapClick = useCallback(() => {
     clearError();
     setIsConfirmationOpen(true);
@@ -87,7 +86,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    setSelectedTokens((prev: SelectedTokens): SelectedTokens => ({
+    setSelectedTokens((prev: SelectedTokens) => ({
       ...prev,
       from: tokenSymbol,
     }));
