@@ -1,102 +1,98 @@
-import { useState } from 'react';
 import { useSwapCalculations } from './swap/useSwapCalculations';
 import { useSwapTransactions } from './swap/useSwapTransactions';
 import { useAuth } from '@/components/AuthProvider';
-import { useQuery } from '@tanstack/react-query';
-import { COMMON_TOKENS, TokenSymbol } from '@/constants/tokens';
-
-interface SwapState {
-  fromAmount: string;
-  toAmount: string;
-  selectedTokens: {
-    from: TokenSymbol;
-    to: TokenSymbol;
-  };
-  slippage: number;
-}
+import { useToast } from '@/hooks/use-toast';
+import { useSwapState } from './swap/useSwapState';
+import { findTokenInfo } from '@/utils/swap';
 
 export const useSwap = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const { isRefreshing, calculateToAmount, calculateMinimumReceived, priceImpact, route } = useSwapCalculations();
   const { handleSwap: executeSwap, gasFee } = useSwapTransactions();
-
-  const [fromAmount, setFromAmount] = useState<string>("");
-  const [toAmount, setToAmount] = useState<string>("");
-  const [selectedTokens, setSelectedTokens] = useState<SwapState['selectedTokens']>({
-    from: "SOL",
-    to: "USDC"
-  });
-  const [slippage, setSlippage] = useState<number>(0.5);
-
-  // Add proper query handling for token prices
-  const { data: tokenPrices, isLoading: isPriceLoading } = useQuery({
-    queryKey: ['tokenPrices'],
-    queryFn: async () => {
-      // Mock price data while external API integration is pending
-      return {
-        SOL: 100,
-        USDC: 1,
-        USDT: 1
-      };
-    },
-    retry: 3,
-    staleTime: 30000, // 30 seconds
-  });
-
-  const handleQuickAmountSelect = (percentage: number): string => {
-    const mockBalance = 100;
-    const amount = (mockBalance * percentage) / 100;
-    const amountString = amount.toString();
-    setFromAmount(amountString);
-    return amountString;
-  };
+  const {
+    fromAmount,
+    setFromAmount,
+    toAmount,
+    setToAmount,
+    slippage,
+    setSlippage,
+    isTokenSelectorOpen,
+    setIsTokenSelectorOpen,
+    selectedTokens,
+    setSelectedTokens,
+    handleQuickAmountSelect,
+  } = useSwapState();
 
   const calculateSwapAmount = async (
     value: string,
-    fromToken: TokenSymbol,
-    toToken: TokenSymbol
+    fromToken: string,
+    toToken: string
   ) => {
-    if (!tokenPrices) return "0";
-    
-    setFromAmount(value);
-    const fromTokenInfo = COMMON_TOKENS[fromToken];
-    const toTokenInfo = COMMON_TOKENS[toToken];
+    try {
+      setFromAmount(value);
+      const fromTokenInfo = findTokenInfo(fromToken);
+      const toTokenInfo = findTokenInfo(toToken);
 
-    if (!fromTokenInfo || !toTokenInfo) {
-      throw new Error("Invalid token selection");
+      if (!fromTokenInfo || !toTokenInfo) {
+        throw new Error("Invalid token selection");
+      }
+
+      const calculatedAmount = await calculateToAmount(
+        value,
+        fromTokenInfo.address,
+        toTokenInfo.address
+      );
+      setToAmount(calculatedAmount);
+    } catch (error) {
+      console.error("Error calculating swap amount:", error);
+      toast({
+        title: "Error",
+        description: "Failed to calculate swap amount. Please try again.",
+        variant: "destructive",
+      });
+      setToAmount("0");
     }
-
-    const calculatedAmount = await calculateToAmount(
-      value,
-      fromTokenInfo.address,
-      toTokenInfo.address
-    );
-    setToAmount(calculatedAmount);
   };
 
   const handleSwap = async () => {
     if (!user?.id) {
-      throw new Error("User not authenticated");
-    }
-    if (!tokenPrices) {
-      throw new Error("Price data not available");
-    }
-    
-    const fromTokenInfo = COMMON_TOKENS[selectedTokens.from];
-    const toTokenInfo = COMMON_TOKENS[selectedTokens.to];
-
-    if (!fromTokenInfo || !toTokenInfo) {
-      throw new Error("Invalid token selection");
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet to proceed with the swap",
+        variant: "destructive",
+      });
+      return;
     }
 
-    return executeSwap(
-      fromTokenInfo.address,
-      toTokenInfo.address,
-      fromAmount,
-      toAmount,
-      slippage,
-      user.id
-    );
+    try {
+      const fromTokenInfo = findTokenInfo(selectedTokens.from);
+      const toTokenInfo = findTokenInfo(selectedTokens.to);
+
+      if (!fromTokenInfo || !toTokenInfo) {
+        throw new Error("Invalid token selection");
+      }
+
+      await executeSwap(
+        fromTokenInfo.address,
+        toTokenInfo.address,
+        fromAmount,
+        toAmount,
+        slippage,
+        user.id
+      );
+      
+      toast({
+        title: "Swap successful",
+        description: `Successfully swapped ${fromAmount} ${selectedTokens.from} for ${toAmount} ${selectedTokens.to}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Swap failed",
+        description: error instanceof Error ? error.message : "An error occurred during the swap",
+        variant: "destructive",
+      });
+    }
   };
 
   const refreshPrice = () => {
@@ -110,19 +106,18 @@ export const useSwap = () => {
     toAmount,
     slippage,
     isRefreshing,
-    isPriceLoading,
     gasFee,
+    selectedTokens,
+    isTokenSelectorOpen,
+    setIsTokenSelectorOpen,
+    setSelectedTokens,
     calculateToAmount: calculateSwapAmount,
     handleSwap,
     calculateMinimumReceived: () => calculateMinimumReceived(toAmount, slippage),
     refreshPrice,
     handleQuickAmountSelect,
     setSlippage,
-    priceImpact,
+    priceImpact: String(priceImpact), // Fix the type error by converting to string
     route,
-    selectedTokens,
-    setSelectedTokens,
-    setFromAmount,
-    setToAmount
   };
 };
