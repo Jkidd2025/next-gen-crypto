@@ -1,17 +1,14 @@
-import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
 import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
 import { PriceImpact } from "./PriceImpact";
 import { TransactionHistory } from "./TransactionHistory";
 import { TokenSelector } from "./TokenSelector";
-import { SwapRoute } from "./SwapRoute";
 import { RouteVisualizer } from "./RouteVisualizer";
-import { RefreshCw } from "lucide-react";
-import { useSwap } from "@/hooks/useSwap";
-import { useToast } from "@/hooks/use-toast";
-import { useTokenList } from "@/hooks/swap/useTokenList";
+import { SwapFormHeader } from "./SwapFormHeader";
+import { SwapFormActions } from "./SwapFormActions";
+import { useSwapForm } from "@/hooks/swap/useSwapForm";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -19,21 +16,17 @@ interface SwapFormProps {
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [isTokenSelectorOpen, setIsTokenSelectorOpen] = useState(false);
-  const [selectedTokens, setSelectedTokens] = useState({
-    from: "SOL",
-    to: "MEME",
-  });
-
-  const { data: tokenList, isLoading: isTokenListLoading } = useTokenList();
-  const { toast } = useToast();
-
+  
   const {
     fromAmount,
     toAmount,
     slippage,
     isRefreshing,
     gasFee,
+    selectedTokens,
+    isTokenSelectorOpen,
+    setIsTokenSelectorOpen,
+    setSelectedTokens,
     calculateToAmount,
     handleSwap,
     calculateMinimumReceived,
@@ -42,62 +35,20 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     setSlippage,
     priceImpact,
     route,
-  } = useSwap();
-
-  // Create a token map for easy lookup
-  const tokenMap = useMemo(() => {
-    if (!tokenList) return {};
-    return tokenList.reduce((acc, token) => {
-      acc[token.address] = token;
-      return acc;
-    }, {} as Record<string, typeof tokenList[0]>);
-  }, [tokenList]);
+  } = useSwapForm();
 
   const handleSwapClick = () => {
-    if (!isWalletConnected) {
-      toast({
-        title: "Wallet not connected",
-        description: "Please connect your wallet to proceed with the swap",
-        variant: "destructive",
-      });
-      return;
-    }
     setIsConfirmationOpen(true);
   };
 
   const handleConfirmSwap = async () => {
-    try {
-      await handleSwap(selectedTokens.from, selectedTokens.to);
-      setIsConfirmationOpen(false);
-      toast({
-        title: "Swap successful",
-        description: `Successfully swapped ${fromAmount} ${selectedTokens.from} for ${toAmount} ${selectedTokens.to}`,
-      });
-    } catch (error) {
-      toast({
-        title: "Swap failed",
-        description: error instanceof Error ? error.message : "An error occurred during the swap",
-        variant: "destructive",
-      });
-      setIsConfirmationOpen(false);
-    }
+    await handleSwap();
+    setIsConfirmationOpen(false);
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium">Swap Tokens</h3>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={refreshPrice}
-          disabled={isRefreshing}
-        >
-          <RefreshCw
-            className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-          />
-        </Button>
-      </div>
+      <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
       <SwapInput
         label={`From (${selectedTokens.from})`}
@@ -118,24 +69,15 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-
-      {/* Add price impact warning */}
       <PriceImpact priceImpact={priceImpact} />
       
-      {/* Add route visualization */}
-      {route && tokenMap && <RouteVisualizer route={route} tokenMap={tokenMap} />}
+      {route && <RouteVisualizer route={route} tokenMap={{}} />}
 
-      <div className="text-sm text-muted-foreground">
-        Estimated Gas Fee: {gasFee} SOL
-      </div>
-
-      <Button
-        className="w-full bg-primary hover:bg-primary/90"
-        onClick={handleSwapClick}
+      <SwapFormActions
+        onSwap={handleSwapClick}
         disabled={!fromAmount || !isWalletConnected}
-      >
-        Swap Tokens
-      </Button>
+        gasFee={gasFee}
+      />
 
       <SwapConfirmationDialog
         isOpen={isConfirmationOpen}
