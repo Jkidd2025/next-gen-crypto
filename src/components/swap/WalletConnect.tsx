@@ -1,23 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
 import { LogIn, LogOut, Loader2 } from "lucide-react";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface WalletConnectProps {
   onConnect: (isConnected: boolean) => void;
 }
 
 export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
-  const { connected, connecting, connect, disconnect } = useWalletConnection();
-
-  const handleConnect = async () => {
-    try {
-      await connect();
-      onConnect(true);
-    } catch (error) {
-      console.error("Failed to connect wallet:", error);
-      onConnect(false);
-    }
-  };
+  const { connected, connecting } = useWallet();
+  const { disconnect } = useWalletConnection();
 
   const handleDisconnect = async () => {
     try {
@@ -36,23 +29,21 @@ export const WalletConnect = ({ onConnect }: WalletConnectProps) => {
       </p>
       
       {!connected ? (
-        <Button
-          onClick={handleConnect}
-          disabled={connecting}
-          className="w-full"
-        >
-          {connecting ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Connecting...
-            </>
-          ) : (
-            <>
-              <LogIn className="w-4 h-4 mr-2" />
-              Connect Wallet
-            </>
-          )}
-        </Button>
+        <div className="flex justify-center">
+          <WalletMultiButton className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2">
+            {connecting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              <>
+                <LogIn className="w-4 h-4" />
+                Select Wallet
+              </>
+            )}
+          </WalletMultiButton>
+        </div>
       ) : (
         <Button
           onClick={handleDisconnect}
