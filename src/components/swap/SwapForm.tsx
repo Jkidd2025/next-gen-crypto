@@ -20,10 +20,10 @@ interface SwapFormProps {
   isWalletConnected: boolean;
 }
 
-type SelectedTokens = {
+interface SelectedTokens {
   from: TokenSymbol;
   to: TokenSymbol;
-};
+}
 
 export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
@@ -52,7 +52,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
 
   // Memoize price impact calculations
   const { priceImpactNumber, isHighImpact } = useMemo(() => {
-    const number = Number(priceImpact);
+    const number = parseFloat(priceImpact);
     return {
       priceImpactNumber: number,
       isHighImpact: number >= 5
@@ -87,7 +87,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       return;
     }
 
-    setSelectedTokens(prev => ({
+    setSelectedTokens((prev: SelectedTokens) => ({
       ...prev,
       from: tokenSymbol,
     }));
@@ -125,8 +125,8 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
       />
 
       <SlippageControl 
-        value={typeof slippage === 'number' ? slippage.toString() : slippage} 
-        onChange={(value) => setSlippage(Number(value))} 
+        value={slippage} 
+        onChange={setSlippage} 
       />
       
       <PriceImpact 
@@ -148,7 +148,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         fromAmount={fromAmount}
         toAmount={toAmount}
         priceImpact={priceImpactNumber}
-        minimumReceived={minimumReceived}
+        minimumReceived={minimumReceived || "0"}
         isHighImpact={isHighImpact}
       />
 
