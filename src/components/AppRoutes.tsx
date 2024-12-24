@@ -8,7 +8,6 @@ import Signup from "@/pages/Signup";
 import SignupSuccess from "@/pages/SignupSuccess";
 import ForgotPassword from "@/pages/ForgotPassword";
 import Dashboard from "@/pages/Dashboard";
-import TokenSwap from "@/pages/TokenSwap";
 import GettingStarted from "@/pages/GettingStarted";
 import TradingBasics from "@/pages/TradingBasics";
 import WalletManagement from "@/pages/WalletManagement";
@@ -43,14 +42,6 @@ export const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/swap"
-            element={
-              <ProtectedRoute>
-                <TokenSwap />
               </ProtectedRoute>
             }
           />
