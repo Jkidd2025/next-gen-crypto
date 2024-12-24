@@ -6,12 +6,30 @@ import { useSwapState } from './useSwapState';
 import { findTokenInfo } from '@/utils/swap';
 import type { TokenSymbol } from '@/types/token';
 
-interface SelectedTokens {
-  from: TokenSymbol;
-  to: TokenSymbol;
+interface SwapResponse {
+  fromAmount: string;
+  toAmount: string;
+  slippage: number;
+  isRefreshing: boolean;
+  gasFee: string;
+  selectedTokens: {
+    from: TokenSymbol;
+    to: TokenSymbol;
+  };
+  isTokenSelectorOpen: boolean;
+  setIsTokenSelectorOpen: (isOpen: boolean) => void;
+  setSelectedTokens: (tokens: { from: TokenSymbol; to: TokenSymbol }) => void;
+  calculateToAmount: (value: string, fromToken: string, toToken: string) => Promise<void>;
+  handleSwap: () => Promise<void>;
+  calculateMinimumReceived: () => string;
+  refreshPrice: () => void;
+  handleQuickAmountSelect: (percentage: number) => string;
+  setSlippage: (value: number) => void;
+  priceImpact: string;
+  route: any;
 }
 
-export const useSwapForm = () => {
+export const useSwapForm = (): SwapResponse => {
   const {
     fromAmount,
     setFromAmount,
@@ -119,7 +137,7 @@ export const useSwapForm = () => {
     toAmount,
     slippage,
     isRefreshing,
-    gasFee,
+    gasFee: gasFee || "0",
     selectedTokens,
     isTokenSelectorOpen,
     setIsTokenSelectorOpen,
