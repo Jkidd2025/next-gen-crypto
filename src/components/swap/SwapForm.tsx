@@ -1,6 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { SwapConfirmationDialog } from "./SwapConfirmationDialog";
-import { SwapInput } from "./SwapInput";
 import { SlippageControl } from "./SlippageControl";
 import { PriceImpact } from "./PriceImpact";
 import { TransactionHistory } from "./TransactionHistory";
@@ -8,8 +7,10 @@ import { TokenSelector } from "./TokenSelector";
 import { RouteVisualizer } from "./RouteVisualizer";
 import { SwapFormHeader } from "./SwapFormHeader";
 import { SwapFormActions } from "./SwapFormActions";
+import { SwapInputsSection } from "./SwapInputsSection";
 import { useSwapForm } from "@/hooks/swap/useSwapForm";
 import { useTokenList } from "@/hooks/swap/useTokenList";
+import { useMemo } from "react";
 
 interface SwapFormProps {
   isWalletConnected: boolean;
@@ -56,34 +57,27 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
     setIsConfirmationOpen(false);
   };
 
-  // Convert priceImpact to number and ensure it's not NaN
-  const priceImpactValue = typeof priceImpact === 'string' ? parseFloat(priceImpact) : Number(priceImpact);
-  const validPriceImpact = isNaN(priceImpactValue) ? 0 : priceImpactValue;
+  // Convert priceImpact to string for the PriceImpact component
+  const priceImpactValue = typeof priceImpact === 'string' ? priceImpact : String(priceImpact);
 
   return (
     <div className="space-y-6">
       <SwapFormHeader refreshPrice={refreshPrice} isRefreshing={isRefreshing} />
 
-      <SwapInput
-        label={`From (${selectedTokens.from})`}
-        value={fromAmount}
-        onChange={(value) => calculateToAmount(value, selectedTokens.from, selectedTokens.to)}
+      <SwapInputsSection
+        fromToken={selectedTokens.from}
+        toToken={selectedTokens.to}
+        fromAmount={fromAmount}
+        toAmount={toAmount}
         isWalletConnected={isWalletConnected}
+        onFromAmountChange={(value) => calculateToAmount(value, selectedTokens.from, selectedTokens.to)}
         onQuickAmountSelect={handleQuickAmountSelect}
-        showQuickAmounts={true}
         onTokenSelect={() => setIsTokenSelectorOpen(true)}
-      />
-
-      <SwapInput
-        label={`To (${selectedTokens.to})`}
-        value={toAmount}
-        readOnly={true}
-        minimumReceived={fromAmount ? calculateMinimumReceived() : undefined}
-        onTokenSelect={() => setIsTokenSelectorOpen(true)}
+        calculateMinimumReceived={calculateMinimumReceived}
       />
 
       <SlippageControl value={slippage} onChange={setSlippage} />
-      <PriceImpact priceImpact={validPriceImpact} />
+      <PriceImpact priceImpact={priceImpactValue} />
       
       {route && <RouteVisualizer route={route} tokenMap={tokenMap} />}
 
@@ -99,9 +93,9 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
         onConfirm={handleConfirmSwap}
         fromAmount={fromAmount}
         toAmount={toAmount}
-        priceImpact={validPriceImpact}
+        priceImpact={Number(priceImpactValue)}
         minimumReceived={calculateMinimumReceived()}
-        isHighImpact={validPriceImpact >= 5}
+        isHighImpact={Number(priceImpactValue) >= 5}
       />
 
       <TokenSelector
@@ -114,6 +108,7 @@ export const SwapForm = ({ isWalletConnected }: SwapFormProps) => {
           }));
           setIsTokenSelectorOpen(false);
         }}
+        currentToken={selectedTokens.from}
       />
 
       <div className="mt-8">

@@ -2,22 +2,24 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
 interface PriceImpactProps {
-  priceImpact: number;
+  priceImpact: string;
 }
 
 export const PriceImpact = ({ priceImpact }: PriceImpactProps) => {
-  if (priceImpact < 1) return null;
+  const priceImpactNumber = parseFloat(priceImpact);
+  
+  if (isNaN(priceImpactNumber) || priceImpactNumber < 1) return null;
 
   const getAlertVariant = () => {
-    if (priceImpact >= 5) return "destructive";
+    if (priceImpactNumber >= 5) return "destructive";
     return "default";
   };
 
   const getMessage = () => {
-    if (priceImpact >= 5) {
+    if (priceImpactNumber >= 5) {
       return "High price impact! Your trade will move the market price significantly.";
     }
-    if (priceImpact >= 3) {
+    if (priceImpactNumber >= 3) {
       return "Medium price impact. Your trade will move the market price.";
     }
     return "Low price impact.";
@@ -27,7 +29,7 @@ export const PriceImpact = ({ priceImpact }: PriceImpactProps) => {
     <Alert variant={getAlertVariant()}>
       <AlertTriangle className="h-4 w-4" />
       <AlertDescription>
-        Price Impact: {priceImpact.toFixed(2)}% - {getMessage()}
+        Price Impact: {priceImpactNumber.toFixed(2)}% - {getMessage()}
       </AlertDescription>
     </Alert>
   );
