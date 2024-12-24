@@ -1,7 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-
-const CIRCUIT_BREAKER_THRESHOLD = 10; // 10% price change
-const PRIORITY_FEE_MULTIPLIER = 1.5;
+import { configService } from '@/services/config/appConfig';
 
 export const estimateGasFee = async (connection: Connection): Promise<number> => {
   try {
@@ -18,7 +16,7 @@ export const estimateGasFee = async (connection: Connection): Promise<number> =>
     const blockTimeDiff = blockTime - prevBlockTime;
     const congestionMultiplier = Math.max(1, blockTimeDiff / 0.4); // 0.4s is target block time
     
-    return baseFee * congestionMultiplier * PRIORITY_FEE_MULTIPLIER;
+    return baseFee * congestionMultiplier;
   } catch (error) {
     console.error('Error estimating gas fee:', error);
     return 5000; // Default fee in lamports
@@ -30,12 +28,13 @@ export const checkCircuitBreaker = async (
   toToken: string,
   priceImpact: number
 ): Promise<boolean> => {
+  const config = await configService.getConfig();
+  
   // Check if price impact exceeds threshold
-  if (Math.abs(priceImpact) > CIRCUIT_BREAKER_THRESHOLD) {
+  if (Math.abs(priceImpact) > config.monitoring_thresholds.price_change_alert) {
     return true;
   }
   
-  // Additional checks can be added here
   return false;
 };
 

@@ -1,10 +1,5 @@
 import { Connection } from '@solana/web3.js';
-
-const RPC_ENDPOINTS = [
-  'https://api.mainnet-beta.solana.com',
-  'https://solana-api.projectserum.com',
-  'https://rpc.ankr.com/solana',
-];
+import { configService } from '@/services/config/appConfig';
 
 const MAX_RETRIES = 3;
 const TIMEOUT = 30000; // 30 seconds
@@ -18,6 +13,9 @@ export const getConnection = async (primaryConnection?: Connection): Promise<Con
       console.warn('Primary connection failed, trying fallbacks:', error);
     }
   }
+
+  const config = await configService.getConfig();
+  const RPC_ENDPOINTS = config.rpc_endpoints;
 
   for (let retry = 0; retry < MAX_RETRIES; retry++) {
     for (const endpoint of RPC_ENDPOINTS) {

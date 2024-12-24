@@ -1,5 +1,6 @@
 import { Connection } from '@solana/web3.js';
 import { supabase } from '@/integrations/supabase/client';
+import { configService } from '@/services/config/appConfig';
 
 export interface SwapMetrics {
   success: boolean;
@@ -12,6 +13,7 @@ export interface SwapMetrics {
 }
 
 export const checkRPCHealth = async (connection: Connection): Promise<boolean> => {
+  const config = await configService.getConfig();
   const start = Date.now();
   
   try {
@@ -25,7 +27,7 @@ export const checkRPCHealth = async (connection: Connection): Promise<boolean> =
       timestamp: new Date().toISOString()
     }]);
     
-    return latency < 1000; // Consider healthy if latency < 1s
+    return latency < config.monitoring_thresholds.latency_ms;
   } catch (error) {
     await supabase.from('rpc_health_metrics').insert([{
       endpoint: connection.rpcEndpoint,
