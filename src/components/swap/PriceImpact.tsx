@@ -2,11 +2,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
 interface PriceImpactProps {
-  priceImpact: string;
+  priceImpact: string | number;
 }
 
 export const PriceImpact = ({ priceImpact }: PriceImpactProps) => {
-  const priceImpactNumber = parseFloat(priceImpact);
+  const priceImpactNumber = typeof priceImpact === 'string' ? parseFloat(priceImpact) : priceImpact;
   
   if (isNaN(priceImpactNumber) || priceImpactNumber < 1) return null;
 
