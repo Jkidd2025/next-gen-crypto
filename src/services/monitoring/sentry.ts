@@ -1,13 +1,14 @@
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import { BaseError } from "@/types/errors";
+import type { Integration } from '@sentry/types';
 
 export const initSentry = () => {
   if (process.env.NODE_ENV === 'production') {
     Sentry.init({
       dsn: process.env.VITE_SENTRY_DSN,
       integrations: [
-        new BrowserTracing() as unknown as Sentry.Integration
+        new BrowserTracing() as Integration
       ],
       tracesSampleRate: 1.0,
       beforeSend(event) {
