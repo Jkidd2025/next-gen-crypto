@@ -1,26 +1,49 @@
 import { toast } from '@/hooks/use-toast';
 import { ErrorType, ErrorDetails } from './types';
+import { SwapErrorCode, SwapError } from './types';
 
 class ErrorHandler {
   private errors: ErrorDetails[] = [];
 
-  handleError(error: ErrorDetails) {
+  handleError(error: ErrorDetails | SwapError) {
+    if ('code' in error && Object.values(SwapErrorCode).includes(error.code as SwapErrorCode)) {
+      // Handle swap-specific errors
+      this.handleSwapError(error as SwapError);
+    } else {
+      // Handle general errors
+      this.handleGeneralError(error as ErrorDetails);
+    }
+  }
+
+  private handleSwapError(error: SwapError) {
+    console.error('Swap Error:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      timestamp: new Date().toISOString(),
+    });
+
+    toast({
+      title: 'Swap Error',
+      description: error.message,
+      variant: 'destructive',
+    });
+  }
+
+  private handleGeneralError(error: ErrorDetails) {
     this.errors.push(error);
 
-    // Log error
     console.error('Error:', {
       ...error,
       timestamp: new Date(error.timestamp).toISOString(),
     });
 
-    // Show user notification
     toast({
       title: this.getErrorTitle(error.type),
       description: error.message,
       variant: error.recoverable ? 'default' : 'destructive',
     });
 
-    // Trigger recovery if possible
     if (error.recoverable) {
       this.attemptRecovery(error);
     }
