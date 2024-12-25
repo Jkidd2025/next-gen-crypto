@@ -2,11 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TokenInput } from "./TokenInput";
 import { SwapButton } from "./SwapButton";
 import { useSwap } from "@/contexts/SwapContext";
-import { Settings2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { PriceImpactWarning } from "../PriceImpactWarning";
+import { SlippageSettings } from "./SlippageSettings";
 
 export const SwapCard = () => {
   const { state } = useSwap();
@@ -24,9 +23,7 @@ export const SwapCard = () => {
     <Card className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-sm shadow-xl">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Swap Tokens</CardTitle>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Settings2 className="h-4 w-4" />
-        </Button>
+        <SlippageSettings />
       </CardHeader>
       <CardContent className="space-y-4">
         <TokenInput
