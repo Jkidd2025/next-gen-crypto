@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { TokenInfo, SwapState, SwapQuote, RouteStep } from '@/types/token-swap';
-import { getPriceImpact, findBestRoute } from '@/lib/swap-utils';
+import { getPriceImpact, findBestRoute, getQuote, getQuoteReverse } from '@/lib/swap-utils';
 
 const DEFAULT_SLIPPAGE = 0.5; // 0.5%
 
