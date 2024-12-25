@@ -96,3 +96,13 @@ export async function getTokenPrice(symbol: string): Promise<number | null> {
     return null;
   }
 }
+
+export function isValidMintAddress(address: string): boolean {
+  try {
+    // Check if the string is a valid Solana public key
+    new PublicKey(address);
+    return true;
+  } catch {
+    return false;
+  }
+}
