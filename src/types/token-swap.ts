@@ -4,6 +4,11 @@ export interface TokenInfo {
   name: string;
   decimals: number;
   logoURI?: string;
+  balance?: number;
+  usdPrice?: number;
+  verified?: boolean;
+  favorite?: boolean;
+  tags?: string[];
 }
 
 export interface SwapState {
@@ -51,4 +56,11 @@ export interface PoolInfo {
   fee: number;
   liquidity: string;
   price: number;
+}
+
+export interface TokenBalance {
+  mint: string;
+  amount: number;
+  decimals: number;
+  uiAmount: number;
 }
