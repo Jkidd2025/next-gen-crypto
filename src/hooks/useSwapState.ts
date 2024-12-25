@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { TokenInfo, SwapState, SwapQuote } from '@/types/token-swap';
+import { TokenInfo, SwapState, SwapQuote, SwapError } from '@/types/token-swap';
 import { useQuoteManagement } from './swap/useQuoteManagement';
 import { useTokenState } from './swap/useTokenState';
 import { calculatePriceImpact as calcPriceImpact, findBestRoute as findRoute } from '@/lib/swap/price';
