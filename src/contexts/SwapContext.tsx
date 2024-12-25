@@ -19,6 +19,8 @@ const SwapContext = createContext<SwapContextType | undefined>(undefined);
 export const SwapProvider = ({ children }: { children: ReactNode }) => {
   const swapState = useSwapState();
 
+  console.log("SwapProvider initialized with state:", swapState); // Debug log
+
   return (
     <SwapContext.Provider value={swapState}>
       {children}
