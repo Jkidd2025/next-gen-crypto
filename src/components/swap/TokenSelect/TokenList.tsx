@@ -16,7 +16,7 @@ export const TokenList = ({ selectedToken, onSelect }: TokenListProps) => {
       <div className="space-y-2">
         {tokens.map((token) => (
           <Button
-            key={token.address}
+            key={token.mint}
             variant="ghost"
             className="w-full justify-start"
             onClick={() => onSelect(token as TokenInfo)}

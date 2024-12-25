@@ -12,11 +12,11 @@ export const useTokenList = () => {
       try {
         // Convert COMMON_TOKENS to TokenInfo array
         const tokenList = Object.values(COMMON_TOKENS).map(token => ({
-          mint: token.address, // Using address as mint
+          mint: token.mint,
           symbol: token.symbol,
           name: token.name,
           decimals: token.decimals,
-          logoURI: undefined // Will be added in future phases
+          logoURI: token.logoURI
         }));
         
         setTokens(tokenList);

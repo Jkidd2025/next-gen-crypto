@@ -72,7 +72,7 @@ export const getTokenMetadata = (symbol: string): TokenMetadata | undefined => {
   const token = COMMON_TOKENS[symbol as keyof typeof COMMON_TOKENS];
   return token ? {
     symbol: token.symbol,
-    address: token.address,
+    address: token.mint,
     decimals: token.decimals,
     name: token.name
   } : undefined;
