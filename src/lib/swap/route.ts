@@ -1,22 +1,27 @@
-import { TokenInfo, RouteStep, SwapQuote } from "@/types/token-swap";
-import { getPoolInfo } from "./pools";
+import { TokenInfo, RouteStep, SwapQuote } from '@/types/token-swap';
+import { getPoolInfo } from './pools';
 
 export const findBestRoute = async (
   tokenIn: TokenInfo,
   tokenOut: TokenInfo,
   amountIn: string
 ): Promise<RouteStep[]> => {
-  // For now, return direct route. This will be enhanced with actual routing logic
-  return [
-    {
-      symbol: tokenIn.symbol,
-      mint: tokenIn.mint,
-    },
-    {
-      symbol: tokenOut.symbol,
-      mint: tokenOut.mint,
-    },
-  ];
+  try {
+    // For now, return direct route. This will be enhanced with actual routing logic
+    return [
+      {
+        symbol: tokenIn.symbol,
+        mint: tokenIn.mint,
+      },
+      {
+        symbol: tokenOut.symbol,
+        mint: tokenOut.mint,
+      },
+    ];
+  } catch (error) {
+    console.error("Error finding best route:", error);
+    throw error;
+  }
 };
 
 export const estimateRoute = async (
