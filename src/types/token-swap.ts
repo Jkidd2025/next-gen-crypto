@@ -12,9 +12,10 @@ export interface SwapState {
   amountIn: string;
   amountOut: string;
   slippage: number;
-  loading?: boolean;
-  priceImpact?: number;
-  route?: TokenInfo[];
+  priceImpact: number;
+  route: RouteStep[] | null;
+  status: SwapStatus;
+  error: SwapError | null;
 }
 
 export interface SwapQuote {
@@ -22,6 +23,9 @@ export interface SwapQuote {
   outAmount: string;
   priceImpact: number;
   fee: number;
+  route: RouteStep[];
+  executionPrice: number;
+  minimumReceived: string;
 }
 
 export interface SwapError {
@@ -30,4 +34,21 @@ export interface SwapError {
   details?: any;
 }
 
-export type SwapStatus = 'idle' | 'loading' | 'success' | 'error';
+export interface RouteStep {
+  symbol: string;
+  mint: string;
+  poolAddress?: string;
+  poolFee?: number;
+  percentage?: number;
+}
+
+export type SwapStatus = 'idle' | 'loading' | 'quoting' | 'swapping' | 'success' | 'error';
+
+export interface PoolInfo {
+  address: string;
+  tokenA: TokenInfo;
+  tokenB: TokenInfo;
+  fee: number;
+  liquidity: string;
+  price: number;
+}
