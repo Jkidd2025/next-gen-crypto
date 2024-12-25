@@ -22,5 +22,7 @@ export const COMMON_BASES: TokenInfo[] = [
 ];
 
 export const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+export const SWAP_PROGRAM_ID = "SwaPpA9LAaLfeLi3a68M4DjnLqgtticKg6CnyNwgAC8";
+export const MIN_LIQUIDITY = "1000";
 export const MAX_TOKENS_TO_FETCH = 1000;
 export const DEFAULT_TOKEN_DECIMALS = 9;
