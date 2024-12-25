@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { TokenInfo, SwapQuote } from '@/types/token-swap';
+import { TokenInfo, SwapQuote, SwapError } from '@/types/token-swap';
 import { getQuote } from '@/lib/swap-utils';
 import { logSwapError, createSwapError } from './useSwapErrors';
 

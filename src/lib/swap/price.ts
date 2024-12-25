@@ -1,4 +1,4 @@
-import { TokenInfo, SwapQuote, PoolInfo } from "@/types/token-swap";
+import { TokenInfo, SwapQuote, RouteStep } from "@/types/token-swap";
 import { HIGH_PRICE_IMPACT_THRESHOLD } from "./constants";
 import { getPoolInfo } from "./pools";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -36,6 +36,23 @@ export const calculatePriceImpact = async (
   } catch (error) {
     console.error("Error calculating price impact:", error);
     return 0;
+  }
+};
+
+export const findBestRoute = async (
+  tokenIn: TokenInfo,
+  tokenOut: TokenInfo,
+  amountIn: string
+): Promise<RouteStep[]> => {
+  try {
+    // For now, return a direct route between the tokens
+    return [
+      { symbol: tokenIn.symbol, mint: tokenIn.mint },
+      { symbol: tokenOut.symbol, mint: tokenOut.mint }
+    ];
+  } catch (error) {
+    console.error("Error finding best route:", error);
+    return [];
   }
 };
 
