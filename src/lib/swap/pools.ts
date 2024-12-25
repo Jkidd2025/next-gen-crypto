@@ -14,6 +14,8 @@ export const getPoolInfo = async (
       fee: 0.3,
       liquidity: "1000000",
       price: 1.0,
+      tokenAReserves: "1000000", // Added missing property
+      tokenBReserves: "1000000", // Added missing property
     };
   } catch (error) {
     console.error("Error fetching pool info:", error);
