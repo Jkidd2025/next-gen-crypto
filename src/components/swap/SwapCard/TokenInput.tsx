@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { TokenInfo } from "@/types/token-swap";
 import { ChevronDown } from "lucide-react";
 import { useSwap } from "@/contexts/SwapContext";
+import { useState } from "react";
+import { TokenSelect } from "../TokenSelect";
 
 interface TokenInputProps {
   type: "input" | "output";
@@ -11,13 +13,22 @@ interface TokenInputProps {
 }
 
 export const TokenInput = ({ type, token, amount }: TokenInputProps) => {
-  const { setAmountIn, setAmountOut } = useSwap();
+  const { setAmountIn, setAmountOut, setTokenIn, setTokenOut } = useSwap();
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
 
   const handleAmountChange = (value: string) => {
     if (type === "input") {
       setAmountIn(value);
     } else {
       setAmountOut(value);
+    }
+  };
+
+  const handleTokenSelect = (selectedToken: TokenInfo) => {
+    if (type === "input") {
+      setTokenIn(selectedToken);
+    } else {
+      setTokenOut(selectedToken);
     }
   };
 
@@ -34,7 +45,7 @@ export const TokenInput = ({ type, token, amount }: TokenInputProps) => {
         <Button
           variant="outline"
           className="flex items-center gap-2"
-          onClick={() => {}}
+          onClick={() => setIsSelectOpen(true)}
         >
           {token ? (
             <>
@@ -53,6 +64,13 @@ export const TokenInput = ({ type, token, amount }: TokenInputProps) => {
           <ChevronDown className="h-4 w-4" />
         </Button>
       </div>
+
+      <TokenSelect
+        open={isSelectOpen}
+        onClose={() => setIsSelectOpen(false)}
+        onSelect={handleTokenSelect}
+        selectedToken={token}
+      />
     </div>
   );
 };
