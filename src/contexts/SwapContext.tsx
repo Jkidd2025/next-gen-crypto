@@ -9,6 +9,8 @@ interface SwapContextType {
   setAmountIn: (amount: string) => void;
   setAmountOut: (amount: string) => void;
   setSlippage: (slippage: number) => void;
+  calculatePriceImpact: () => Promise<void>;
+  findBestRoute: () => Promise<void>;
   resetState: () => void;
 }
 
