@@ -1,9 +1,16 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { TokenInfo, SwapState } from '@/types/token-swap';
 import { useSwapState } from '@/hooks/useSwapState';
+import { useTokenList } from '@/hooks/swap/useTokenList';
 
 interface SwapContextType {
   state: SwapState;
+  tokens: {
+    list: TokenInfo[];
+    loading: boolean;
+    error: Error | null;
+    refresh: () => Promise<void>;
+  };
   setTokenIn: (token: TokenInfo | null) => void;
   setTokenOut: (token: TokenInfo | null) => void;
   setAmountIn: (amount: string) => void;
@@ -18,11 +25,22 @@ const SwapContext = createContext<SwapContextType | undefined>(undefined);
 
 export const SwapProvider = ({ children }: { children: ReactNode }) => {
   const swapState = useSwapState();
+  const { tokens, loading, error, refreshTokenList } = useTokenList();
 
-  console.log("SwapProvider initialized with state:", swapState); // Debug log
+  console.log("SwapProvider initialized with tokens:", tokens); // Debug log
+
+  const value: SwapContextType = {
+    ...swapState,
+    tokens: {
+      list: tokens,
+      loading,
+      error,
+      refresh: refreshTokenList,
+    },
+  };
 
   return (
-    <SwapContext.Provider value={swapState}>
+    <SwapContext.Provider value={value}>
       {children}
     </SwapContext.Provider>
   );
