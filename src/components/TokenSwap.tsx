@@ -1,16 +1,25 @@
+import { SwapProvider } from "@/contexts/SwapContext";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { AlertTriangle } from "lucide-react";
 
-export const TokenSwap = () => {
+const SwapInterface = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <Alert>
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Under Maintenance</AlertTitle>
+        <AlertTitle>Under Development</AlertTitle>
         <AlertDescription>
-          The token swap feature is currently being rebuilt to provide you with a better experience.
+          The new token swap interface is being implemented with enhanced features and security.
         </AlertDescription>
       </Alert>
     </div>
+  );
+};
+
+export const TokenSwap = () => {
+  return (
+    <SwapProvider>
+      <SwapInterface />
+    </SwapProvider>
   );
 };
