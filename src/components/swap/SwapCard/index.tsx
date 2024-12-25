@@ -17,7 +17,8 @@ export const SwapCard = () => {
     : null;
 
   // Determine if price impact is high (> 5%)
-  const isHighImpact = state.priceImpact ? state.priceImpact > 5 : false;
+  const isHighImpact = state.priceImpact > 5;
+  const isLoading = state.status === 'loading' || state.status === 'quoting';
 
   return (
     <Card className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-sm shadow-xl">
@@ -47,7 +48,7 @@ export const SwapCard = () => {
         />
         
         {/* Price Impact and Exchange Rate */}
-        {state.loading ? (
+        {isLoading ? (
           <div className="space-y-2">
             <Skeleton className="h-4 w-[200px]" />
             <Skeleton className="h-4 w-[160px]" />
@@ -61,7 +62,7 @@ export const SwapCard = () => {
                   "font-medium",
                   isHighImpact ? "text-destructive" : "text-gray-700"
                 )}>
-                  {state.priceImpact?.toFixed(2)}%
+                  {state.priceImpact.toFixed(2)}%
                 </span>
               </div>
               <div className="flex justify-between">

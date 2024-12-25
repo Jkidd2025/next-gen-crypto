@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { TokenInfo, SwapState } from '@/types/token-swap';
+import { useState, useCallback } from 'react';
+import { TokenInfo, SwapState, SwapQuote, RouteStep } from '@/types/token-swap';
+import { getPriceImpact, findBestRoute } from '@/lib/swap-utils';
 
 const DEFAULT_SLIPPAGE = 0.5; // 0.5%
 
@@ -10,62 +11,111 @@ export const useSwapState = () => {
     amountIn: '',
     amountOut: '',
     slippage: DEFAULT_SLIPPAGE,
-    loading: false,
-    priceImpact: undefined,
-    route: undefined,
+    priceImpact: 0,
+    route: null,
+    status: 'idle',
+    error: null,
   });
 
   const setTokenIn = (token: TokenInfo | null) => {
-    setState(prev => ({ ...prev, tokenIn: token }));
+    setState(prev => ({ ...prev, tokenIn: token, status: 'idle', error: null }));
   };
 
   const setTokenOut = (token: TokenInfo | null) => {
-    setState(prev => ({ ...prev, tokenOut: token }));
+    setState(prev => ({ ...prev, tokenOut: token, status: 'idle', error: null }));
   };
 
-  const setAmountIn = (amount: string) => {
-    setState(prev => ({ ...prev, amountIn: amount }));
-  };
+  const setAmountIn = useCallback(async (amount: string) => {
+    setState(prev => ({ ...prev, amountIn: amount, status: 'quoting' }));
+    
+    if (amount && state.tokenIn && state.tokenOut) {
+      try {
+        const quote = await getQuote(amount, state.tokenIn, state.tokenOut);
+        setState(prev => ({
+          ...prev,
+          amountOut: quote.outAmount,
+          priceImpact: quote.priceImpact,
+          route: quote.route,
+          status: 'idle',
+          error: null,
+        }));
+      } catch (error) {
+        setState(prev => ({
+          ...prev,
+          status: 'error',
+          error: {
+            code: 'QUOTE_ERROR',
+            message: error instanceof Error ? error.message : 'Failed to get quote',
+          },
+        }));
+      }
+    }
+  }, [state.tokenIn, state.tokenOut]);
 
-  const setAmountOut = (amount: string) => {
-    setState(prev => ({ ...prev, amountOut: amount }));
-  };
+  const setAmountOut = useCallback(async (amount: string) => {
+    setState(prev => ({ ...prev, amountOut: amount, status: 'quoting' }));
+    
+    if (amount && state.tokenIn && state.tokenOut) {
+      try {
+        const quote = await getQuoteReverse(amount, state.tokenIn, state.tokenOut);
+        setState(prev => ({
+          ...prev,
+          amountIn: quote.inAmount,
+          priceImpact: quote.priceImpact,
+          route: quote.route,
+          status: 'idle',
+          error: null,
+        }));
+      } catch (error) {
+        setState(prev => ({
+          ...prev,
+          status: 'error',
+          error: {
+            code: 'QUOTE_ERROR',
+            message: error instanceof Error ? error.message : 'Failed to get quote',
+          },
+        }));
+      }
+    }
+  }, [state.tokenIn, state.tokenOut]);
 
   const setSlippage = (slippage: number) => {
     setState(prev => ({ ...prev, slippage }));
   };
 
-  const calculatePriceImpact = async () => {
-    setState(prev => ({ ...prev, loading: true }));
-    try {
-      // This will be implemented in the next phase
-      // For now, just simulate a price impact calculation
-      const simulatedImpact = Math.random() * 10;
-      setState(prev => ({ ...prev, priceImpact: simulatedImpact }));
-    } catch (error) {
-      console.error('Error calculating price impact:', error);
-    } finally {
-      setState(prev => ({ ...prev, loading: false }));
-    }
-  };
-
-  const findBestRoute = async () => {
-    setState(prev => ({ ...prev, loading: true }));
-    try {
-      // This will be implemented in the next phase
-      // For now, just return a simple route if both tokens are selected
-      if (state.tokenIn && state.tokenOut) {
-        setState(prev => ({
-          ...prev,
-          route: [state.tokenIn!, state.tokenOut!]
-        }));
+  const calculatePriceImpact = useCallback(async () => {
+    if (state.tokenIn && state.tokenOut && state.amountIn) {
+      setState(prev => ({ ...prev, status: 'loading' }));
+      try {
+        const priceImpact = await getPriceImpact(
+          state.tokenIn,
+          state.tokenOut,
+          state.amountIn
+        );
+        setState(prev => ({ ...prev, priceImpact, status: 'idle' }));
+      } catch (error) {
+        console.error('Failed to calculate price impact:', error);
+        setState(prev => ({ ...prev, status: 'error' }));
       }
-    } catch (error) {
-      console.error('Error finding best route:', error);
-    } finally {
-      setState(prev => ({ ...prev, loading: false }));
     }
-  };
+  }, [state.tokenIn, state.tokenOut, state.amountIn]);
+
+  const findBestRouteForSwap = useCallback(async () => {
+    if (state.tokenIn && state.tokenOut && state.amountIn) {
+      setState(prev => ({ ...prev, status: 'loading' }));
+      try {
+        const route = await findBestRoute(
+          state.tokenIn,
+          state.tokenOut,
+          state.amountIn
+        );
+        setState(prev => ({ ...prev, route, status: 'idle' }));
+      } catch (error) {
+        console.error('Failed to find best route:', error);
+        setState(prev => ({ ...prev, status: 'error' }));
+      }
+    }
+  }, [state.tokenIn, state.tokenOut, state.amountIn]);
 
   const resetState = () => {
     setState({
@@ -74,9 +124,10 @@ export const useSwapState = () => {
       amountIn: '',
       amountOut: '',
       slippage: DEFAULT_SLIPPAGE,
-      loading: false,
-      priceImpact: undefined,
-      route: undefined,
+      priceImpact: 0,
+      route: null,
+      status: 'idle',
+      error: null,
     });
   };
 
@@ -88,7 +139,7 @@ export const useSwapState = () => {
     setAmountOut,
     setSlippage,
     calculatePriceImpact,
-    findBestRoute,
+    findBestRoute: findBestRouteForSwap,
     resetState,
   };
 };
