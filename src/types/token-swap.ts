@@ -12,6 +12,9 @@ export interface SwapState {
   amountIn: string;
   amountOut: string;
   slippage: number;
+  loading?: boolean;
+  priceImpact?: number;
+  route?: TokenInfo[];
 }
 
 export interface SwapQuote {
