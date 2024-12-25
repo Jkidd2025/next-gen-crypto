@@ -3,9 +3,43 @@ import { TokenInput } from "./TokenInput";
 import { SwapButton } from "./SwapButton";
 import { useSwap } from "@/contexts/SwapContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Settings2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { PriceImpactWarning } from "../PriceImpactWarning";
-import { SlippageSettings } from "./SlippageSettings";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+const TokenInputWithFallback = (props: React.ComponentProps<typeof TokenInput>) => {
+  return (
+    <ErrorBoundary
+      FallbackComponent={({ error }) => (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Failed to load token input: {error.message}
+          </AlertDescription>
+        </Alert>
+      )}
+    >
+      <TokenInput {...props} />
+    </ErrorBoundary>
+  );
+};
+
+const SwapButtonWithFallback = () => {
+  return (
+    <ErrorBoundary
+      FallbackComponent={({ error }) => (
+        <Alert variant="destructive" className="my-2">
+          <AlertDescription>
+            Failed to load swap button: {error.message}
+          </AlertDescription>
+        </Alert>
+      )}
+    >
+      <SwapButton />
+    </ErrorBoundary>
+  );
+};
 
 export const SwapCard = () => {
   const { state } = useSwap();
@@ -23,26 +57,29 @@ export const SwapCard = () => {
     <Card className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-sm shadow-xl">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Swap Tokens</CardTitle>
-        <SlippageSettings />
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Settings2 className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent className="space-y-4">
-        <TokenInput
+        <TokenInputWithFallback
           type="input"
           token={state.tokenIn}
           amount={state.amountIn}
         />
-        <SwapButton />
-        <TokenInput
+        <SwapButtonWithFallback />
+        <TokenInputWithFallback
           type="output"
           token={state.tokenOut}
           amount={state.amountOut}
         />
         
         {/* Price Impact Warning */}
-        <PriceImpactWarning 
-          isHighImpact={isHighImpact} 
-          fromAmount={state.amountIn} 
-        />
+        {isHighImpact && state.amountIn && (
+          <div className="text-destructive text-sm font-medium">
+            Warning: High price impact ({state.priceImpact.toFixed(2)}%)
+          </div>
+        )}
         
         {/* Price Impact and Exchange Rate */}
         {isLoading ? (
@@ -70,6 +107,15 @@ export const SwapCard = () => {
               </div>
             </div>
           )
+        )}
+
+        {/* Error Display */}
+        {state.error && (
+          <Alert variant="destructive">
+            <AlertDescription>
+              {state.error.message || "An error occurred during the swap"}
+            </AlertDescription>
+          </Alert>
         )}
 
         {/* Route Information */}
