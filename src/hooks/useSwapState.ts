@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { TokenInfo, SwapState, SwapQuote } from '@/types/token-swap';
 import { useQuoteManagement } from './swap/useQuoteManagement';
 import { useTokenState } from './swap/useTokenState';
+import { calculatePriceImpact as calcPriceImpact, findBestRoute as findRoute } from '@/lib/swap/price';
 
 const DEFAULT_SLIPPAGE = 0.5; // 0.5%
 
@@ -49,6 +50,28 @@ export const useSwapState = () => {
 
   const { setTokenIn, setTokenOut } = useTokenState(setState);
 
+  const calculatePriceImpact = useCallback(async () => {
+    if (!state.tokenIn || !state.tokenOut || !state.amountIn) return;
+    
+    try {
+      const impact = await calcPriceImpact(state.amountIn, state.tokenIn, state.tokenOut);
+      setState(prev => ({ ...prev, priceImpact: impact }));
+    } catch (error) {
+      console.error('Error calculating price impact:', error);
+    }
+  }, [state.tokenIn, state.tokenOut, state.amountIn]);
+
+  const findBestRoute = useCallback(async () => {
+    if (!state.tokenIn || !state.tokenOut || !state.amountIn) return;
+    
+    try {
+      const route = await findRoute(state.tokenIn, state.tokenOut, state.amountIn);
+      setState(prev => ({ ...prev, route }));
+    } catch (error) {
+      console.error('Error finding best route:', error);
+    }
+  }, [state.tokenIn, state.tokenOut, state.amountIn]);
+
   const setAmountIn = useCallback(async (amount: string) => {
     setState(prev => ({ ...prev, amountIn: amount }));
     
@@ -89,6 +112,8 @@ export const useSwapState = () => {
     setAmountIn,
     setAmountOut,
     setSlippage,
+    calculatePriceImpact,
+    findBestRoute,
     resetState,
   };
 };
