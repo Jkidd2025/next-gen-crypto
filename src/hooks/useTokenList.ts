@@ -7,29 +7,40 @@ export const useTokenList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const loadTokens = async () => {
-      try {
-        // Convert COMMON_TOKENS to TokenInfo array
-        const tokenList = Object.values(COMMON_TOKENS).map(token => ({
-          mint: token.mint,
-          symbol: token.symbol,
-          name: token.name,
-          decimals: token.decimals,
-          logoURI: token.logoURI
-        }));
-        
-        setTokens(tokenList);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to load tokens'));
-        console.error('Error loading tokens:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadTokens = async () => {
+    try {
+      // Convert COMMON_TOKENS to TokenInfo array
+      const tokenList = Object.values(COMMON_TOKENS).map(token => ({
+        mint: token.mint,
+        symbol: token.symbol,
+        name: token.name,
+        decimals: token.decimals,
+        logoURI: token.logoURI
+      }));
+      
+      setTokens(tokenList);
+      setLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to load tokens'));
+      console.error('Error loading tokens:', err);
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadTokens();
   }, []);
 
-  return { tokens, loading, error };
+  const refreshTokenList = async () => {
+    setLoading(true);
+    setError(null);
+    await loadTokens();
+  };
+
+  return { 
+    tokens, 
+    loading, 
+    error,
+    refreshTokenList 
+  };
 };
