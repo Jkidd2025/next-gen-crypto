@@ -26,3 +26,6 @@ export const SWAP_PROGRAM_ID = "SwaPpA9LAaLfeLi3a68M4DjnLqgtticKg6CnyNwgAC8";
 export const MIN_LIQUIDITY = "1000";
 export const MAX_TOKENS_TO_FETCH = 1000;
 export const DEFAULT_TOKEN_DECIMALS = 9;
+
+export const MAX_HOPS = 3;
+export const MINIMUM_LIQUIDITY = "1000";

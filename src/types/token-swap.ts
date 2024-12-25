@@ -56,6 +56,8 @@ export interface PoolInfo {
   fee: number;
   liquidity: string;
   price: number;
+  tokenAReserves: string;
+  tokenBReserves: string;
 }
 
 export interface TokenBalance {
