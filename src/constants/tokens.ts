@@ -1,21 +1,26 @@
-export const COMMON_TOKENS = {
+import { TokenInfo } from '@/types/token-swap';
+
+export const COMMON_TOKENS: Record<string, TokenInfo> = {
   SOL: {
+    mint: "So11111111111111111111111111111111111111112",
     symbol: "SOL",
-    address: "So11111111111111111111111111111111111111112",
+    name: "Solana",
     decimals: 9,
-    name: "Solana"
+    logoURI: undefined
   },
   USDC: {
+    mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
     symbol: "USDC",
-    address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    name: "USD Coin",
     decimals: 6,
-    name: "USD Coin"
+    logoURI: undefined
   },
   USDT: {
+    mint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
     symbol: "USDT",
-    address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+    name: "Tether USD",
     decimals: 6,
-    name: "Tether USD"
+    logoURI: undefined
   }
 } as const;
 
@@ -23,7 +28,8 @@ export type TokenSymbol = keyof typeof COMMON_TOKENS;
 
 export interface Token {
   symbol: string;
-  address: string;
+  mint: string;
   decimals: number;
   name: string;
+  logoURI?: string;
 }
