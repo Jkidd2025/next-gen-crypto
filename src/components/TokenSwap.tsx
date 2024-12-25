@@ -1,9 +1,10 @@
 import { SwapProvider } from "@/contexts/SwapContext";
 import { SwapCard } from "./swap/SwapCard";
 import { ErrorBoundary } from "./ErrorBoundary";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Home, BarChart3, Users, FileText, Settings } from "lucide-react";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const SwapErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => {
   const { toast } = useToast();
@@ -32,7 +33,6 @@ const SwapErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetE
 
 export const TokenSwap = () => {
   const handleReset = () => {
-    // Additional cleanup if needed when resetting from errors
     console.log("Resetting swap interface after error");
   };
 
@@ -43,6 +43,46 @@ export const TokenSwap = () => {
     >
       <SwapProvider>
         <div className="min-h-screen bg-background">
+          {/* Navigation Menu */}
+          <nav className="border-b border-border">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Link to="/dashboard">
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <Home className="h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Button>
+                  </Link>
+                  <Link to="/dashboard/analytics">
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4" />
+                      <span>Analytics</span>
+                    </Button>
+                  </Link>
+                  <Link to="/dashboard/community">
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span>Community</span>
+                    </Button>
+                  </Link>
+                  <Link to="/dashboard/reports">
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span>Reports</span>
+                    </Button>
+                  </Link>
+                  <Link to="/dashboard/settings">
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </nav>
+          
           <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col items-center justify-center">
               <h1 className="text-2xl font-bold mb-6">Token Swap</h1>
