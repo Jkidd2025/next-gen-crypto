@@ -1,23 +1,11 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { TokenInfo, TokenValidationError, TokenValidationState, TokenMetadata } from '@/types/token-swap';
+import { TokenInfo, TokenValidationError, TokenValidationState } from '@/types/token-swap';
+import { isBlacklisted, getBlacklistReason } from './blacklist';
 import bs58 from 'bs58';
-
-const BLACKLISTED_TOKENS: Set<string> = new Set([
-  'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-]);
 
 const MAX_DECIMALS = 18;
 const MIN_NAME_LENGTH = 1;
 const MAX_NAME_LENGTH = 50;
-
-export function isValidMintAddress(address: string): boolean {
-  try {
-    const decoded = bs58.decode(address);
-    return decoded.length === 32;
-  } catch {
-    return false;
-  }
-}
 
 export async function validateToken(
   connection: Connection,
@@ -28,15 +16,18 @@ export async function validateToken(
   const warnings: TokenValidationError[] = [];
 
   try {
-    if (BLACKLISTED_TOKENS.has(mintAddress)) {
+    // Check blacklist first
+    if (isBlacklisted(mintAddress)) {
+      const reason = getBlacklistReason(mintAddress);
       errors.push({
         code: 'BLACKLISTED',
-        message: 'Token is blacklisted',
+        message: `Token is blacklisted: ${reason || 'Unknown reason'}`,
         severity: 'error'
       });
       return { isValid: false, errors, warnings, lastChecked: Date.now() };
     }
 
+    // Validate address format
     if (!isValidMintAddress(mintAddress)) {
       errors.push({
         code: 'INVALID_ADDRESS',
@@ -103,6 +94,15 @@ export async function validateToken(
       severity: 'error'
     });
     return { isValid: false, errors, warnings, lastChecked: Date.now() };
+  }
+}
+
+export function isValidMintAddress(address: string): boolean {
+  try {
+    const decoded = bs58.decode(address);
+    return decoded.length === 32;
+  } catch {
+    return false;
   }
 }
 

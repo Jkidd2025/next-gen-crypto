@@ -3,7 +3,7 @@ import {
   Metadata,
   findMetadataPda
 } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenInfo, ImportedTokenInfo, TokenValidationError } from '@/types/token-swap';
+import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
 import { validateToken } from './token-validation';
 import { isBlacklisted, getBlacklistReason } from './blacklist';
@@ -36,7 +36,7 @@ export async function importToken(
 
     // Fetch token metadata
     const mintPubkey = new PublicKey(mintAddress);
-    const [metadataPDA] = findMetadataPda(mintPubkey);
+    const [metadataPDA] = findMetadataPda(mintPubkey, { programId: new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s') });
     
     const metadataAccount = await connection.getAccountInfo(metadataPDA);
     if (!metadataAccount) {
@@ -61,9 +61,7 @@ export async function importToken(
       decimals,
       logoURI: metadata.uri || '',
       verified: false,
-      tags: ['imported'],
-      balance: 0,
-      usdPrice: 0
+      tags: ['imported']
     };
 
     // Add to cached list
