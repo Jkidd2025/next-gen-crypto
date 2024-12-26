@@ -1,7 +1,8 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { 
   Metadata,
-  findMetadataPda
+  findMetadataPda,
+  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID
 } from '@metaplex-foundation/mpl-token-metadata';
 import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
@@ -36,14 +37,14 @@ export async function importToken(
 
     // Fetch token metadata
     const mintPubkey = new PublicKey(mintAddress);
-    const [metadataPDA] = findMetadataPda(mintPubkey, { programId: new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s') });
+    const [metadataPDA] = findMetadataPda(mintPubkey);
     
     const metadataAccount = await connection.getAccountInfo(metadataPDA);
     if (!metadataAccount) {
       throw new Error('Token metadata not found');
     }
 
-    const metadata = await Metadata.fromAccountAddress(connection, metadataPDA);
+    const metadata = Metadata.deserialize(metadataAccount.data)[0];
 
     // Get token supply and decimals
     const mintInfo = await connection.getParsedAccountInfo(mintPubkey);
