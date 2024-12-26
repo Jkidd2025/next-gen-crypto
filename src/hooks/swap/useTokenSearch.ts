@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
+import Fuse from 'fuse.js';
 import { TokenInfo, TokenSearchFilters } from '@/types/token-swap';
+import { isValidMintAddress } from '@/lib/swap/tokens';
 
 interface UseTokenSearchProps {
   tokens: TokenInfo[];
@@ -12,71 +14,72 @@ export function useTokenSearch({ tokens }: UseTokenSearchProps) {
     favorite: false,
     hasBalance: false,
     tags: [],
+    minBalance: undefined
   });
+
+  // Initialize Fuse for fuzzy search
+  const fuse = useMemo(() => new Fuse(tokens, {
+    keys: ['symbol', 'name', 'mint'],
+    threshold: 0.3,
+    distance: 100,
+    includeScore: true
+  }), [tokens]);
 
   const searchResults = useMemo(() => {
     let results = [...tokens];
 
-    // Apply filters
+    // Apply filters first
     if (filters.verified) {
-      results = results.filter(token => token.verified);
+      results = results.filter(t => t.verified);
     }
     if (filters.favorite) {
-      results = results.filter(token => token.favorite);
+      results = results.filter(t => t.favorite);
     }
     if (filters.hasBalance) {
-      results = results.filter(token => token.balance && token.balance > 0);
+      results = results.filter(t => (t.balance || 0) > 0);
+    }
+    if (filters.minBalance !== undefined) {
+      results = results.filter(t => (t.balance || 0) >= (filters.minBalance || 0));
     }
     if (filters.tags?.length) {
-      results = results.filter(token => 
-        filters.tags?.some(tag => token.tags?.includes(tag))
+      results = results.filter(t => 
+        filters.tags?.some(tag => t.tags?.includes(tag))
       );
     }
 
-    // Apply search
+    // Apply search if term exists
     if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      results = results.filter(token => 
-        token.symbol.toLowerCase().includes(term) ||
-        token.name.toLowerCase().includes(term) ||
-        token.mint.toLowerCase() === term
-      );
-
-      // Sort by relevance
-      results.sort((a, b) => {
-        const aSymbol = a.symbol.toLowerCase();
-        const bSymbol = b.symbol.toLowerCase();
-        const aExact = aSymbol === term;
-        const bExact = bSymbol === term;
-        
-        if (aExact && !bExact) return -1;
-        if (!aExact && bExact) return 1;
-        
-        const aStarts = aSymbol.startsWith(term);
-        const bStarts = bSymbol.startsWith(term);
-        
-        if (aStarts && !bStarts) return -1;
-        if (!aStarts && bStarts) return 1;
-        
-        return 0;
-      });
+      if (isValidMintAddress(searchTerm)) {
+        results = results.filter(t => 
+          t.mint.toLowerCase() === searchTerm.toLowerCase()
+        );
+      } else {
+        const fuseResults = fuse.search(searchTerm);
+        results = fuseResults
+          .filter(result => result.score && result.score < 0.6) // Only include good matches
+          .map(result => result.item);
+      }
     }
 
     return results;
-  }, [tokens, searchTerm, filters]);
+  }, [tokens, searchTerm, filters, fuse]);
 
   const popularTokens = useMemo(() => {
     return tokens
-      .filter(token => token.verified)
-      .sort((a, b) => (b.balance || 0) - (a.balance || 0))
+      .filter(t => t.verified)
+      .sort((a, b) => {
+        const aValue = (a.usdPrice || 0) * (a.balance || 0);
+        const bValue = (b.usdPrice || 0) * (b.balance || 0);
+        return bValue - aValue;
+      })
       .slice(0, 10);
   }, [tokens]);
 
   const recentTokens = useMemo(() => {
     try {
-      const recentMints = JSON.parse(localStorage.getItem('recentTokens') || '[]') as string[];
-      return recentMints
-        .map(mint => tokens.find(token => token.mint === mint))
+      const recents = JSON.parse(localStorage.getItem('recentTokens') || '[]') as string[];
+      return recents
+        .map(mint => tokens.find(t => t.mint === mint))
         .filter((token): token is TokenInfo => token !== undefined)
         .slice(0, 5);
     } catch {
@@ -86,12 +89,12 @@ export function useTokenSearch({ tokens }: UseTokenSearchProps) {
 
   const addToRecent = useCallback((token: TokenInfo) => {
     try {
-      const recentMints = JSON.parse(localStorage.getItem('recentTokens') || '[]') as string[];
-      const updatedMints = [
+      const recents = JSON.parse(localStorage.getItem('recentTokens') || '[]') as string[];
+      const updated = [
         token.mint,
-        ...recentMints.filter(mint => mint !== token.mint)
-      ].slice(0, 10);
-      localStorage.setItem('recentTokens', JSON.stringify(updatedMints));
+        ...recents.filter(mint => mint !== token.mint)
+      ].slice(0, 5);
+      localStorage.setItem('recentTokens', JSON.stringify(updated));
     } catch (error) {
       console.error('Error updating recent tokens:', error);
     }
@@ -104,6 +107,7 @@ export function useTokenSearch({ tokens }: UseTokenSearchProps) {
       favorite: false,
       hasBalance: false,
       tags: [],
+      minBalance: undefined
     });
   }, []);
 
