@@ -1,7 +1,6 @@
 import { TokenInfo, SwapQuote, RouteStep } from "@/types/token-swap";
 import { HIGH_PRICE_IMPACT_THRESHOLD } from "./constants";
 import { getPoolInfo } from "./pools";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Decimal from "decimal.js";
 
 export const calculatePriceImpact = async (
@@ -44,16 +43,29 @@ export const findBestRoute = async (
   tokenOut: TokenInfo,
   amountIn: string
 ): Promise<RouteStep[]> => {
-  try {
-    // For now, return a direct route between the tokens
-    return [
-      { symbol: tokenIn.symbol, mint: tokenIn.mint },
-      { symbol: tokenOut.symbol, mint: tokenOut.mint }
-    ];
-  } catch (error) {
-    console.error("Error finding best route:", error);
-    return [];
-  }
+  // Mock implementation for direct route
+  const amountOut = (parseFloat(amountIn) * 0.98).toString(); // Simulating 2% slippage
+  
+  return [
+    {
+      poolId: "direct-pool",
+      tokenIn,
+      tokenOut,
+      amountIn,
+      amountOut,
+      symbol: tokenIn.symbol,
+      mint: tokenIn.mint
+    },
+    {
+      poolId: "direct-pool",
+      tokenIn: tokenOut,
+      tokenOut: tokenIn,
+      amountIn: amountOut,
+      amountOut: amountIn,
+      symbol: tokenOut.symbol,
+      mint: tokenOut.mint
+    }
+  ];
 };
 
 export const calculateQuote = async (
@@ -87,15 +99,33 @@ export const calculateQuote = async (
     // Calculate execution price
     const executionPrice = amountInDecimal.div(amountOut);
 
+    const route: RouteStep[] = [
+      {
+        poolId: pool.id,
+        tokenIn,
+        tokenOut,
+        amountIn,
+        amountOut: amountOut.toString(),
+        symbol: tokenIn.symbol,
+        mint: tokenIn.mint
+      },
+      {
+        poolId: pool.id,
+        tokenIn: tokenOut,
+        tokenOut: tokenIn,
+        amountIn: amountOut.toString(),
+        amountOut: amountIn,
+        symbol: tokenOut.symbol,
+        mint: tokenOut.mint
+      }
+    ];
+
     return {
       inAmount: amountIn,
       outAmount: amountOut.toString(),
       priceImpact,
       fee: pool.fee,
-      route: [
-        { symbol: tokenIn.symbol, mint: tokenIn.mint },
-        { symbol: tokenOut.symbol, mint: tokenOut.mint }
-      ],
+      route,
       executionPrice: executionPrice.toNumber(),
       minimumReceived: minimumReceived.toString()
     };

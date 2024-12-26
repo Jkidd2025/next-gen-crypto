@@ -24,8 +24,24 @@ export const findBestRoute = async (
     const directPool = await getPoolInfo(tokenIn, tokenOut);
     if (directPool && hasEnoughLiquidity(directPool, amountIn)) {
       return [
-        { symbol: tokenIn.symbol, mint: tokenIn.mint },
-        { symbol: tokenOut.symbol, mint: tokenOut.mint }
+        {
+          poolId: directPool.id,
+          tokenIn,
+          tokenOut,
+          amountIn,
+          amountOut: (parseFloat(amountIn) * 0.98).toString(),
+          symbol: tokenIn.symbol,
+          mint: tokenIn.mint
+        },
+        {
+          poolId: directPool.id,
+          tokenIn: tokenOut,
+          tokenOut: tokenIn,
+          amountIn: (parseFloat(amountIn) * 0.98).toString(),
+          amountOut: amountIn,
+          symbol: tokenOut.symbol,
+          mint: tokenOut.mint
+        }
       ];
     }
 
@@ -42,6 +58,11 @@ export const findBestRoute = async (
         if (simulatedOutput.gt(bestOutput)) {
           bestOutput = simulatedOutput;
           bestRoute = route.map(token => ({
+            poolId: 'optimal-route',
+            tokenIn: token,
+            tokenOut: route[route.indexOf(token) + 1] || token,
+            amountIn: simulatedOutput.toString(),
+            amountOut: bestOutput.toString(),
             symbol: token.symbol,
             mint: token.mint
           }));

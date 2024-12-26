@@ -78,7 +78,10 @@ export const TokenSelect = ({
             <Toggle
               pressed={tokenSearch.filters.verified}
               onPressedChange={(pressed) =>
-                tokenSearch.setFilters({ verified: pressed })
+                tokenSearch.setFilters({
+                  ...tokenSearch.filters,
+                  verified: pressed,
+                })
               }
               className="text-xs"
             >
@@ -87,7 +90,10 @@ export const TokenSelect = ({
             <Toggle
               pressed={tokenSearch.filters.favorite}
               onPressedChange={(pressed) =>
-                tokenSearch.setFilters({ favorite: pressed })
+                tokenSearch.setFilters({
+                  ...tokenSearch.filters,
+                  favorite: pressed,
+                })
               }
               className="text-xs"
             >
@@ -96,7 +102,11 @@ export const TokenSelect = ({
             <Toggle
               pressed={!!tokenSearch.filters.minBalance}
               onPressedChange={(pressed) =>
-                tokenSearch.setFilters({ minBalance: pressed ? 0.000001 : undefined })
+                tokenSearch.setFilters({
+                  ...tokenSearch.filters,
+                  minBalance: pressed ? 0.000001 : undefined,
+                  hasBalance: pressed,
+                })
               }
               className="text-xs"
             >
