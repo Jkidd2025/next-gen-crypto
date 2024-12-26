@@ -1,8 +1,6 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
-
-// Constants
-const CURRENT_POOL_VERSION = 1;
+import { POOL_PROGRAM_ID } from './constants';
 
 export interface PoolStateData {
   version: number;
@@ -28,6 +26,13 @@ export interface PoolState {
   sqrtPriceX64: BN;
   currentTickIndex: number;
   fee: number;
+}
+
+export interface PoolStateMetrics {
+  tvlUSD: number;
+  volume24h: number;
+  apy: number;
+  utilizationRate: number;
 }
 
 function validatePublicKey(key: PublicKey, fieldName: string) {
@@ -150,5 +155,24 @@ export async function getPoolState(
     sqrtPriceX64: poolState.sqrtPriceX64,
     currentTickIndex: poolState.currentTickIndex,
     fee: poolState.fee
+  };
+}
+
+export async function getPoolMetrics(
+  poolState: PoolState,
+  tokenAPriceUSD: number,
+  tokenBPriceUSD: number
+): Promise<PoolStateMetrics> {
+  const sqrtPrice = poolState.sqrtPriceX64.toNumber() / (2 ** 64);
+  const price = sqrtPrice * sqrtPrice;
+  
+  const tvlA = poolState.liquidity.toNumber() / Math.sqrt(price);
+  const tvlB = poolState.liquidity.toNumber() * Math.sqrt(price);
+  
+  return {
+    tvlUSD: tvlA * tokenAPriceUSD + tvlB * tokenBPriceUSD,
+    volume24h: 0, // Implement volume tracking
+    apy: 0, // Implement APY calculation
+    utilizationRate: 0 // Implement utilization calculation
   };
 }
