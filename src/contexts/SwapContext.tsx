@@ -1,17 +1,8 @@
 import { createContext, useContext, ReactNode } from 'react';
-import { TokenInfo, SwapState } from '@/types/token-swap';
+import { TokenInfo, SwapState, TokenSearchFilters } from '@/types/token-swap';
 import { useSwapState } from '@/hooks/useSwapState';
 import { useTokenList } from '@/hooks/useTokenList';
 import { useTokenSearch } from '@/hooks/swap/useTokenSearch';
-
-interface TokenSearchState {
-  filters: {
-    verified: boolean;
-    favorite: boolean;
-    tags: string[];
-    minBalance?: number;
-  };
-}
 
 interface SwapContextType {
   state: SwapState;
@@ -23,12 +14,12 @@ interface SwapContextType {
   };
   tokenSearch: {
     searchTerm: string;
-    filters: TokenSearchState['filters'];
+    filters: TokenSearchFilters;
     searchResults: TokenInfo[];
     popularTokens: TokenInfo[];
     recentTokens: TokenInfo[];
     setSearchTerm: (term: string) => void;
-    setFilters: (filters: Partial<TokenSearchState['filters']>) => void;
+    setFilters: (filters: Partial<TokenSearchFilters>) => void;
     resetSearch: () => void;
     addToRecent: (token: TokenInfo) => void;
   };

@@ -16,6 +16,7 @@ export interface TokenSearchFilters {
   favorite: boolean;
   hasBalance: boolean;
   tags: string[];
+  minBalance?: number;
 }
 
 export interface SwapState {
@@ -31,8 +32,8 @@ export interface SwapState {
 }
 
 export interface SwapQuote {
-  amountIn: string;
-  amountOut: string;
+  inAmount: string;
+  outAmount: string;
   priceImpact: number;
   route: RouteStep[];
   fee: number;
@@ -46,6 +47,8 @@ export interface RouteStep {
   tokenOut: TokenInfo;
   amountIn: string;
   amountOut: string;
+  symbol: string;
+  mint: string;
 }
 
 export interface PoolInfo {
@@ -56,6 +59,7 @@ export interface PoolInfo {
   tokenBReserves: string;
   liquidity: string;
   fee: number;
+  address?: string;
 }
 
 export interface RaydiumTokenList {
@@ -67,4 +71,10 @@ export interface RaydiumTokenList {
     patch: number;
   };
   tokens: TokenInfo[];
+}
+
+export interface SwapError {
+  code: string;
+  message: string;
+  details?: any;
 }
