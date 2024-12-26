@@ -9,6 +9,30 @@ export interface TokenInfo {
   verified?: boolean;
   favorite?: boolean;
   tags?: string[];
+  validation?: TokenValidationState;
+  metadata?: TokenMetadata;
+}
+
+export interface TokenValidationError {
+  code: string;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
+export interface TokenValidationState {
+  isValid: boolean;
+  errors: TokenValidationError[];
+  warnings: TokenValidationError[];
+  lastChecked: number;
+}
+
+export interface TokenMetadata {
+  name: string;
+  symbol: string;
+  decimals: number;
+  totalSupply?: string;
+  mintAuthority?: string;
+  freezeAuthority?: string;
 }
 
 export type TokenImportStatus = 'existing' | 'imported' | 'failed';
