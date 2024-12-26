@@ -1,3 +1,7 @@
+import { TokenInfo as SolanaTokenInfo } from '@solana/spl-token-registry';
+import { PublicKey } from '@solana/web3.js';
+import { BN } from 'bn.js';
+
 export interface TokenInfo {
   mint: string;
   symbol: string;
@@ -54,6 +58,19 @@ export interface TokenSearchFilters {
   minBalance?: number;
 }
 
+export interface PoolState {
+  address: PublicKey | null;
+  tokenA: PublicKey | null;
+  tokenB: PublicKey | null;
+  tickSpacing: number;
+  liquidity: BN | null;
+  sqrtPriceX64: BN | null;
+  currentTickIndex: number | null;
+  fee: number;
+  loading: boolean;
+  error: Error | null;
+}
+
 export interface SwapState {
   tokenIn: TokenInfo | null;
   tokenOut: TokenInfo | null;
@@ -62,8 +79,9 @@ export interface SwapState {
   slippage: number;
   priceImpact: number;
   status: 'idle' | 'loading' | 'quoting' | 'error';
-  error: Error | null;
+  error: SwapError | null;
   route: RouteStep[] | null;
+  pool: PoolState | null;
 }
 
 export interface SwapQuote {
