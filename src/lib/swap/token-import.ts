@@ -3,15 +3,15 @@ import {
   PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
   Metadata as MetadataData
 } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenInfo, ImportedTokenInfo, TokenValidationResult } from './types/token';
+import { TokenInfo, ImportedTokenInfo, TokenValidationResult } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
 import { validateToken } from './token-validation';
 import { isBlacklisted, getBlacklistReason } from './blacklist';
 
-export async function importToken(
+export async function getTokenMetadata(
   connection: Connection,
   mintAddress: string
-): Promise<ImportedTokenInfo | null> {
+): Promise<TokenInfo | null> {
   try {
     // Check blacklist first
     if (isBlacklisted(mintAddress)) {
@@ -30,8 +30,9 @@ export async function importToken(
     const existingToken = cachedTokens.find(
       t => t.mint.toLowerCase() === mintAddress.toLowerCase()
     );
+    
     if (existingToken) {
-      return { ...existingToken, status: 'existing' };
+      return existingToken;
     }
 
     // Fetch token metadata
@@ -64,22 +65,21 @@ export async function importToken(
     const { decimals } = (mintInfo.value.data as any).parsed.info;
 
     // Create token info
-    const newToken: ImportedTokenInfo = {
-      mint: mintPubkey,
+    const tokenInfo: TokenInfo = {
+      mint: mintAddress,
       symbol: metadata.data.symbol.trim(),
       name: metadata.data.name.trim(),
       decimals,
       logoURI: metadata.data.uri || '',
       verified: false,
-      tags: ['imported'],
-      status: 'imported'
+      tags: ['imported']
     };
 
     // Add to cached list
-    const updatedTokens = [...cachedTokens, newToken];
+    const updatedTokens = [...cachedTokens, tokenInfo];
     cacheTokenList(updatedTokens);
 
-    return newToken;
+    return tokenInfo;
   } catch (error) {
     console.error('Error importing token:', error);
     return null;

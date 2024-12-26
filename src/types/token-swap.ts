@@ -21,8 +21,8 @@ export interface TokenValidationError {
 
 export interface TokenValidationState {
   isValid: boolean;
-  errors: TokenValidationError[];
-  warnings: TokenValidationError[];
+  errors: string[];
+  warnings: string[];
   lastChecked: number;
 }
 
