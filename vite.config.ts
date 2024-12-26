@@ -30,5 +30,12 @@ export default defineConfig(({ mode }) => ({
     commonjsOptions: {
       transformMixedEsModules: true,
     }
+  },
+  define: {
+    'process.env': {},
+    'process.env.NODE_DEBUG': JSON.stringify(''),
+    'process.platform': JSON.stringify(''),
+    'process.version': JSON.stringify(''),
+    'process.env.NODE_ENV': JSON.stringify(mode),
   }
 }));
