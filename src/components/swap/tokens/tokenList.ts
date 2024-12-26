@@ -31,17 +31,24 @@ export const isValidMintAddress = (address: string): boolean => {
   }
 };
 
-// Fetch token list from Raydium API
+// Fetch token list from Raydium API with proper error handling
 export const fetchTokenList = async (): Promise<TokenList> => {
   try {
     const response = await fetch(RAYDIUM_TOKEN_LIST_URL);
     if (!response.ok) {
       throw new Error(`Failed to fetch token list: ${response.statusText}`);
     }
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Error fetching token list:", error);
-    throw error;
+    // Return a minimal valid token list structure when the fetch fails
+    return {
+      name: "Fallback Token List",
+      timestamp: new Date().toISOString(),
+      version: { major: 0, minor: 0, patch: 0 },
+      tokens: []
+    };
   }
 };
 
@@ -119,6 +126,6 @@ export const getTokenList = async (): Promise<TokenInfo[]> => {
     return newList.tokens;
   } catch (error) {
     console.error("Error getting token list:", error);
-    throw error;
+    return [];
   }
 };
