@@ -11,58 +11,20 @@ export interface TokenInfo {
   tags?: string[];
 }
 
-export interface SwapState {
-  tokenIn: TokenInfo | null;
-  tokenOut: TokenInfo | null;
-  amountIn: string;
-  amountOut: string;
-  slippage: number;
-  priceImpact: number;
-  route: RouteStep[] | null;
-  status: SwapStatus;
-  error: SwapError | null;
+export interface TokenSearchFilters {
+  verified: boolean;
+  favorite: boolean;
+  hasBalance: boolean;
+  tags: string[];
 }
 
-export interface SwapQuote {
-  inAmount: string;
-  outAmount: string;
-  priceImpact: number;
-  fee: number;
-  route: RouteStep[];
-  executionPrice: number;
-  minimumReceived: string;
-}
-
-export interface SwapError {
-  code: string;
-  message: string;
-  details?: any;
-}
-
-export interface RouteStep {
-  symbol: string;
-  mint: string;
-  poolAddress?: string;
-  poolFee?: number;
-  percentage?: number;
-}
-
-export type SwapStatus = 'idle' | 'loading' | 'quoting' | 'swapping' | 'success' | 'error';
-
-export interface PoolInfo {
-  address: string;
-  tokenA: TokenInfo;
-  tokenB: TokenInfo;
-  fee: number;
-  liquidity: string;
-  price: number;
-  tokenAReserves: string;
-  tokenBReserves: string;
-}
-
-export interface TokenBalance {
-  mint: string;
-  amount: number;
-  decimals: number;
-  uiAmount: number;
+export interface RaydiumTokenList {
+  name: string;
+  timestamp: string;
+  version: {
+    major: number;
+    minor: number;
+    patch: number;
+  };
+  tokens: TokenInfo[];
 }

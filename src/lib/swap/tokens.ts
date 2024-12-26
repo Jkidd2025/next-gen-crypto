@@ -1,33 +1,10 @@
-import { TokenInfo } from "@/types/token-swap";
-import { PublicKey } from "@solana/web3.js";
+import { TokenInfo, RaydiumTokenList } from '@/types/token-swap';
 
 const RAYDIUM_API_URL = "https://api.raydium.io/v2/sdk/token/raydium.mainnet.json";
 const TOKEN_LIST_VERSION_KEY = "tokenListVersion";
 const TOKEN_LIST_CACHE_KEY = "tokenListCache";
 const TOKEN_LIST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-interface RaydiumTokenList {
-  name: string;
-  timestamp: string;
-  version: {
-    major: number;
-    minor: number;
-    patch: number;
-  };
-  tokens: TokenInfo[];
-}
-
-// Validate token mint address
-export const isValidMintAddress = (address: string): boolean => {
-  try {
-    new PublicKey(address);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-// Enhanced token list fetching with version check
 export async function fetchRaydiumTokenList(): Promise<TokenInfo[]> {
   try {
     const response = await fetch(RAYDIUM_API_URL);
@@ -63,7 +40,7 @@ export async function fetchRaydiumTokenList(): Promise<TokenInfo[]> {
     return tokens;
   } catch (error) {
     console.error('Error fetching Raydium token list:', error);
-    return []; // Return empty array instead of throwing
+    return [];
   }
 }
 
@@ -124,12 +101,13 @@ function isFavoriteToken(mint: string): boolean {
   }
 }
 
-// Get token info
-export async function getTokenInfo(mint: string): Promise<TokenInfo | null> {
-  // Implementation for fetching token info
-}
-
-// Get token price
-export async function getTokenPrice(symbol: string): Promise<number | null> {
-  // Implementation for fetching token price
+// Validate token mint address
+export function isValidMintAddress(address: string): boolean {
+  try {
+    // Basic validation for Solana addresses (base58, 32-44 characters)
+    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+    return base58Regex.test(address);
+  } catch {
+    return false;
+  }
 }
