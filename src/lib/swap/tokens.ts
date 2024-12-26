@@ -72,7 +72,7 @@ export async function fetchRaydiumTokenList(): Promise<TokenInfo[]> {
   }
 }
 
-function getCachedTokenList(): TokenInfo[] | null {
+export function getCachedTokenList(): TokenInfo[] | null {
   try {
     const cached = localStorage.getItem(TOKEN_LIST_CACHE_KEY);
     if (!cached) return null;
@@ -92,7 +92,7 @@ function getCachedTokenList(): TokenInfo[] | null {
   }
 }
 
-function cacheTokenList(tokens: TokenInfo[]): void {
+export function cacheTokenList(tokens: TokenInfo[]): void {
   try {
     const cache = {
       tokens,

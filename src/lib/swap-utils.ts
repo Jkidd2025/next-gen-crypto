@@ -16,17 +16,26 @@ export const findBestRoute = async (
   tokenOut: TokenInfo,
   amountIn: string
 ): Promise<RouteStep[]> => {
-  // Mock implementation for now
-  // In a real implementation, this would find the optimal route through various pools
+  // Mock implementation
   return [
     {
+      poolId: 'direct-pool',
+      tokenIn,
+      tokenOut,
+      amountIn,
+      amountOut: (parseFloat(amountIn) * 0.98).toString(),
       symbol: tokenIn.symbol,
-      mint: tokenIn.mint,
+      mint: tokenIn.mint
     },
     {
+      poolId: 'direct-pool',
+      tokenIn: tokenOut,
+      tokenOut: tokenIn,
+      amountIn: (parseFloat(amountIn) * 0.98).toString(),
+      amountOut: amountIn,
       symbol: tokenOut.symbol,
-      mint: tokenOut.mint,
-    },
+      mint: tokenOut.mint
+    }
   ];
 };
 

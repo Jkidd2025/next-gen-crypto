@@ -14,7 +14,8 @@ export const logSwapError = async (error: Error, context: Record<string, any>) =
   });
 };
 
-export const createSwapError = (code: string, message: string): SwapError => ({
-  code,
-  message,
-});
+export const createSwapError = (code: string, message: string): SwapError => {
+  const error = new Error(message) as SwapError;
+  error.code = code;
+  return error;
+};

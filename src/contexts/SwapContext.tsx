@@ -19,7 +19,7 @@ interface SwapContextType {
     popularTokens: TokenInfo[];
     recentTokens: TokenInfo[];
     setSearchTerm: (term: string) => void;
-    setFilters: (filters: Partial<TokenSearchFilters>) => void;
+    setFilters: (filters: TokenSearchFilters) => void;
     resetSearch: () => void;
     addToRecent: (token: TokenInfo) => void;
   };
@@ -48,7 +48,10 @@ export const SwapProvider = ({ children }: { children: ReactNode }) => {
       error,
       refresh: refreshTokenList,
     },
-    tokenSearch,
+    tokenSearch: {
+      ...tokenSearch,
+      setFilters: (filters: TokenSearchFilters) => tokenSearch.setFilters(() => filters),
+    },
     setTokenIn: swapState.setTokenIn,
     setTokenOut: swapState.setTokenOut,
     setAmountIn: swapState.setAmountIn,
