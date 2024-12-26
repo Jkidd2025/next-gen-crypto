@@ -47,12 +47,10 @@ const SwapContext = createContext<SwapContextType | undefined>(undefined);
 export const SwapProvider = ({ children }: { children: ReactNode }) => {
   const swapState = useSwapState();
   const { tokens, loading, error, refreshTokenList } = useTokenList();
-  const tokenSearch = useTokenSearch({ tokens: tokens });
-
-  console.log("SwapProvider initialized with tokens:", tokens); // Debug log
+  const tokenSearch = useTokenSearch({ tokens });
 
   const value: SwapContextType = {
-    ...swapState,
+    state: swapState.state,
     tokens: {
       list: tokens,
       loading,
@@ -60,6 +58,14 @@ export const SwapProvider = ({ children }: { children: ReactNode }) => {
       refresh: refreshTokenList,
     },
     tokenSearch,
+    setTokenIn: swapState.setTokenIn,
+    setTokenOut: swapState.setTokenOut,
+    setAmountIn: swapState.setAmountIn,
+    setAmountOut: swapState.setAmountOut,
+    setSlippage: swapState.setSlippage,
+    calculatePriceImpact: swapState.calculatePriceImpact,
+    findBestRoute: swapState.findBestRoute,
+    resetState: swapState.resetState,
   };
 
   return (

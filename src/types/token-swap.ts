@@ -24,13 +24,20 @@ export interface SwapState {
   amountIn: string;
   amountOut: string;
   slippage: number;
-  priceImpact: number | null;
+  priceImpact: number;
+  status: 'idle' | 'loading' | 'quoting' | 'error';
+  error: Error | null;
+  route: RouteStep[] | null;
 }
 
 export interface SwapQuote {
+  amountIn: string;
   amountOut: string;
   priceImpact: number;
   route: RouteStep[];
+  fee: number;
+  executionPrice: number;
+  minimumReceived: string;
 }
 
 export interface RouteStep {
@@ -45,13 +52,10 @@ export interface PoolInfo {
   id: string;
   tokenA: TokenInfo;
   tokenB: TokenInfo;
+  tokenAReserves: string;
+  tokenBReserves: string;
   liquidity: string;
-}
-
-export interface SwapError {
-  code: string;
-  message: string;
-  details?: any;
+  fee: number;
 }
 
 export interface RaydiumTokenList {

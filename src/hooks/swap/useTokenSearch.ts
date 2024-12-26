@@ -72,6 +72,41 @@ export function useTokenSearch({ tokens }: UseTokenSearchProps) {
       .slice(0, 10);
   }, [tokens]);
 
+  const recentTokens = useMemo(() => {
+    try {
+      const recentMints = JSON.parse(localStorage.getItem('recentTokens') || '[]') as string[];
+      return recentMints
+        .map(mint => tokens.find(token => token.mint === mint))
+        .filter((token): token is TokenInfo => token !== undefined)
+        .slice(0, 5);
+    } catch {
+      return [];
+    }
+  }, [tokens]);
+
+  const addToRecent = useCallback((token: TokenInfo) => {
+    try {
+      const recentMints = JSON.parse(localStorage.getItem('recentTokens') || '[]') as string[];
+      const updatedMints = [
+        token.mint,
+        ...recentMints.filter(mint => mint !== token.mint)
+      ].slice(0, 10);
+      localStorage.setItem('recentTokens', JSON.stringify(updatedMints));
+    } catch (error) {
+      console.error('Error updating recent tokens:', error);
+    }
+  }, []);
+
+  const resetSearch = useCallback(() => {
+    setSearchTerm('');
+    setFilters({
+      verified: false,
+      favorite: false,
+      hasBalance: false,
+      tags: [],
+    });
+  }, []);
+
   return {
     searchTerm,
     setSearchTerm,
@@ -79,5 +114,8 @@ export function useTokenSearch({ tokens }: UseTokenSearchProps) {
     setFilters,
     searchResults,
     popularTokens,
+    recentTokens,
+    resetSearch,
+    addToRecent,
   };
 }
