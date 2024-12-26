@@ -1,82 +1,75 @@
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
-import { Search, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, X, Star, CheckCircle, Wallet } from "lucide-react";
+import { TokenSearchFilters } from "@/types/token-swap";
 
 interface TokenSearchProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
-  filters: {
-    verified: boolean;
-    favorite: boolean;
-    tags: string[];
-    minBalance?: number;
-  };
-  onFilterChange: (filters: Partial<{
-    verified: boolean;
-    favorite: boolean;
-    tags: string[];
-    minBalance?: number;
-  }>) => void;
+  filters: TokenSearchFilters;
+  onFilterChange: (filters: TokenSearchFilters) => void;
 }
 
-export const TokenSearch = ({
+export function TokenSearch({
   searchTerm,
   onSearchChange,
   filters,
   onFilterChange,
-}: TokenSearchProps) => {
+}: TokenSearchProps) {
   return (
     <div className="space-y-4">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search name or paste address"
+          placeholder="Search by name or paste address"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-10 pr-10"
         />
         {searchTerm && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          <button
             onClick={() => onSearchChange("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
-          </Button>
+          </button>
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Toggle
           pressed={filters.verified}
-          onPressedChange={(pressed) => 
-            onFilterChange({ verified: pressed })
+          onPressedChange={(pressed) =>
+            onFilterChange({ ...filters, verified: pressed })
           }
-          className="text-xs"
+          className="gap-2"
         >
-          Verified Only
+          <CheckCircle className="h-4 w-4" />
+          Verified
         </Toggle>
+        
         <Toggle
           pressed={filters.favorite}
-          onPressedChange={(pressed) => 
-            onFilterChange({ favorite: pressed })
+          onPressedChange={(pressed) =>
+            onFilterChange({ ...filters, favorite: pressed })
           }
-          className="text-xs"
+          className="gap-2"
         >
+          <Star className="h-4 w-4" />
           Favorites
         </Toggle>
+        
         <Toggle
-          pressed={!!filters.minBalance}
-          onPressedChange={(pressed) => 
-            onFilterChange({ minBalance: pressed ? 0.000001 : undefined })
+          pressed={filters.hasBalance}
+          onPressedChange={(pressed) =>
+            onFilterChange({ ...filters, hasBalance: pressed })
           }
-          className="text-xs"
+          className="gap-2"
         >
+          <Wallet className="h-4 w-4" />
           Has Balance
         </Toggle>
       </div>
     </div>
   );
-};
+}

@@ -18,6 +18,42 @@ export interface TokenSearchFilters {
   tags: string[];
 }
 
+export interface SwapState {
+  tokenIn: TokenInfo | null;
+  tokenOut: TokenInfo | null;
+  amountIn: string;
+  amountOut: string;
+  slippage: number;
+  priceImpact: number | null;
+}
+
+export interface SwapQuote {
+  amountOut: string;
+  priceImpact: number;
+  route: RouteStep[];
+}
+
+export interface RouteStep {
+  poolId: string;
+  tokenIn: TokenInfo;
+  tokenOut: TokenInfo;
+  amountIn: string;
+  amountOut: string;
+}
+
+export interface PoolInfo {
+  id: string;
+  tokenA: TokenInfo;
+  tokenB: TokenInfo;
+  liquidity: string;
+}
+
+export interface SwapError {
+  code: string;
+  message: string;
+  details?: any;
+}
+
 export interface RaydiumTokenList {
   name: string;
   timestamp: string;
