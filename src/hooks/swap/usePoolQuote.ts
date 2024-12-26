@@ -2,9 +2,11 @@ import { useCallback } from 'react';
 import { PoolState, PoolQuote, TokenInfo } from '@/types/token-swap';
 import { calculateQuote } from '@/lib/swap/pool/quote';
 import { useToast } from '@/hooks/use-toast';
+import { useConnection } from '@solana/wallet-adapter-react';
 
 export function usePoolQuote() {
   const { toast } = useToast();
+  const { connection } = useConnection();
 
   const calculatePoolQuote = useCallback(async (
     pool: PoolState,
@@ -24,7 +26,8 @@ export function usePoolQuote() {
         amountIn,
         tokenIn.decimals,
         tokenOut.decimals,
-        slippage
+        slippage,
+        connection
       );
 
       return {
@@ -53,7 +56,7 @@ export function usePoolQuote() {
       });
       return null;
     }
-  }, [toast]);
+  }, [connection, toast]);
 
   return { calculatePoolQuote };
 }

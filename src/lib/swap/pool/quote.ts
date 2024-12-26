@@ -2,6 +2,7 @@ import { PoolState } from '@/types/token-swap';
 import BN from 'bn.js';
 import { getTickArrays } from './ticks';
 import { calculatePrice } from '../price';
+import { Connection } from '@solana/web3.js';
 
 interface QuoteResult {
   expectedOutput: string;
@@ -16,13 +17,15 @@ export async function calculateQuote(
   amountIn: string,
   decimalsIn: number,
   decimalsOut: number,
-  slippage: number
+  slippage: number,
+  connection: Connection
 ): Promise<QuoteResult> {
   // Convert amount to BN with proper decimals
   const amount = new BN(amountIn).mul(new BN(10).pow(new BN(decimalsIn)));
   
   // Get relevant tick arrays for the swap
   const tickArrays = await getTickArrays(
+    connection,
     pool.address,
     pool.currentTickIndex,
     pool.tickSpacing
