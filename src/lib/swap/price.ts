@@ -76,7 +76,8 @@ export async function getPriceFromPool(
     const poolAddress = await derivePoolAddress(
       new PublicKey(tokenA.mint),
       new PublicKey(tokenB.mint),
-      tickSpacing
+      tickSpacing,
+      0.3 // Default fee tier
     );
     
     // TODO: Fetch actual pool data and calculate price
@@ -86,27 +87,4 @@ export async function getPriceFromPool(
     console.error('Error getting price from pool:', error);
     return null;
   }
-}
-
-export function calculateAmountOut(
-  amountIn: BN,
-  reserveIn: BN,
-  reserveOut: BN,
-  fee: number = 0.003 // 0.3% default fee
-): BN {
-  const amountInWithFee = amountIn.mul(new BN(Math.floor((1 - fee) * 10000))).div(new BN(10000));
-  const numerator = amountInWithFee.mul(reserveOut);
-  const denominator = reserveIn.add(amountInWithFee);
-  return numerator.div(denominator);
-}
-
-export function calculateAmountIn(
-  amountOut: BN,
-  reserveIn: BN,
-  reserveOut: BN,
-  fee: number = 0.003 // 0.3% default fee
-): BN {
-  const numerator = reserveIn.mul(amountOut).mul(new BN(10000));
-  const denominator = (reserveOut.sub(amountOut)).mul(new BN(Math.floor((1 - fee) * 10000)));
-  return numerator.div(denominator).add(new BN(1));
 }

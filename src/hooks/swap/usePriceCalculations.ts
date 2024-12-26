@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { TokenInfo } from '@/types/token-swap';
-import { calculatePriceImpact as calcPriceImpact, findBestRoute as findRoute } from '@/lib/swap/price';
+import { calculatePriceImpact as calcPriceImpact } from '@/lib/swap/price';
+import { findBestRoute } from '@/lib/swap/route';
 
 export const usePriceCalculations = (
   updateState: (updates: Record<string, any>) => void
@@ -13,14 +14,18 @@ export const usePriceCalculations = (
     if (!tokenIn || !tokenOut || !amountIn) return;
     
     try {
-      const impact = await calcPriceImpact(amountIn, tokenIn, tokenOut);
+      const impact = await calcPriceImpact(
+        parseFloat(amountIn),
+        parseFloat(amountIn), // Using input amount as placeholder
+        1.0 // Using 1.0 as placeholder spot price
+      );
       updateState({ priceImpact: impact });
     } catch (error) {
       console.error('Error calculating price impact:', error);
     }
   }, [updateState]);
 
-  const findBestRoute = useCallback(async (
+  const findRoute = useCallback(async (
     tokenIn: TokenInfo | null,
     tokenOut: TokenInfo | null,
     amountIn: string
@@ -28,7 +33,7 @@ export const usePriceCalculations = (
     if (!tokenIn || !tokenOut || !amountIn) return;
     
     try {
-      const route = await findRoute(tokenIn, tokenOut, amountIn);
+      const route = await findBestRoute(tokenIn, tokenOut, amountIn);
       updateState({ route });
     } catch (error) {
       console.error('Error finding best route:', error);
@@ -37,6 +42,6 @@ export const usePriceCalculations = (
 
   return {
     calculatePriceImpact,
-    findBestRoute
+    findBestRoute: findRoute
   };
 };
