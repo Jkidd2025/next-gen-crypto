@@ -27,14 +27,14 @@ export async function importToken(
 
     // Fetch token metadata
     const mintPubkey = new PublicKey(mintAddress);
-    const metadataPDA = findMetadataPda(mintPubkey);
+    const metadataPDA = await findMetadataPda(mintPubkey, { commitment: 'confirmed' });
     
-    const metadataAccount = await connection.getAccountInfo(metadataPDA);
+    const metadataAccount = await connection.getAccountInfo(metadataPDA.address);
     if (!metadataAccount) {
       throw new Error('Token metadata not found');
     }
 
-    const metadata = Metadata.fromAccountInfo(metadataAccount)[0];
+    const metadata = await Metadata.fromAccountInfo(metadataAccount)[0];
 
     // Get token supply and decimals
     const mintInfo = await connection.getParsedAccountInfo(mintPubkey);
