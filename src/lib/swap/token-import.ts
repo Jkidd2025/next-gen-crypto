@@ -5,15 +5,17 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata';
 import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
-import { isValidMintAddress } from './token-validation';
+import { validateToken } from './token-validation';
 
 export async function importToken(
   connection: Connection,
   mintAddress: string
 ): Promise<ImportedTokenInfo | null> {
   try {
-    if (!isValidMintAddress(mintAddress)) {
-      throw new Error('Invalid mint address');
+    // Validate token first
+    const validationResult = await validateToken(connection, mintAddress);
+    if (!validationResult.isValid) {
+      throw new Error(validationResult.errors[0]);
     }
 
     // Check if token already exists in cache
@@ -72,26 +74,9 @@ export async function validateImportedToken(
   connection: Connection,
   mintAddress: string
 ): Promise<{ valid: boolean; reason?: string }> {
-  try {
-    const mintPubkey = new PublicKey(mintAddress);
-    
-    // Check if account exists
-    const accountInfo = await connection.getAccountInfo(mintPubkey);
-    if (!accountInfo) {
-      return { valid: false, reason: 'Token mint account not found' };
-    }
-
-    // Check if it's a valid mint account
-    const mintInfo = await connection.getParsedAccountInfo(mintPubkey);
-    if (!mintInfo.value?.data || typeof mintInfo.value.data !== 'object') {
-      return { valid: false, reason: 'Invalid mint account' };
-    }
-
-    return { valid: true };
-  } catch (error) {
-    return { 
-      valid: false, 
-      reason: error instanceof Error ? error.message : 'Unknown error' 
-    };
-  }
+  const validationResult = await validateToken(connection, mintAddress);
+  return {
+    valid: validationResult.isValid,
+    reason: validationResult.errors[0] || validationResult.warnings[0]
+  };
 }
