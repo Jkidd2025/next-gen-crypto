@@ -1,7 +1,6 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
+import { Metadata, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
-import { toast } from '@/hooks/use-toast';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
 import { isValidMintAddress } from './token-validation';
 
@@ -15,39 +14,31 @@ export async function importToken(
     }
 
     // Check if token already exists in cache
-    const cachedTokens = getCachedTokenList();
-    if (cachedTokens) {
-      const existingToken = cachedTokens.find(
-        t => t.mint.toLowerCase() === mintAddress.toLowerCase()
-      );
-      if (existingToken) {
-        toast({
-          title: "Token already exists",
-          description: `${existingToken.symbol} is already in your token list`,
-        });
-        return { ...existingToken, status: 'existing' };
-      }
-    }
-
-    // Validate token before import
-    const validation = await validateImportedToken(connection, mintAddress);
-    if (!validation.valid) {
-      toast({
-        title: "Invalid token",
-        description: validation.reason || "Failed to validate token",
-        variant: "destructive",
-      });
-      return null;
+    const cachedTokens = getCachedTokenList() || [];
+    const existingToken = cachedTokens.find(
+      t => t.mint.toLowerCase() === mintAddress.toLowerCase()
+    );
+    if (existingToken) {
+      return { ...existingToken, status: 'existing' };
     }
 
     // Fetch token metadata
     const mintPubkey = new PublicKey(mintAddress);
-    const metadataPDA = await Metadata.getPDA(mintPubkey);
-    const metadata = await Metadata.fromAccountAddress(connection, metadataPDA);
+    const metadataPDA = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('metadata'),
+        PROGRAM_ID.toBuffer(),
+        mintPubkey.toBuffer(),
+      ],
+      PROGRAM_ID
+    )[0];
     
-    if (!metadata) {
+    const metadataAccount = await connection.getAccountInfo(metadataPDA);
+    if (!metadataAccount) {
       throw new Error('Token metadata not found');
     }
+
+    const metadata = Metadata.deserialize(metadataAccount.data)[0];
 
     // Get token supply and decimals
     const mintInfo = await connection.getParsedAccountInfo(mintPubkey);
@@ -71,23 +62,12 @@ export async function importToken(
     };
 
     // Add to cached list
-    const currentTokens = cachedTokens || [];
-    const updatedTokens = [...currentTokens, newToken];
+    const updatedTokens = [...cachedTokens, newToken];
     cacheTokenList(updatedTokens);
-
-    toast({
-      title: "Token imported successfully",
-      description: `${newToken.symbol} has been added to your token list`,
-    });
 
     return { ...newToken, status: 'imported' };
   } catch (error) {
     console.error('Error importing token:', error);
-    toast({
-      title: "Failed to import token",
-      description: error instanceof Error ? error.message : "Unknown error occurred",
-      variant: "destructive",
-    });
     return null;
   }
 }
