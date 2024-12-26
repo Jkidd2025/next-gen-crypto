@@ -15,6 +15,12 @@ export interface TickArray {
   ticks: TickData[];
 }
 
+export interface TickArrayRange {
+  startTick: number;
+  endTick: number;
+  tickSpacing: number;
+}
+
 interface TickArrayCache {
   [key: string]: {
     data: TickArray;
@@ -121,4 +127,42 @@ export function findNearestTicks(
   }
 
   return { nextTick, previousTick };
+}
+
+export function calculateRequiredTickArrays(
+  currentTick: number,
+  tickSpacing: number,
+  priceRange: { min: number; max: number }
+): TickArrayRange[] {
+  const ranges: TickArrayRange[] = [];
+  const startArrayIndex = Math.floor(priceRange.min / (tickSpacing * TICK_ARRAY_SIZE));
+  const endArrayIndex = Math.ceil(priceRange.max / (tickSpacing * TICK_ARRAY_SIZE));
+  
+  for (let i = startArrayIndex; i <= endArrayIndex; i++) {
+    ranges.push({
+      startTick: i * tickSpacing * TICK_ARRAY_SIZE,
+      endTick: (i + 1) * tickSpacing * TICK_ARRAY_SIZE - 1,
+      tickSpacing
+    });
+  }
+  
+  return ranges;
+}
+
+export function optimizeTickArrayFetching(
+  tickArrays: TickArray[],
+  currentTick: number,
+  direction: 'aToB' | 'bToA'
+): TickArray[] {
+  // Sort tick arrays based on direction and proximity to current tick
+  return [...tickArrays].sort((a, b) => {
+    const distA = Math.abs(a.startTick - currentTick);
+    const distB = Math.abs(b.startTick - currentTick);
+    
+    if (direction === 'aToB') {
+      return distA - distB;
+    } else {
+      return distB - distA;
+    }
+  });
 }
