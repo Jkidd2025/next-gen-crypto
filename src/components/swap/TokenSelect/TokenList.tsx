@@ -5,6 +5,8 @@ import { Check, Star, StarOff, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSwap } from "@/contexts/SwapContext";
+import { Separator } from "@/components/ui/separator";
+import { isValidMintAddress } from "@/lib/swap/tokens";
 
 interface TokenListProps {
   selectedToken?: TokenInfo | null;
@@ -25,31 +27,70 @@ export const TokenList = ({
     return <TokenListSkeleton />;
   }
 
-  const displayTokens = searchTerm 
-    ? tokenSearch.searchResults
-    : tokenSearch.popularTokens;
+  const renderTokens = (tokenList: TokenInfo[]) => (
+    <div className="space-y-1">
+      {tokenList.map((token) => (
+        <TokenListItem
+          key={token.mint}
+          token={token}
+          selected={selectedToken?.mint === token.mint}
+          onSelect={() => {
+            onSelect(token);
+            tokenSearch.addToRecent(token);
+          }}
+          showBalance={showBalances}
+        />
+      ))}
+    </div>
+  );
 
-  if (displayTokens.length === 0) {
+  if (tokenSearch.searchResults.length === 0) {
     return (
       <div className="py-8 text-center text-muted-foreground">
-        {searchTerm ? "No tokens found" : "No tokens available"}
+        {tokenSearch.searchTerm ? (
+          <div className="space-y-4">
+            <p>No tokens found</p>
+            {isValidMintAddress(tokenSearch.searchTerm) && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => {/* Import token functionality will be implemented */}}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Import Token
+              </Button>
+            )}
+          </div>
+        ) : (
+          "No tokens available"
+        )}
       </div>
     );
   }
 
   return (
     <ScrollArea className="h-[300px] pr-4">
-      <div className="space-y-1">
-        {displayTokens.map((token) => (
-          <TokenListItem
-            key={token.mint}
-            token={token}
-            selected={selectedToken?.mint === token.mint}
-            onSelect={onSelect}
-            showBalance={showBalances}
-          />
-        ))}
+      {tokenSearch.recentTokens.length > 0 && (
+        <>
+          <div className="mb-2 text-sm font-medium text-muted-foreground">Recent</div>
+          {renderTokens(tokenSearch.recentTokens)}
+          <Separator className="my-4" />
+        </>
+      )}
+      
+      {!tokenSearch.searchTerm && tokenSearch.popularTokens.length > 0 && (
+        <>
+          <div className="mb-2 text-sm font-medium text-muted-foreground">Popular</div>
+          {renderTokens(tokenSearch.popularTokens)}
+          <Separator className="my-4" />
+        </>
+      )}
+      
+      <div className="mb-2 text-sm font-medium text-muted-foreground">
+        {tokenSearch.searchTerm ? 'Search Results' : 'All Tokens'}
       </div>
+      {renderTokens(tokenSearch.searchResults)}
     </ScrollArea>
   );
 };
@@ -57,7 +98,7 @@ export const TokenList = ({
 interface TokenListItemProps {
   token: TokenInfo;
   selected?: boolean;
-  onSelect: (token: TokenInfo) => void;
+  onSelect: () => void;
   showBalance?: boolean;
 }
 
@@ -80,7 +121,7 @@ const TokenListItem = ({
         "w-full justify-between hover:bg-accent hover:text-accent-foreground",
         selected && "bg-accent text-accent-foreground"
       )}
-      onClick={() => onSelect(token)}
+      onClick={onSelect}
     >
       <div className="flex items-center gap-3">
         <div className="relative">
