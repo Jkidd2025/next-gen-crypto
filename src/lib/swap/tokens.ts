@@ -1,12 +1,47 @@
-import { TokenInfo, RaydiumTokenList } from '@/types/token-swap';
+import { TokenInfo, RaydiumTokenList, TokenListVersion } from '@/types/token-swap';
 
 const RAYDIUM_API_URL = "https://api.raydium.io/v2/sdk/token/raydium.mainnet.json";
 const TOKEN_LIST_VERSION_KEY = "tokenListVersion";
 const TOKEN_LIST_CACHE_KEY = "tokenListCache";
 const TOKEN_LIST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
+export function compareVersions(a: TokenListVersion, b: TokenListVersion): number {
+  if (a.major !== b.major) return a.major - b.major;
+  if (a.minor !== b.minor) return a.minor - b.minor;
+  if (a.patch !== b.patch) return a.patch - b.patch;
+  return a.timestamp - b.timestamp;
+}
+
+export async function checkForUpdates(): Promise<boolean> {
+  try {
+    const response = await fetch(RAYDIUM_API_URL);
+    if (!response.ok) return false;
+    
+    const data: RaydiumTokenList = await response.json();
+    const latestVersion = {
+      ...data.version,
+      timestamp: Date.now()
+    };
+    
+    const currentVersionStr = localStorage.getItem(TOKEN_LIST_VERSION_KEY);
+    if (!currentVersionStr) return true;
+    
+    const currentVersion = JSON.parse(currentVersionStr);
+    return compareVersions(latestVersion, currentVersion) > 0;
+  } catch (error) {
+    console.error('Error checking for token list updates:', error);
+    return false;
+  }
+}
+
 export async function fetchRaydiumTokenList(): Promise<TokenInfo[]> {
   try {
+    const needsUpdate = await checkForUpdates();
+    if (!needsUpdate) {
+      const cached = getCachedTokenList();
+      if (cached) return cached;
+    }
+
     const response = await fetch(RAYDIUM_API_URL);
     if (!response.ok) {
       throw new Error(`Failed to fetch token list: ${response.statusText}`);
@@ -14,28 +49,21 @@ export async function fetchRaydiumTokenList(): Promise<TokenInfo[]> {
     
     const data: RaydiumTokenList = await response.json();
     
-    // Add version check
-    const currentVersion = localStorage.getItem(TOKEN_LIST_VERSION_KEY);
-    if (currentVersion) {
-      const current = JSON.parse(currentVersion);
-      if (!needsUpdate(data.version, current)) {
-        const cached = getCachedTokenList();
-        if (cached) return cached;
-      }
-    }
-    
     // Process and enhance token data
     const tokens = data.tokens.map(token => ({
       ...token,
       verified: true,
       favorite: isFavoriteToken(token.mint),
-      balance: 0, // Will be updated later
-      usdPrice: 0, // Will be updated later
+      balance: 0,
+      usdPrice: 0,
     }));
 
-    // Cache the new token list
+    // Cache the new token list and version
     cacheTokenList(tokens);
-    localStorage.setItem(TOKEN_LIST_VERSION_KEY, JSON.stringify(data.version));
+    localStorage.setItem(TOKEN_LIST_VERSION_KEY, JSON.stringify({
+      ...data.version,
+      timestamp: Date.now()
+    }));
     
     return tokens;
   } catch (error) {
@@ -44,19 +72,7 @@ export async function fetchRaydiumTokenList(): Promise<TokenInfo[]> {
   }
 }
 
-// Version comparison utility
-function needsUpdate(newVersion: RaydiumTokenList['version'], currentVersion: RaydiumTokenList['version']): boolean {
-  if (newVersion.major !== currentVersion.major) {
-    return newVersion.major > currentVersion.major;
-  }
-  if (newVersion.minor !== currentVersion.minor) {
-    return newVersion.minor > currentVersion.minor;
-  }
-  return newVersion.patch > currentVersion.patch;
-}
-
-// Get cached token list
-export function getCachedTokenList(): TokenInfo[] | null {
+function getCachedTokenList(): TokenInfo[] | null {
   try {
     const cached = localStorage.getItem(TOKEN_LIST_CACHE_KEY);
     if (!cached) return null;
@@ -64,7 +80,6 @@ export function getCachedTokenList(): TokenInfo[] | null {
     const { tokens, timestamp } = JSON.parse(cached);
     const now = Date.now();
     
-    // Check if cache is expired
     if (now - timestamp > TOKEN_LIST_CACHE_DURATION) {
       localStorage.removeItem(TOKEN_LIST_CACHE_KEY);
       return null;
@@ -77,8 +92,7 @@ export function getCachedTokenList(): TokenInfo[] | null {
   }
 }
 
-// Cache token list with timestamp
-export function cacheTokenList(tokens: TokenInfo[]): void {
+function cacheTokenList(tokens: TokenInfo[]): void {
   try {
     const cache = {
       tokens,
@@ -90,7 +104,6 @@ export function cacheTokenList(tokens: TokenInfo[]): void {
   }
 }
 
-// Check if token is in favorites
 function isFavoriteToken(mint: string): boolean {
   try {
     const favorites = localStorage.getItem('favoriteTokens');
@@ -101,7 +114,6 @@ function isFavoriteToken(mint: string): boolean {
   }
 }
 
-// Validate token mint address
 export function isValidMintAddress(address: string): boolean {
   try {
     // Basic validation for Solana addresses (base58, 32-44 characters)

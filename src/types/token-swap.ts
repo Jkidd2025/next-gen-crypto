@@ -62,19 +62,21 @@ export interface PoolInfo {
   address?: string;
 }
 
+export interface TokenListVersion {
+  major: number;
+  minor: number;
+  patch: number;
+  timestamp: number;
+}
+
 export interface RaydiumTokenList {
   name: string;
   timestamp: string;
-  version: {
-    major: number;
-    minor: number;
-    patch: number;
-  };
+  version: TokenListVersion;
   tokens: TokenInfo[];
 }
 
-export interface SwapError {
+export interface SwapError extends Error {
   code: string;
-  message: string;
   details?: any;
 }
