@@ -1,5 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { TokenInfo, TokenValidationError, TokenValidationState } from '@/types/token-swap';
+import { TokenInfo, TokenValidationState } from '@/types/token-swap';
 import { isBlacklisted, getBlacklistReason } from './blacklist';
 import bs58 from 'bs58';
 
@@ -12,28 +12,20 @@ export async function validateToken(
   mintAddress: string,
   tokenInfo?: Partial<TokenInfo>
 ): Promise<TokenValidationState> {
-  const errors: TokenValidationError[] = [];
-  const warnings: TokenValidationError[] = [];
+  const errors: string[] = [];
+  const warnings: string[] = [];
 
   try {
     // Check blacklist first
     if (isBlacklisted(mintAddress)) {
       const reason = getBlacklistReason(mintAddress);
-      errors.push({
-        code: 'BLACKLISTED',
-        message: `Token is blacklisted: ${reason || 'Unknown reason'}`,
-        severity: 'error'
-      });
+      errors.push(`Token is blacklisted: ${reason || 'Unknown reason'}`);
       return { isValid: false, errors, warnings, lastChecked: Date.now() };
     }
 
     // Validate address format
     if (!isValidMintAddress(mintAddress)) {
-      errors.push({
-        code: 'INVALID_ADDRESS',
-        message: 'Invalid token address format',
-        severity: 'error'
-      });
+      errors.push('Invalid token address format');
       return { isValid: false, errors, warnings, lastChecked: Date.now() };
     }
 
@@ -41,31 +33,19 @@ export async function validateToken(
     const accountInfo = await connection.getAccountInfo(mintPubkey);
     
     if (!accountInfo) {
-      errors.push({
-        code: 'ACCOUNT_NOT_FOUND',
-        message: 'Token mint account not found',
-        severity: 'error'
-      });
+      errors.push('Token mint account not found');
       return { isValid: false, errors, warnings, lastChecked: Date.now() };
     }
 
     const mintInfo = await connection.getParsedAccountInfo(mintPubkey);
     if (!mintInfo.value?.data || typeof mintInfo.value.data !== 'object') {
-      errors.push({
-        code: 'INVALID_MINT_DATA',
-        message: 'Invalid mint account data',
-        severity: 'error'
-      });
+      errors.push('Invalid mint account data');
       return { isValid: false, errors, warnings, lastChecked: Date.now() };
     }
 
     const { decimals } = (mintInfo.value.data as any).parsed.info;
     if (!isValidDecimals(decimals)) {
-      errors.push({
-        code: 'INVALID_DECIMALS',
-        message: `Invalid decimals: ${decimals}. Must be between 0 and ${MAX_DECIMALS}`,
-        severity: 'error'
-      });
+      errors.push(`Invalid decimals: ${decimals}. Must be between 0 and ${MAX_DECIMALS}`);
     }
 
     if (tokenInfo) {
@@ -74,11 +54,7 @@ export async function validateToken(
     }
 
     if (accountInfo.owner.toString() !== 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') {
-      warnings.push({
-        code: 'NON_STANDARD_PROGRAM',
-        message: 'Non-standard token program owner',
-        severity: 'warning'
-      });
+      warnings.push('Non-standard token program owner');
     }
 
     return {
@@ -88,11 +64,7 @@ export async function validateToken(
       lastChecked: Date.now()
     };
   } catch (error) {
-    errors.push({
-      code: 'VALIDATION_ERROR',
-      message: error instanceof Error ? error.message : 'Unknown error occurred',
-      severity: 'error'
-    });
+    errors.push(error instanceof Error ? error.message : 'Unknown error occurred');
     return { isValid: false, errors, warnings, lastChecked: Date.now() };
   }
 }
@@ -110,33 +82,21 @@ export function isValidDecimals(decimals: number): boolean {
   return Number.isInteger(decimals) && decimals >= 0 && decimals <= MAX_DECIMALS;
 }
 
-function validateTokenMetadata(tokenInfo: Partial<TokenInfo>): TokenValidationError[] {
-  const errors: TokenValidationError[] = [];
+function validateTokenMetadata(tokenInfo: Partial<TokenInfo>): string[] {
+  const errors: string[] = [];
 
   if (tokenInfo.name) {
     if (tokenInfo.name.length < MIN_NAME_LENGTH || tokenInfo.name.length > MAX_NAME_LENGTH) {
-      errors.push({
-        code: 'INVALID_NAME_LENGTH',
-        message: `Token name must be between ${MIN_NAME_LENGTH} and ${MAX_NAME_LENGTH} characters`,
-        severity: 'error'
-      });
+      errors.push(`Token name must be between ${MIN_NAME_LENGTH} and ${MAX_NAME_LENGTH} characters`);
     }
   }
 
   if (tokenInfo.symbol && !/^[A-Za-z0-9]+$/.test(tokenInfo.symbol)) {
-    errors.push({
-      code: 'INVALID_SYMBOL',
-      message: 'Token symbol must contain only letters and numbers',
-      severity: 'error'
-    });
+    errors.push('Token symbol must contain only letters and numbers');
   }
 
   if (tokenInfo.decimals !== undefined && !isValidDecimals(tokenInfo.decimals)) {
-    errors.push({
-      code: 'INVALID_DECIMALS',
-      message: `Invalid decimals: ${tokenInfo.decimals}`,
-      severity: 'error'
-    });
+    errors.push(`Invalid decimals: ${tokenInfo.decimals}`);
   }
 
   return errors;

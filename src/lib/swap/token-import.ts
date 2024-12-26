@@ -3,10 +3,28 @@ import {
   PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
   Metadata as MetadataData
 } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenInfo, ImportedTokenInfo, TokenValidationResult } from '@/types/token-swap';
+import { TokenInfo, ImportedTokenInfo, TokenValidationState } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
 import { validateToken } from './token-validation';
 import { isBlacklisted, getBlacklistReason } from './blacklist';
+
+export async function importToken(
+  connection: Connection,
+  mintAddress: string
+): Promise<ImportedTokenInfo | null> {
+  try {
+    const tokenInfo = await getTokenMetadata(connection, mintAddress);
+    if (!tokenInfo) return null;
+    
+    return {
+      ...tokenInfo,
+      status: 'imported'
+    };
+  } catch (error) {
+    console.error('Error importing token:', error);
+    return null;
+  }
+}
 
 export async function getTokenMetadata(
   connection: Connection,
