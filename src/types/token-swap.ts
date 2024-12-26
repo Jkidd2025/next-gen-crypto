@@ -11,6 +11,17 @@ export interface TokenInfo {
   tags?: string[];
 }
 
+export type TokenImportStatus = 'existing' | 'imported' | 'failed';
+
+export interface ImportedTokenInfo extends TokenInfo {
+  status: TokenImportStatus;
+}
+
+export interface TokenImportError {
+  mintAddress: string;
+  error: string;
+}
+
 export interface TokenSearchFilters {
   verified: boolean;
   favorite: boolean;
