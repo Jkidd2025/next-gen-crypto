@@ -1,7 +1,8 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { 
-  Metadata,
-  PROGRAM_ADDRESS as TOKEN_METADATA_PROGRAM_ID
+  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
+  createMetadataAccountV3,
+  Metadata as MetadataData
 } from '@metaplex-foundation/mpl-token-metadata';
 import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
@@ -22,7 +23,7 @@ export async function importToken(
     // Validate token
     const validationResult = await validateToken(connection, mintAddress);
     if (!validationResult.isValid) {
-      throw new Error(validationResult.errors[0].message);
+      throw new Error(validationResult.errors[0]);
     }
 
     // Check if token already exists in cache
@@ -41,10 +42,10 @@ export async function importToken(
     const [metadataPDA] = PublicKey.findProgramAddressSync(
       [
         Buffer.from('metadata'),
-        new PublicKey(TOKEN_METADATA_PROGRAM_ID).toBuffer(),
+        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
         mintPubkey.toBuffer(),
       ],
-      new PublicKey(TOKEN_METADATA_PROGRAM_ID)
+      TOKEN_METADATA_PROGRAM_ID
     );
     
     const metadataAccount = await connection.getAccountInfo(metadataPDA);
@@ -53,7 +54,7 @@ export async function importToken(
     }
 
     // Get metadata
-    const metadata = await Metadata.fromAccountAddress(connection, metadataPDA);
+    const metadata = MetadataData.deserialize(metadataAccount.data)[0];
 
     // Get token supply and decimals
     const mintInfo = await connection.getParsedAccountInfo(mintPubkey);
@@ -66,10 +67,10 @@ export async function importToken(
     // Create token info
     const newToken: TokenInfo = {
       mint: mintAddress,
-      symbol: metadata.symbol.trim(),
-      name: metadata.name.trim(),
+      symbol: metadata.data.symbol.trim(),
+      name: metadata.data.name.trim(),
       decimals,
-      logoURI: metadata.uri || '',
+      logoURI: metadata.data.uri || '',
       verified: false,
       tags: ['imported']
     };
@@ -89,15 +90,22 @@ export async function validateImportedToken(
   connection: Connection,
   mintAddress: string
 ): Promise<{ valid: boolean; reason?: string }> {
-  // Check blacklist first
-  if (isBlacklisted(mintAddress)) {
-    const reason = getBlacklistReason(mintAddress);
-    return { valid: false, reason: `Token is blacklisted: ${reason}` };
-  }
+  try {
+    // Check blacklist first
+    if (isBlacklisted(mintAddress)) {
+      const reason = getBlacklistReason(mintAddress);
+      return { valid: false, reason: `Token is blacklisted: ${reason}` };
+    }
 
-  const validationResult = await validateToken(connection, mintAddress);
-  return {
-    valid: validationResult.isValid,
-    reason: validationResult.errors[0]?.message || validationResult.warnings[0]?.message
-  };
+    const validationResult = await validateToken(connection, mintAddress);
+    return {
+      valid: validationResult.isValid,
+      reason: validationResult.errors[0]
+    };
+  } catch (error) {
+    return {
+      valid: false,
+      reason: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
 }
