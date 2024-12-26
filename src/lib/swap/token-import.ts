@@ -1,5 +1,8 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Metadata, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
+import { 
+  Metadata,
+  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID
+} from '@metaplex-foundation/mpl-token-metadata/dist/src/generated';
 import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
 import { isValidMintAddress } from './token-validation';
@@ -27,10 +30,10 @@ export async function importToken(
     const metadataPDA = PublicKey.findProgramAddressSync(
       [
         Buffer.from('metadata'),
-        PROGRAM_ID.toBuffer(),
+        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
         mintPubkey.toBuffer(),
       ],
-      PROGRAM_ID
+      TOKEN_METADATA_PROGRAM_ID
     )[0];
     
     const metadataAccount = await connection.getAccountInfo(metadataPDA);
