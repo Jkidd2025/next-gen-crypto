@@ -1,4 +1,3 @@
-```typescript
 import { PublicKey } from '@solana/web3.js';
 import { derivePoolAddress } from './pool';
 import { TokenInfo } from '@/types/token-swap';
@@ -68,11 +67,6 @@ export function validateRoute(route: Route): boolean {
     }
   }
 
-  // Validate amounts
-  if (!route.inputAmount || !route.outputAmount) {
-    return false;
-  }
-
   return true;
 }
 
@@ -90,24 +84,3 @@ export function calculatePriceImpact(
 
   return ((expectedOutput - actualOutput) / expectedOutput) * 100;
 }
-
-export function getRouteDescription(route: Route): string {
-  return route.hops
-    .map(hop => hop.tokenIn.symbol)
-    .concat(route.hops[route.hops.length - 1].tokenOut.symbol)
-    .join(' → ');
-}
-
-export function estimateRouteGas(route: Route): number {
-  // Base cost for swap
-  let baseCost = 100000;
-  
-  // Additional cost per hop
-  const hopCost = route.hops.length * 80000;
-  
-  // Additional overhead for complex routes
-  const overheadCost = route.hops.length > 1 ? 50000 : 0;
-  
-  return baseCost + hopCost + overheadCost;
-}
-```

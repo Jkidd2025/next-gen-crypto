@@ -34,7 +34,9 @@ export const usePriceCalculations = (
     
     try {
       const route = await findBestRoute(tokenIn, tokenOut, amountIn);
-      updateState({ route });
+      if (route) {
+        updateState({ route });
+      }
     } catch (error) {
       console.error('Error finding best route:', error);
     }
