@@ -1,19 +1,10 @@
+import { Connection } from '@solana/web3.js';
 import BN from 'bn.js';
+import { PoolState, QuoteResult } from '@/types/token-swap';
 import { getTickArrays } from './ticks';
 import { calculatePrice } from '../price';
-import { Connection } from '@solana/web3.js';
-import { retry } from 'retry-ts';
-import { PoolState } from '@/types/token-swap';
-
-interface QuoteResult {
-  expectedOutput: string;
-  minimumOutput: string;
-  priceImpact: number;
-  fee: string;
-  tickArrays: any[];
-  spotPrice: string;
-  executionPrice: string;
-}
+import { retrying } from 'retry-ts/lib/retrying';
+import { constantDelay } from 'retry-ts/lib/delay';
 
 export async function calculateQuote(
   pool: PoolState,
@@ -34,20 +25,15 @@ export async function calculateQuote(
   }
 
   // Get tick arrays with retry logic
-  const tickArrays = await retry(
+  const tickArrays = await retrying(
     async () => getTickArrays(
       connection,
       pool.address,
       pool.currentTickIndex,
       pool.tickSpacing
     ),
-    {
-      retries: 3,
-      minTimeout: 1000,
-      onRetry: (error) => {
-        console.warn('Retrying tick array fetch:', error);
-      }
-    }
+    constantDelay(1000),
+    3
   );
 
   // Calculate expected output with improved precision
