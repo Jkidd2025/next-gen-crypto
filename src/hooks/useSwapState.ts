@@ -23,6 +23,8 @@ const INITIAL_STATE: SwapState = {
   status: 'idle',
   error: null,
   pool: null,
+  poolLoading: false,
+  poolError: null
 };
 
 export const useSwapState = () => {
@@ -145,3 +147,4 @@ export const useSwapState = () => {
     resetState,
   };
 };
+
