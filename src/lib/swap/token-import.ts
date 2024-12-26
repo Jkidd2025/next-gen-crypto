@@ -3,19 +3,26 @@ import {
   Metadata,
   findMetadataPda
 } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
+import { TokenInfo, ImportedTokenInfo, TokenValidationError } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
 import { validateToken } from './token-validation';
+import { isBlacklisted, getBlacklistReason } from './blacklist';
 
 export async function importToken(
   connection: Connection,
   mintAddress: string
 ): Promise<ImportedTokenInfo | null> {
   try {
-    // Validate token first
+    // Check blacklist first
+    if (isBlacklisted(mintAddress)) {
+      const reason = getBlacklistReason(mintAddress);
+      throw new Error(`Token is blacklisted: ${reason}`);
+    }
+
+    // Validate token
     const validationResult = await validateToken(connection, mintAddress);
     if (!validationResult.isValid) {
-      throw new Error(validationResult.errors[0]);
+      throw new Error(validationResult.errors[0].message);
     }
 
     // Check if token already exists in cache
@@ -29,14 +36,14 @@ export async function importToken(
 
     // Fetch token metadata
     const mintPubkey = new PublicKey(mintAddress);
-    const [metadataPDA] = findMetadataPda({ mint: mintPubkey });
+    const [metadataPDA] = findMetadataPda(mintPubkey);
     
     const metadataAccount = await connection.getAccountInfo(metadataPDA);
     if (!metadataAccount) {
       throw new Error('Token metadata not found');
     }
 
-    const metadata = Metadata.deserialize(metadataAccount.data)[0];
+    const metadata = await Metadata.fromAccountAddress(connection, metadataPDA);
 
     // Get token supply and decimals
     const mintInfo = await connection.getParsedAccountInfo(mintPubkey);
@@ -74,9 +81,15 @@ export async function validateImportedToken(
   connection: Connection,
   mintAddress: string
 ): Promise<{ valid: boolean; reason?: string }> {
+  // Check blacklist first
+  if (isBlacklisted(mintAddress)) {
+    const reason = getBlacklistReason(mintAddress);
+    return { valid: false, reason: `Token is blacklisted: ${reason}` };
+  }
+
   const validationResult = await validateToken(connection, mintAddress);
   return {
     valid: validationResult.isValid,
-    reason: validationResult.errors[0] || validationResult.warnings[0]
+    reason: validationResult.errors[0]?.message || validationResult.warnings[0]?.message
   };
 }
