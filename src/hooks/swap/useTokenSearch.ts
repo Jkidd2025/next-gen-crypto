@@ -8,14 +8,6 @@ interface TokenSearchFilters {
   minBalance?: number;
 }
 
-interface TokenSearchState {
-  searchTerm: string;
-  filters: TokenSearchFilters;
-  searchResults: TokenInfo[];
-  popularTokens: TokenInfo[];
-  recentTokens: TokenInfo[];
-}
-
 interface UseTokenSearchProps {
   tokens: TokenInfo[];
 }
@@ -27,7 +19,6 @@ export const useTokenSearch = ({ tokens }: UseTokenSearchProps) => {
     favorite: false,
     tags: [],
   });
-  const [recentTokens, setRecentTokens] = useState<TokenInfo[]>([]);
 
   // Filter and search tokens
   const searchResults = useMemo(() => {
@@ -45,7 +36,7 @@ export const useTokenSearch = ({ tokens }: UseTokenSearchProps) => {
         token.balance !== undefined && token.balance >= (filters.minBalance || 0)
       );
     }
-    if (filters.tags?.length) {
+    if (filters.tags.length) {
       result = result.filter(token => 
         token.tags?.some(tag => filters.tags.includes(tag))
       );
@@ -64,12 +55,15 @@ export const useTokenSearch = ({ tokens }: UseTokenSearchProps) => {
     return result;
   }, [tokens, searchTerm, filters]);
 
-  // Get popular tokens (top 10 by market cap or predefined list)
+  // Get popular tokens (top 10 verified tokens)
   const popularTokens = useMemo(() => {
     return tokens
       .filter(token => token.verified)
       .slice(0, 10);
   }, [tokens]);
+
+  // Get recent tokens (last 5 searched)
+  const [recentTokens, setRecentTokens] = useState<TokenInfo[]>([]);
 
   // Add token to recent list
   const addToRecent = useCallback((token: TokenInfo) => {
@@ -89,14 +83,21 @@ export const useTokenSearch = ({ tokens }: UseTokenSearchProps) => {
     });
   }, []);
 
+  const updateFilters = useCallback((newFilters: Partial<TokenSearchFilters>) => {
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters
+    }));
+  }, []);
+
   return {
     searchTerm,
+    setSearchTerm,
     filters,
+    setFilters: updateFilters,
     searchResults,
     popularTokens,
     recentTokens,
-    setSearchTerm,
-    setFilters,
     resetSearch,
     addToRecent,
   };
