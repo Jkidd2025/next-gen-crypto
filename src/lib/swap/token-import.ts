@@ -1,8 +1,8 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { 
-  Metadata,
-  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID
-} from '@metaplex-foundation/mpl-token-metadata/dist/src/generated';
+  Metadata as MetadataClass,
+  PROGRAM_ID as MPL_TOKEN_METADATA_PROGRAM_ID
+} from '@metaplex-foundation/mpl-token-metadata';
 import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
 import { isValidMintAddress } from './token-validation';
@@ -30,10 +30,10 @@ export async function importToken(
     const metadataPDA = PublicKey.findProgramAddressSync(
       [
         Buffer.from('metadata'),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+        MPL_TOKEN_METADATA_PROGRAM_ID.toBuffer(),
         mintPubkey.toBuffer(),
       ],
-      TOKEN_METADATA_PROGRAM_ID
+      MPL_TOKEN_METADATA_PROGRAM_ID
     )[0];
     
     const metadataAccount = await connection.getAccountInfo(metadataPDA);
@@ -41,7 +41,7 @@ export async function importToken(
       throw new Error('Token metadata not found');
     }
 
-    const metadata = Metadata.deserialize(metadataAccount.data)[0];
+    const metadata = await MetadataClass.fromAccountAddress(connection, metadataPDA);
 
     // Get token supply and decimals
     const mintInfo = await connection.getParsedAccountInfo(mintPubkey);
