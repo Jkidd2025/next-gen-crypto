@@ -2,6 +2,22 @@ import { TokenInfo, TokenBalance } from '@/types/token-swap';
 import { PublicKey } from '@solana/web3.js';
 import { supabase } from "@/integrations/supabase/client";
 
+const RAYDIUM_API_URL = "https://api.raydium.io/v2/sdk/token/raydium.mainnet.json";
+const TOKEN_LIST_CACHE_KEY = "tokenList";
+const TOKEN_LIST_VERSION_KEY = "tokenListVersion";
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+interface RaydiumTokenList {
+  name: string;
+  timestamp: string;
+  version: {
+    major: number;
+    minor: number;
+    patch: number;
+  };
+  tokens: TokenInfo[];
+}
+
 export async function getTokenBalance(
   mint: string,
   owner: PublicKey
@@ -22,27 +38,64 @@ export async function getTokenBalance(
 
 export async function getTokenList(): Promise<TokenInfo[]> {
   try {
-    const { data, error } = await supabase
-      .from('tokens')
-      .select('*')
-      .eq('is_active', true)
-      .order('symbol');
-
-    if (error) {
-      throw error;
+    // Try to get cached list first
+    const cached = getCachedTokenList();
+    if (cached) {
+      return cached;
     }
 
-    return data.map(token => ({
-      mint: token.mint_address,
-      symbol: token.symbol,
-      name: token.name,
-      decimals: token.decimals,
-      logoURI: token.logo_uri,
-      verified: token.is_active
+    // Fetch new list if no cache
+    const tokens = await fetchRaydiumTokenList();
+    cacheTokenList(tokens);
+    return tokens;
+  } catch (error) {
+    console.error('Error getting token list:', error);
+    return [];
+  }
+}
+
+export async function fetchRaydiumTokenList(): Promise<TokenInfo[]> {
+  try {
+    const response = await fetch(RAYDIUM_API_URL);
+    if (!response.ok) throw new Error('Failed to fetch Raydium token list');
+    
+    const data: RaydiumTokenList = await response.json();
+    return data.tokens.map(token => ({
+      ...token,
+      verified: true, // Raydium tokens are verified
     }));
   } catch (error) {
-    console.error('Error fetching token list:', error);
-    throw error;
+    console.error('Error fetching Raydium token list:', error);
+    return []; // Return empty array instead of throwing
+  }
+}
+
+export function getCachedTokenList(): TokenInfo[] | null {
+  try {
+    const cached = localStorage.getItem(TOKEN_LIST_CACHE_KEY);
+    const timestamp = localStorage.getItem(TOKEN_LIST_VERSION_KEY);
+    
+    if (!cached || !timestamp) return null;
+    
+    const age = Date.now() - Number(timestamp);
+    if (age > CACHE_DURATION) {
+      localStorage.removeItem(TOKEN_LIST_CACHE_KEY);
+      localStorage.removeItem(TOKEN_LIST_VERSION_KEY);
+      return null;
+    }
+    
+    return JSON.parse(cached);
+  } catch {
+    return null;
+  }
+}
+
+export function cacheTokenList(tokens: TokenInfo[]): void {
+  try {
+    localStorage.setItem(TOKEN_LIST_CACHE_KEY, JSON.stringify(tokens));
+    localStorage.setItem(TOKEN_LIST_VERSION_KEY, Date.now().toString());
+  } catch (error) {
+    console.error('Error caching token list:', error);
   }
 }
 
@@ -99,7 +152,6 @@ export async function getTokenPrice(symbol: string): Promise<number | null> {
 
 export function isValidMintAddress(address: string): boolean {
   try {
-    // Check if the string is a valid Solana public key
     new PublicKey(address);
     return true;
   } catch {
