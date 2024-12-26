@@ -1,6 +1,6 @@
 import { TokenInfo as SolanaTokenInfo } from '@solana/spl-token-registry';
 import { PublicKey } from '@solana/web3.js';
-import { BN } from 'bn.js';
+import BN from 'bn.js';
 
 export interface TokenInfo {
   mint: string;
@@ -78,9 +78,9 @@ export interface SwapState {
   amountOut: string;
   slippage: number;
   priceImpact: number;
+  route: RouteStep[] | null;
   status: 'idle' | 'loading' | 'quoting' | 'error';
   error: SwapError | null;
-  route: RouteStep[] | null;
   pool: PoolState | null;
 }
 
