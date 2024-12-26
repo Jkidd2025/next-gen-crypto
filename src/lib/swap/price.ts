@@ -1,4 +1,3 @@
-```typescript
 import { PublicKey } from '@solana/web3.js';
 import { TokenInfo } from '@/types/token-swap';
 import { derivePoolAddress } from './pool';
@@ -111,4 +110,3 @@ export function calculateAmountIn(
   const denominator = (reserveOut.sub(amountOut)).mul(new BN(Math.floor((1 - fee) * 10000)));
   return numerator.div(denominator).add(new BN(1));
 }
-```
