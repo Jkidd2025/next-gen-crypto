@@ -1,6 +1,6 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
-import { POOL_PROGRAM_ID } from './constants';
+import { POOL_PROGRAM_ID, CURRENT_POOL_VERSION } from './constants';
 
 export interface PoolStateData {
   version: number;
@@ -70,7 +70,6 @@ export async function parsePoolState(data: Buffer): Promise<PoolStateData> {
     }
     offset += 1;
 
-    // Parse token addresses
     const tokenA = new PublicKey(data.slice(offset, offset + 32));
     validatePublicKey(tokenA, 'tokenA');
     offset += 32;
