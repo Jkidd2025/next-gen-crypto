@@ -1,10 +1,9 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { 
   PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID,
-  createMetadataAccountV3,
   Metadata as MetadataData
 } from '@metaplex-foundation/mpl-token-metadata';
-import { TokenInfo, ImportedTokenInfo } from '@/types/token-swap';
+import { TokenInfo, ImportedTokenInfo, TokenValidationResult } from './types/token';
 import { getCachedTokenList, cacheTokenList } from './token-cache';
 import { validateToken } from './token-validation';
 import { isBlacklisted, getBlacklistReason } from './blacklist';
@@ -65,21 +64,22 @@ export async function importToken(
     const { decimals } = (mintInfo.value.data as any).parsed.info;
 
     // Create token info
-    const newToken: TokenInfo = {
-      mint: mintAddress,
+    const newToken: ImportedTokenInfo = {
+      mint: mintPubkey,
       symbol: metadata.data.symbol.trim(),
       name: metadata.data.name.trim(),
       decimals,
       logoURI: metadata.data.uri || '',
       verified: false,
-      tags: ['imported']
+      tags: ['imported'],
+      status: 'imported'
     };
 
     // Add to cached list
     const updatedTokens = [...cachedTokens, newToken];
     cacheTokenList(updatedTokens);
 
-    return { ...newToken, status: 'imported' };
+    return newToken;
   } catch (error) {
     console.error('Error importing token:', error);
     return null;
