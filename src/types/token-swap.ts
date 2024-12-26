@@ -59,13 +59,13 @@ export interface TokenSearchFilters {
 }
 
 export interface PoolState {
-  address: PublicKey | null;
-  tokenA: PublicKey | null;
-  tokenB: PublicKey | null;
+  address: PublicKey;
+  tokenA: PublicKey;
+  tokenB: PublicKey;
   tickSpacing: number;
-  liquidity: BN | null;
-  sqrtPriceX64: BN | null;
-  currentTickIndex: number | null;
+  liquidity: BN;
+  sqrtPriceX64: BN;
+  currentTickIndex: number;
   fee: number;
   loading: boolean;
   error: Error | null;

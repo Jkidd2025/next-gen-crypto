@@ -6,6 +6,7 @@ import { useTokenSearch } from '@/hooks/swap/useTokenSearch';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { importToken, validateImportedToken } from '@/lib/swap/tokens';
 import { useToast } from '@/hooks/use-toast';
+import { usePoolManagement } from '@/hooks/swap/usePoolManagement';
 
 interface SwapContextType {
   state: SwapState;
@@ -46,10 +47,20 @@ export const SwapProvider = ({ children }: { children: ReactNode }) => {
   const swapState = useSwapState();
   const { tokens, loading, error, refreshTokenList } = useTokenList();
   const tokenSearch = useTokenSearch({ tokens });
+  const poolManagement = usePoolManagement();
+
+  const handleTokenSelection = useCallback(async (
+    tokenIn: TokenInfo | null,
+    tokenOut: TokenInfo | null
+  ) => {
+    if (tokenIn && tokenOut) {
+      console.log('Discovering pool for token pair:', tokenIn.symbol, tokenOut.symbol);
+      await poolManagement.findBestPool(tokenIn, tokenOut);
+    }
+  }, [poolManagement]);
 
   const handleImportToken = useCallback(async (mintAddress: string) => {
     try {
-      // Validate token first
       const validation = await validateImportedToken(connection, mintAddress);
       if (!validation.valid) {
         toast({
@@ -60,7 +71,6 @@ export const SwapProvider = ({ children }: { children: ReactNode }) => {
         return null;
       }
 
-      // Import token
       const imported = await importToken(connection, mintAddress);
       if (!imported) {
         toast({
@@ -78,7 +88,6 @@ export const SwapProvider = ({ children }: { children: ReactNode }) => {
         });
       }
 
-      // Refresh token list
       await refreshTokenList();
       return imported;
     } catch (error) {
@@ -92,8 +101,21 @@ export const SwapProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [connection, refreshTokenList, toast]);
 
+  const setTokenIn = useCallback((token: TokenInfo | null) => {
+    swapState.setTokenIn(token);
+    handleTokenSelection(token, swapState.state.tokenOut);
+  }, [swapState, handleTokenSelection]);
+
+  const setTokenOut = useCallback((token: TokenInfo | null) => {
+    swapState.setTokenOut(token);
+    handleTokenSelection(swapState.state.tokenIn, token);
+  }, [swapState, handleTokenSelection]);
+
   const value: SwapContextType = {
-    state: swapState.state,
+    state: {
+      ...swapState.state,
+      pool: poolManagement.currentPool,
+    },
     tokens: {
       list: tokens,
       loading,
@@ -104,8 +126,8 @@ export const SwapProvider = ({ children }: { children: ReactNode }) => {
       ...tokenSearch,
       setFilters: (filters: TokenSearchFilters) => tokenSearch.setFilters(() => filters),
     },
-    setTokenIn: swapState.setTokenIn,
-    setTokenOut: swapState.setTokenOut,
+    setTokenIn,
+    setTokenOut,
     setAmountIn: swapState.setAmountIn,
     setAmountOut: swapState.setAmountOut,
     setSlippage: swapState.setSlippage,
