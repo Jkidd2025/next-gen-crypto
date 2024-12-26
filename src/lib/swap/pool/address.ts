@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { 
   POOL_PROGRAM_ID, 
   POOL_SEED, 
@@ -58,4 +58,19 @@ export function deriveTickArrayAddress(
     ],
     POOL_PROGRAM_ID
   )[0];
+}
+
+export async function validatePoolAddress(
+  connection: Connection,
+  poolAddress: PublicKey
+): Promise<boolean> {
+  const accountInfo = await connection.getAccountInfo(poolAddress);
+  if (!accountInfo) return false;
+  
+  // Verify program owner
+  return accountInfo.owner.equals(POOL_PROGRAM_ID);
+}
+
+export function calculateFeeTierFromBps(basisPoints: number): number {
+  return basisPoints / 10000; // Convert from basis points to percentage
 }
