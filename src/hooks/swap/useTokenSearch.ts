@@ -1,95 +1,89 @@
 import { useState, useMemo, useCallback } from 'react';
 import { TokenInfo } from '@/types/token-swap';
-import { 
-  searchTokens, 
-  TokenSearchOptions, 
-  getPopularTokens, 
-  getRecentTokens,
-  addToRecentTokens 
-} from '@/components/swap/tokens/tokenSearch';
+
+interface TokenSearchFilters {
+  verified?: boolean;
+  favorite?: boolean;
+  minBalance?: number;
+  tags?: string[];
+}
+
+interface TokenSearchState {
+  searchTerm: string;
+  filters: TokenSearchFilters;
+  searchResults: TokenInfo[];
+  popularTokens: TokenInfo[];
+  recentTokens: TokenInfo[];
+}
 
 interface UseTokenSearchProps {
   tokens: TokenInfo[];
 }
 
-interface TokenSearchState {
-  searchTerm: string;
-  filters: {
-    verified: boolean;
-    favorite: boolean;
-    tags: string[];
-    minBalance?: number;
-  };
-}
-
 export const useTokenSearch = ({ tokens }: UseTokenSearchProps) => {
-  const [state, setState] = useState<TokenSearchState>({
-    searchTerm: '',
-    filters: {
-      verified: false,
-      favorite: false,
-      tags: [],
-    },
-  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState<TokenSearchFilters>({});
+  const [recentTokens, setRecentTokens] = useState<TokenInfo[]>([]);
 
-  // Memoized filtered and searched tokens
+  // Filter and search tokens
   const searchResults = useMemo(() => {
-    const options: TokenSearchOptions = {
-      searchTerm: state.searchTerm,
-      ...state.filters,
-    };
-    return searchTokens(tokens, options);
-  }, [tokens, state.searchTerm, state.filters]);
+    let result = tokens;
 
-  // Memoized popular tokens
+    // Apply filters
+    if (filters.verified) {
+      result = result.filter(token => token.verified);
+    }
+    if (filters.favorite) {
+      result = result.filter(token => token.favorite);
+    }
+    if (filters.minBalance !== undefined) {
+      result = result.filter(token => 
+        token.balance !== undefined && token.balance >= (filters.minBalance || 0)
+      );
+    }
+    if (filters.tags?.length) {
+      result = result.filter(token => 
+        token.tags?.some(tag => filters.tags?.includes(tag))
+      );
+    }
+
+    // Apply search
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(token => 
+        token.symbol.toLowerCase().includes(term) ||
+        token.name.toLowerCase().includes(term) ||
+        token.mint.toLowerCase() === term
+      );
+    }
+
+    return result;
+  }, [tokens, searchTerm, filters]);
+
+  // Get popular tokens (top 10 by market cap or predefined list)
   const popularTokens = useMemo(() => {
-    return getPopularTokens(tokens);
+    return tokens
+      .filter(token => token.verified)
+      .slice(0, 10);
   }, [tokens]);
-
-  // Memoized recent tokens
-  const recentTokens = useMemo(() => {
-    return getRecentTokens(tokens);
-  }, [tokens]);
-
-  // Update search term
-  const setSearchTerm = useCallback((term: string) => {
-    setState(prev => ({
-      ...prev,
-      searchTerm: term,
-    }));
-  }, []);
-
-  // Update filters
-  const setFilters = useCallback((filters: Partial<TokenSearchState['filters']>) => {
-    setState(prev => ({
-      ...prev,
-      filters: {
-        ...prev.filters,
-        ...filters,
-      },
-    }));
-  }, []);
-
-  // Reset search and filters
-  const resetSearch = useCallback(() => {
-    setState({
-      searchTerm: '',
-      filters: {
-        verified: false,
-        favorite: false,
-        tags: [],
-      },
-    });
-  }, []);
 
   // Add token to recent list
   const addToRecent = useCallback((token: TokenInfo) => {
-    addToRecentTokens(token);
+    setRecentTokens(prev => {
+      const filtered = prev.filter(t => t.mint !== token.mint);
+      return [token, ...filtered].slice(0, 5); // Keep last 5 tokens
+    });
+  }, []);
+
+  // Reset search state
+  const resetSearch = useCallback(() => {
+    setSearchTerm('');
+    setFilters({});
   }, []);
 
   return {
-    searchTerm: state.searchTerm,
-    filters: state.filters,
+    searchTerm,
+    filters,
     searchResults,
     popularTokens,
     recentTokens,
