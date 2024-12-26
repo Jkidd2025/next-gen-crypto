@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface PoolCache {
   [key: string]: {
-    state: PoolState;
+    state: Omit<PoolState, 'loading' | 'error'>;
     timestamp: number;
     tickArrays: any[];
   }
@@ -54,7 +54,11 @@ export function usePoolManagement() {
           const cached = poolCache[cacheKey];
           if (cached && Date.now() - cached.timestamp < 30000) {
             console.log('Found cached pool data');
-            setCurrentPool(cached.state);
+            setCurrentPool({
+              ...cached.state,
+              loading: false,
+              error: null
+            });
             setLoading(false);
             return cached;
           }
@@ -78,7 +82,11 @@ export function usePoolManagement() {
             };
 
             poolCache[cacheKey] = poolData;
-            setCurrentPool(poolState);
+            setCurrentPool({
+              ...poolState,
+              loading: false,
+              error: null
+            });
             setLoading(false);
             return poolData;
           }

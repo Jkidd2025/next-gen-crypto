@@ -82,6 +82,28 @@ export interface SwapState {
   status: 'idle' | 'loading' | 'quoting' | 'error';
   error: SwapError | null;
   pool: PoolState | null;
+  poolLoading: boolean;
+  poolError: Error | null;
+}
+
+export interface PoolMetrics {
+  priceImpact: number;
+  expectedOutput: string;
+  minimumReceived: string;
+  fee: {
+    amount: string;
+    percentage: number;
+  };
+}
+
+export interface PoolQuote {
+  metrics: PoolMetrics;
+  route: {
+    poolAddress: string;
+    tokenIn: TokenInfo;
+    tokenOut: TokenInfo;
+    tickArrays: any[];
+  };
 }
 
 export interface SwapQuote {
