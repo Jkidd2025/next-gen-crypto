@@ -1,156 +1,114 @@
-import { TokenInfo, SwapQuote, RouteStep } from "@/types/token-swap";
-import { HIGH_PRICE_IMPACT_THRESHOLD } from "./constants";
-import { getPoolInfo } from "./pools";
-import Decimal from "decimal.js";
+```typescript
+import { PublicKey } from '@solana/web3.js';
+import { TokenInfo } from '@/types/token-swap';
+import { derivePoolAddress } from './pool';
+import BN from 'bn.js';
 
-export const calculatePriceImpact = async (
-  amountIn: string,
-  tokenIn: TokenInfo,
-  tokenOut: TokenInfo
-): Promise<number> => {
-  try {
-    const pool = await getPoolInfo(tokenIn, tokenOut);
-    if (!pool) return 0;
+const Q64 = new BN(1).shln(64);
 
-    const amountInDecimal = new Decimal(amountIn);
-    const reserveInDecimal = new Decimal(pool.tokenAReserves);
-    const reserveOutDecimal = new Decimal(pool.tokenBReserves);
-    
-    // Calculate the expected output amount using constant product formula
-    const k = reserveInDecimal.mul(reserveOutDecimal);
-    const newReserveIn = reserveInDecimal.add(amountInDecimal);
-    const newReserveOut = k.div(newReserveIn);
-    const amountOut = reserveOutDecimal.sub(newReserveOut);
-    
-    // Calculate spot price before swap
-    const spotPrice = reserveInDecimal.div(reserveOutDecimal);
-    
-    // Calculate effective price
-    const effectivePrice = amountInDecimal.div(amountOut);
-    
-    // Calculate price impact
-    const priceImpact = effectivePrice.sub(spotPrice).div(spotPrice).mul(100);
-    
-    return Math.abs(priceImpact.toNumber());
-  } catch (error) {
-    console.error("Error calculating price impact:", error);
+export function calculatePrice(
+  sqrtPriceX64: BN,
+  decimalsA: number,
+  decimalsB: number
+): number {
+  const price = sqrtPriceX64.mul(sqrtPriceX64).div(Q64);
+  const adjustedPrice = price.toNumber() / Math.pow(10, decimalsA - decimalsB);
+  return adjustedPrice;
+}
+
+export function calculatePriceImpact(
+  inputAmount: number,
+  outputAmount: number,
+  spotPrice: number
+): number {
+  const expectedOutput = inputAmount * spotPrice;
+  const impact = ((expectedOutput - outputAmount) / expectedOutput) * 100;
+  return Math.max(0, impact);
+}
+
+export function formatPrice(
+  price: number,
+  significantDigits: number = 6
+): string {
+  if (price < 0.0001) {
+    return price.toExponential(significantDigits - 1);
+  }
+  return price.toPrecision(significantDigits);
+}
+
+export function calculateSpotPrice(
+  reserveA: BN,
+  reserveB: BN,
+  decimalsA: number,
+  decimalsB: number
+): number {
+  if (reserveA.isZero() || reserveB.isZero()) {
     return 0;
   }
-};
-
-export const findBestRoute = async (
-  tokenIn: TokenInfo,
-  tokenOut: TokenInfo,
-  amountIn: string
-): Promise<RouteStep[]> => {
-  // Mock implementation for direct route
-  const amountOut = (parseFloat(amountIn) * 0.98).toString(); // Simulating 2% slippage
   
-  return [
-    {
-      poolId: "direct-pool",
-      tokenIn,
-      tokenOut,
-      amountIn,
-      amountOut,
-      symbol: tokenIn.symbol,
-      mint: tokenIn.mint
-    },
-    {
-      poolId: "direct-pool",
-      tokenIn: tokenOut,
-      tokenOut: tokenIn,
-      amountIn: amountOut,
-      amountOut: amountIn,
-      symbol: tokenOut.symbol,
-      mint: tokenOut.mint
-    }
-  ];
-};
+  const adjustedReserveA = reserveA.mul(new BN(10).pow(new BN(decimalsB)));
+  const adjustedReserveB = reserveB.mul(new BN(10).pow(new BN(decimalsA)));
+  
+  return adjustedReserveB.toNumber() / adjustedReserveA.toNumber();
+}
 
-export const calculateQuote = async (
-  amountIn: string,
-  tokenIn: TokenInfo,
-  tokenOut: TokenInfo,
-  slippage: number
-): Promise<SwapQuote> => {
+export function getMinimumAmountOut(
+  amountOut: BN,
+  slippageTolerance: number
+): BN {
+  const slippageFactor = new BN(Math.floor((1 - slippageTolerance / 100) * 10000));
+  return amountOut.mul(slippageFactor).div(new BN(10000));
+}
+
+export function getMaximumAmountIn(
+  amountIn: BN,
+  slippageTolerance: number
+): BN {
+  const slippageFactor = new BN(Math.floor((1 + slippageTolerance / 100) * 10000));
+  return amountIn.mul(slippageFactor).div(new BN(10000));
+}
+
+export async function getPriceFromPool(
+  tokenA: TokenInfo,
+  tokenB: TokenInfo,
+  tickSpacing: number = 64
+): Promise<number | null> {
   try {
-    const pool = await getPoolInfo(tokenIn, tokenOut);
-    if (!pool) {
-      throw new Error("No liquidity pool found");
-    }
-
-    const amountInDecimal = new Decimal(amountIn);
-    const reserveInDecimal = new Decimal(pool.tokenAReserves);
-    const reserveOutDecimal = new Decimal(pool.tokenBReserves);
+    const poolAddress = await derivePoolAddress(
+      new PublicKey(tokenA.mint),
+      new PublicKey(tokenB.mint),
+      tickSpacing
+    );
     
-    // Calculate output amount using constant product formula
-    const k = reserveInDecimal.mul(reserveOutDecimal);
-    const newReserveIn = reserveInDecimal.add(amountInDecimal);
-    const newReserveOut = k.div(newReserveIn);
-    const amountOut = reserveOutDecimal.sub(newReserveOut);
-    
-    // Calculate price impact
-    const priceImpact = await calculatePriceImpact(amountIn, tokenIn, tokenOut);
-    
-    // Calculate minimum received with slippage
-    const minimumReceived = amountOut.mul(new Decimal(1).sub(new Decimal(slippage).div(100)));
-    
-    // Calculate execution price
-    const executionPrice = amountInDecimal.div(amountOut);
-
-    const route: RouteStep[] = [
-      {
-        poolId: pool.id,
-        tokenIn,
-        tokenOut,
-        amountIn,
-        amountOut: amountOut.toString(),
-        symbol: tokenIn.symbol,
-        mint: tokenIn.mint
-      },
-      {
-        poolId: pool.id,
-        tokenIn: tokenOut,
-        tokenOut: tokenIn,
-        amountIn: amountOut.toString(),
-        amountOut: amountIn,
-        symbol: tokenOut.symbol,
-        mint: tokenOut.mint
-      }
-    ];
-
-    return {
-      inAmount: amountIn,
-      outAmount: amountOut.toString(),
-      priceImpact,
-      fee: pool.fee,
-      route,
-      executionPrice: executionPrice.toNumber(),
-      minimumReceived: minimumReceived.toString()
-    };
+    // TODO: Fetch actual pool data and calculate price
+    // This is a placeholder until pool data fetching is implemented
+    return null;
   } catch (error) {
-    console.error("Error calculating quote:", error);
-    throw error;
+    console.error('Error getting price from pool:', error);
+    return null;
   }
-};
+}
 
-export const isHighPriceImpact = (priceImpact: number): boolean => {
-  return priceImpact > HIGH_PRICE_IMPACT_THRESHOLD;
-};
+export function calculateAmountOut(
+  amountIn: BN,
+  reserveIn: BN,
+  reserveOut: BN,
+  fee: number = 0.003 // 0.3% default fee
+): BN {
+  const amountInWithFee = amountIn.mul(new BN(Math.floor((1 - fee) * 10000))).div(new BN(10000));
+  const numerator = amountInWithFee.mul(reserveOut);
+  const denominator = reserveIn.add(amountInWithFee);
+  return numerator.div(denominator);
+}
 
-export const calculateMinimumReceived = (
-  amount: string,
-  slippage: number
-): string => {
-  if (!amount) return "0";
-  const amountDecimal = new Decimal(amount);
-  return amountDecimal.mul(new Decimal(1).sub(new Decimal(slippage).div(100))).toString();
-};
-
-export const formatPrice = (price: number, decimals: number = 6): string => {
-  return new Decimal(price).toDecimalPlaces(decimals).toNumber().toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: decimals,
-  });
-};
+export function calculateAmountIn(
+  amountOut: BN,
+  reserveIn: BN,
+  reserveOut: BN,
+  fee: number = 0.003 // 0.3% default fee
+): BN {
+  const numerator = reserveIn.mul(amountOut).mul(new BN(10000));
+  const denominator = (reserveOut.sub(amountOut)).mul(new BN(Math.floor((1 - fee) * 10000)));
+  return numerator.div(denominator).add(new BN(1));
+}
+```

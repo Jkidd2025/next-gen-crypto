@@ -6,7 +6,7 @@ import { usePriceCalculations } from './swap/usePriceCalculations';
 import { useSwapAmountState } from './swap/useSwapAmountState';
 import { useSwapQuoteState } from './swap/useSwapQuoteState';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { derivePoolAddress, getPoolState } from '@/lib/swap/pools';
+import { derivePoolAddress, getPoolState } from '@/lib/swap/pool';
 import { PublicKey } from '@solana/web3.js';
 
 const DEFAULT_SLIPPAGE = 0.5; // 0.5%
