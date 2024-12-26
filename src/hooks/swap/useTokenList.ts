@@ -1,60 +1,77 @@
 import { useState, useEffect } from 'react';
 import { TokenInfo } from '@/types/token-swap';
-import { getTokenList } from '@/components/swap/tokens/tokenList';
-
-interface TokenListState {
-  tokens: TokenInfo[];
-  loading: boolean;
-  error: Error | null;
-}
+import { 
+  fetchRaydiumTokenList, 
+  getCachedTokenList, 
+  cacheTokenList 
+} from '@/lib/swap/tokens';
+import { useToast } from '@/hooks/use-toast';
 
 export const useTokenList = () => {
-  const [state, setState] = useState<TokenListState>({
-    tokens: [],
-    loading: true,
-    error: null,
-  });
+  const [tokens, setTokens] = useState<TokenInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchTokens = async () => {
-      try {
-        setState(prev => ({ ...prev, loading: true, error: null }));
-        const tokens = await getTokenList();
-        setState({ tokens, loading: false, error: null });
-      } catch (error) {
-        console.error('Error loading token list:', error);
-        setState(prev => ({
-          ...prev,
-          loading: false,
-          error: error instanceof Error ? error : new Error('Failed to load token list'),
-        }));
-      }
-    };
-
-    fetchTokens();
-  }, []);
-
-  const refreshTokenList = async () => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
+  const loadTokens = async () => {
     try {
-      // Clear localStorage to force a fresh fetch
-      localStorage.removeItem('tokenListCache');
-      localStorage.removeItem('tokenListVersion');
+      setLoading(true);
+      setError(null);
       
-      const tokens = await getTokenList();
-      setState({ tokens, loading: false, error: null });
-    } catch (error) {
-      console.error('Error refreshing token list:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error : new Error('Failed to refresh token list'),
-      }));
+      // Try to get cached tokens first
+      const cached = getCachedTokenList();
+      if (cached) {
+        setTokens(cached);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch fresh token list
+      const raydiumTokens = await fetchRaydiumTokenList();
+      setTokens(raydiumTokens);
+      cacheTokenList(raydiumTokens);
+      
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load tokens';
+      setError(err instanceof Error ? err : new Error(errorMessage));
+      console.error('Error loading tokens:', err);
+      toast({
+        title: "Failed to load tokens",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  return {
-    ...state,
-    refreshTokenList,
+  useEffect(() => {
+    loadTokens();
+  }, []);
+
+  const refreshTokenList = async () => {
+    try {
+      localStorage.removeItem('tokenList');
+      localStorage.removeItem('tokenListVersion');
+      await loadTokens();
+      toast({
+        title: "Token list refreshed",
+        description: "Successfully updated the token list",
+      });
+    } catch (err) {
+      console.error('Error refreshing token list:', err);
+      toast({
+        title: "Refresh failed",
+        description: "Failed to refresh token list. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return { 
+    tokens, 
+    loading, 
+    error,
+    refreshTokenList 
   };
 };

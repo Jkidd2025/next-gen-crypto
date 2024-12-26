@@ -2,10 +2,10 @@ import { useState, useMemo, useCallback } from 'react';
 import { TokenInfo } from '@/types/token-swap';
 
 interface TokenSearchFilters {
-  verified?: boolean;
-  favorite?: boolean;
+  verified: boolean;
+  favorite: boolean;
+  tags: string[];
   minBalance?: number;
-  tags?: string[];
 }
 
 interface TokenSearchState {
@@ -22,7 +22,11 @@ interface UseTokenSearchProps {
 
 export const useTokenSearch = ({ tokens }: UseTokenSearchProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState<TokenSearchFilters>({});
+  const [filters, setFilters] = useState<TokenSearchFilters>({
+    verified: false,
+    favorite: false,
+    tags: [],
+  });
   const [recentTokens, setRecentTokens] = useState<TokenInfo[]>([]);
 
   // Filter and search tokens
@@ -43,7 +47,7 @@ export const useTokenSearch = ({ tokens }: UseTokenSearchProps) => {
     }
     if (filters.tags?.length) {
       result = result.filter(token => 
-        token.tags?.some(tag => filters.tags?.includes(tag))
+        token.tags?.some(tag => filters.tags.includes(tag))
       );
     }
 
@@ -78,7 +82,11 @@ export const useTokenSearch = ({ tokens }: UseTokenSearchProps) => {
   // Reset search state
   const resetSearch = useCallback(() => {
     setSearchTerm('');
-    setFilters({});
+    setFilters({
+      verified: false,
+      favorite: false,
+      tags: [],
+    });
   }, []);
 
   return {
