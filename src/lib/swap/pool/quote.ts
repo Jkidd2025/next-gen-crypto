@@ -1,10 +1,9 @@
 import { Connection } from '@solana/web3.js';
 import BN from 'bn.js';
-import { PoolState, QuoteResult } from '@/types/token-swap';
+import { PoolState } from '@/types/token-swap';
+import { QuoteResult } from '@/types/pool';
 import { getTickArrays } from './ticks';
 import { calculatePrice } from '../price';
-import { retrying } from 'retry-ts/lib/retrying';
-import { constantDelay } from 'retry-ts/lib/delay';
 
 export async function calculateQuote(
   pool: PoolState,
@@ -24,17 +23,27 @@ export async function calculateQuote(
     throw new Error('Invalid input amount');
   }
 
-  // Get tick arrays with retry logic
-  const tickArrays = await retrying(
-    async () => getTickArrays(
-      connection,
-      pool.address,
-      pool.currentTickIndex,
-      pool.tickSpacing
-    ),
-    constantDelay(1000),
-    3
-  );
+  // Get tick arrays with basic retry logic
+  let tickArrays = null;
+  let attempts = 0;
+  const maxAttempts = 3;
+  
+  while (attempts < maxAttempts) {
+    try {
+      tickArrays = await getTickArrays(
+        connection,
+        pool.address,
+        pool.currentTickIndex,
+        pool.tickSpacing
+      );
+      break;
+    } catch (error) {
+      attempts++;
+      if (attempts === maxAttempts) throw error;
+      console.warn('Retrying tick array fetch:', error);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
 
   // Calculate expected output with improved precision
   const sqrtPriceX64 = pool.sqrtPriceX64;
@@ -81,15 +90,13 @@ function calculateOutputWithSlippage(
   decimalsIn: number,
   decimalsOut: number
 ): BN {
-  // Implement more accurate output calculation considering liquidity depth
   const expectedOutput = amountIn.mul(new BN(Math.floor(spotPrice * 1e6))).div(new BN(1e6));
   return adjustForLiquidity(expectedOutput, liquidity, decimalsOut);
 }
 
 function adjustForLiquidity(output: BN, liquidity: BN, decimals: number): BN {
   if (output.gt(liquidity)) {
-    // Adjust output based on available liquidity
-    const adjustment = liquidity.mul(new BN(95)).div(new BN(100)); // 95% of liquidity
+    const adjustment = liquidity.mul(new BN(95)).div(new BN(100));
     return BN.min(output, adjustment);
   }
   return output;
@@ -103,9 +110,7 @@ function calculatePriceImpact(
 ): number {
   const executionPrice = amountOut.toNumber() / amountIn.toNumber();
   const impact = (executionPrice - spotPrice) / spotPrice;
-  
-  // Cap maximum price impact
-  return Math.min(Math.abs(impact), 0.99); // 99% max impact
+  return Math.min(Math.abs(impact), 0.99);
 }
 
 function validateQuoteResults(

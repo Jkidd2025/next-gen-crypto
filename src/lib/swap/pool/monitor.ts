@@ -12,7 +12,7 @@ export interface PoolHealthMetrics {
 
 export class PoolMonitor {
   private metricsCache: Map<string, PoolHealthMetrics> = new Map();
-  private updateInterval: NodeJS.Timer | null = null;
+  private updateInterval: NodeJS.Timeout | null = null;
 
   constructor(
     private connection: Connection,
@@ -28,7 +28,7 @@ export class PoolMonitor {
     this.updateInterval = setInterval(
       () => this.updateMetrics(poolAddress),
       this.updateFrequency
-    );
+    ) as unknown as NodeJS.Timeout;
   }
 
   async updateMetrics(poolAddress: PublicKey): Promise<void> {
